@@ -1,0 +1,113 @@
+
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel – İstifadəçilər</title>
+  <style>
+    body {
+      background-color: #000010;
+      color: #00ccff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+    }
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #00ccff;
+      text-align: left;
+    }
+    th {
+      background-color: #001133;
+    }
+    button {
+      margin: 2px;
+      background-color: #003366;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005599;
+    }
+  </style>
+</head>
+<body>
+  <h2>Qeydiyyatdan keçmiş istifadəçilər</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Ad Soyad</th>
+        <th>E-poçt</th>
+        <th>Balans (AZN)</th>
+        <th>Əməliyyat</th>
+      </tr>
+    </thead>
+    <tbody id="userTableBody"></tbody>
+  </table>
+
+  <script>
+    let users = JSON.parse(localStorage.getItem("registeredUsers") || "[]");
+    const tbody = document.getElementById("userTableBody");
+
+    function updateBalance(index, amount) {
+      users[index].balance = (users[index].balance || 0) + amount;
+      localStorage.setItem("registeredUsers", JSON.stringify(users));
+      location.reload();
+    }
+
+    users.forEach((user, index) => {
+      const balance = user.balance || 0;
+      const row = `
+        <tr>
+          <td>${index + 1}</td>
+          <td>${user.fullname}</td>
+          <td>${user.email}</td>
+          <td>${balance.toFixed(2)}</td>
+          <td>
+            <button onclick="updateBalance(${index}, 1)">+1 AZN</button>
+            <button onclick="updateBalance(${index}, -1)">-1 AZN</button>
+          </td>
+        </tr>
+      `;
+      tbody.innerHTML += row;
+    });
+  </script>
+
+<h2>Son Sifarişlər</h2>
+<ul id="ucOrdersList" style="width:80%; margin:0 auto; padding:0; list-style:none; color:white;"></ul>
+
+<script>
+  const orderList = JSON.parse(localStorage.getItem("ucOrders") || "[]");
+  const listElement = document.getElementById("ucOrdersList");
+  orderList.slice(0, 10).forEach((order, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = order + ' <button onclick="deleteOrder(' + i + ')" style="margin-left:10px; background:red; color:white; border:none; padding:4px 8px; border-radius:6px;">Təsdiqlə</button>';
+    li.style.padding = "8px";
+    li.style.borderBottom = "1px solid #00ccff";
+    listElement.appendChild(li);
+  });
+</script>
+
+
+
+<script>
+  function deleteOrder(index) {
+    const orders = JSON.parse(localStorage.getItem("ucOrders") || "[]");
+    orders.splice(index, 1);
+    localStorage.setItem("ucOrders", JSON.stringify(orders));
+    location.reload();
+  }
+</script>
+
+</body>
+</html>
