@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Panel - Gmail Giriş</title>
+<title>Admin Panel - Gizli</title>
 <style>
 body{
   margin:0;
@@ -16,21 +16,6 @@ body{
   padding:20px;
 }
 h1{margin-bottom:20px;}
-#loginBtn{
-  padding:10px 18px;
-  font-size:1rem;
-  background:#4285F4;
-  color:white;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-weight:600;
-}
-#loginBtn img{width:20px;height:20px;}
-#userInfo{margin-bottom:16px;font-weight:600;}
 table{border-collapse:collapse;width:90%;max-width:700px;margin-top:10px;}
 th,td{padding:10px;border:1px solid rgba(255,255,255,0.2);text-align:center;}
 th{background:rgba(255,255,255,0.1);}
@@ -47,11 +32,8 @@ button.sub{background:#f87171;color:#fff;}
 </head>
 <body>
 
-<h1>Admin Panel - Gmail Giriş</h1>
-<div id="userInfo"></div>
-<button id="loginBtn"><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G"> Gmail ilə Giriş</button>
-
-<table id="userTable" style="display:none">
+<h1>Admin Panel - Gizli</h1>
+<table id="userTable">
   <thead>
     <tr>
       <th>Ad</th>
@@ -64,7 +46,6 @@ button.sub{background:#f87171;color:#fff;}
 </table>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
 
 <script>
@@ -80,24 +61,8 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.database();
-
-const loginBtn = document.getElementById('loginBtn');
-const userInfoDiv = document.getElementById('userInfo');
 const userTable = document.getElementById('userTable').querySelector('tbody');
-
-loginBtn.addEventListener('click', () => {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider)
-    .then(res => {
-      const user = res.user;
-      userInfoDiv.textContent = `Salam, ${user.displayName} (${user.email})`;
-      loginBtn.style.display='none';
-      loadUsers();
-    })
-    .catch(err => alert(err.message));
-});
 
 // İstifadəçiləri yüklə
 function loadUsers(){
@@ -125,7 +90,6 @@ function loadUsers(){
         userTable.appendChild(tr);
       });
     });
-    document.getElementById('userTable').style.display='table';
   });
 }
 
@@ -136,6 +100,9 @@ function adjustBalance(uid, amount){
     return (current || 0) + amount;
   });
 }
+
+// Səhifə yüklənəndə istifadəçiləri göstər
+loadUsers();
 </script>
 </body>
 </html>
