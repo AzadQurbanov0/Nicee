@@ -5,52 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Admin Panel - Gizli</title>
 <style>
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial;
-  background:#1e1e2f;
-  color:#f8fafc;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  padding:20px;
-}
-h1{margin-bottom:20px;}
-table{border-collapse:collapse;width:90%;max-width:700px;margin-top:10px;}
+body{margin:0;padding:20px;font-family:system-ui;background:#1e1e2f;color:#f8fafc;}
+h1{margin-bottom:20px;text-align:center;}
+table{width:100%;border-collapse:collapse;}
 th,td{padding:10px;border:1px solid rgba(255,255,255,0.2);text-align:center;}
 th{background:rgba(255,255,255,0.1);}
-input[type=number]{width:50px;padding:2px;border-radius:4px;border:none;text-align:center;}
-button.adjust{
-  padding:4px 8px;
-  border:none;
-  border-radius:4px;
-  cursor:pointer;
-  font-weight:600;
-  margin:2px;
-}
-button.add{background:#22c55e;color:#fff;}
-button.sub{background:#f87171;color:#fff;}
-button.apply{background:#3b82f6;color:#fff;}
+button{padding:5px 10px;margin:2px;border:none;border-radius:4px;cursor:pointer;}
+button.add{background:#22c55e;color:white;}
+button.sub{background:#f87171;color:white;}
+button.apply{background:#3b82f6;color:white;}
+input[type=number]{width:60px;text-align:center;border-radius:4px;border:none;}
 </style>
 </head>
 <body>
-
 <h1>Admin Panel - Gizli</h1>
 <table id="userTable">
-  <thead>
-    <tr>
-      <th>Ad</th>
-      <th>Email</th>
-      <th>Balans (AZN)</th>
-      <th>Əməliyyat</th>
-    </tr>
-  </thead>
-  <tbody></tbody>
+<thead>
+<tr><th>Ad</th><th>Email</th><th>Balans</th><th>Əməliyyat</th></tr>
+</thead>
+<tbody></tbody>
 </table>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
-
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw",
@@ -70,25 +47,24 @@ const userTable = document.getElementById('userTable').querySelector('tbody');
 function loadUsers(){
   const usersRef = db.ref('users');
   usersRef.on('value', snapshot => {
-    userTable.innerHTML = '';
+    userTable.innerHTML='';
     snapshot.forEach(child => {
       const uid = child.key;
       const data = child.val();
       const balanceRef = db.ref('balances/' + uid);
 
-      balanceRef.get().then(bsnap => {
+      balanceRef.get().then(bsnap=>{
         const balance = bsnap.val() || 0;
-
         const tr = document.createElement('tr');
-        tr.innerHTML = `
+        tr.innerHTML=`
           <td>${data.name}</td>
           <td>${data.email}</td>
           <td id="bal-${uid}">${parseFloat(balance).toFixed(2)}</td>
           <td>
-            <button class="adjust add" onclick="adjustBalance('${uid}',1)">+1</button>
-            <button class="adjust sub" onclick="adjustBalance('${uid}',-1)">-1</button><br>
+            <button class="add" onclick="adjustBalance('${uid}',1)">+1</button>
+            <button class="sub" onclick="adjustBalance('${uid}',-1)">-1</button><br>
             <input type="number" id="input-${uid}" value="0">
-            <button class="adjust apply" onclick="changeBalance('${uid}')">Tətbiq et</button>
+            <button class="apply" onclick="changeBalance('${uid}')">Tətbiq et</button>
           </td>
         `;
         userTable.appendChild(tr);
@@ -97,18 +73,18 @@ function loadUsers(){
   });
 }
 
-function adjustBalance(uid, amount){
-  const balanceRef = db.ref('balances/' + uid);
-  balanceRef.transaction(current => (current || 0) + amount);
+function adjustBalance(uid,amount){
+  const balanceRef=db.ref('balances/'+uid);
+  balanceRef.transaction(current=>(current||0)+amount);
 }
 
 function changeBalance(uid){
-  const input = document.getElementById('input-' + uid);
-  const val = parseFloat(input.value);
+  const input=document.getElementById('input-'+uid);
+  const val=parseFloat(input.value);
   if(isNaN(val)) return;
-  const balanceRef = db.ref('balances/' + uid);
-  balanceRef.transaction(current => (current || 0) + val);
-  input.value = 0;
+  const balanceRef=db.ref('balances/'+uid);
+  balanceRef.transaction(current=>(current||0)+val);
+  input.value=0;
 }
 
 loadUsers();
