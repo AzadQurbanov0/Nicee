@@ -1,116 +1,302 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Paneli — Çeklər</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Admin Panel - Balans & Çək Görüntüləri</title>
 <style>
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
-  background:#0f172a;
-  color:#e2e8f0;
-}
-.header{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:16px 20px;border-bottom:1px solid #334155;background:#0b1220;
-}
-.grid{
-  padding:16px;
-  display:grid;
-  gap:16px;
-  grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
-}
-.card{
-  background:#111827;border:1px solid #1f2937;border-radius:12px;overflow:hidden;
-}
-.thumb{
-  width:100%;height:160px;object-fit:cover;background:#0b1220;
-}
-.meta{
-  padding:10px 12px;font-size:14px;line-height:1.4;
-}
-.meta .small{opacity:.8;font-size:12px;}
-.meta a{color:#93c5fd;text-decoration:none;word-break:break-all;}
-.meta a:hover{text-decoration:underline;}
+  body{margin:0;padding:20px;font-family:system-ui,Segoe UI,Roboto,Arial;background:#0f1724;color:#e6eef8;}
+  h1{margin:0 0 12px 0;text-align:center;}
+  .container{max-width:1100px;margin:0 auto;}
+  .section{background:#0b1220;border:1px solid #1f2937;border-radius:10px;padding:12px;margin-bottom:16px;}
+  table{width:100%;border-collapse:collapse;margin-top:8px;}
+  th,td{padding:8px;border:1px solid rgba(255,255,255,0.06);text-align:center;font-size:14px;}
+  th{background:rgba(255,255,255,0.03);}
+  .controls button{padding:6px 10px;border-radius:6px;border:none;cursor:pointer;margin:2px;}
+  .add{background:#16a34a;color:white;}
+  .sub{background:#ef4444;color:white;}
+  .apply{background:#2563eb;color:white;}
+  input[type=number]{width:70px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#071025;color:#e6eef8;}
+  /* photos grid */
+  .photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:12px;}
+  .photo-card{background:#071122;border:1px solid #122135;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;}
+  .photo-card img{width:100%;height:160px;object-fit:cover;background:#071122;}
+  .photo-meta{padding:10px;font-size:13px;color:#dbeafe;}
+  .small{opacity:0.75;font-size:12px;color:#9fb3d9;}
+  .photo-actions{display:flex;gap:8px;margin-top:8px;}
+  .link-btn{background:#0ea5e9;color:white;padding:6px;border-radius:6px;border:none;cursor:pointer;}
+  .del-btn{background:#ef4444;color:white;padding:6px;border-radius:6px;border:none;cursor:pointer;}
+  .no-data{opacity:0.7;text-align:center;padding:18px;color:#9fb3d9;}
 </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Çeklər</h1>
-    <div class="small">Realtime Database → <code>receipts/</code></div>
+  <div class="container">
+    <h1>Admin Panel - Gizli</h1>
+
+    <!-- Balans bölməsi (Sənin orijinal cədvəlin) -->
+    <div class="section" id="balancesSection">
+      <h2 style="margin:0 0 8px 0;">İstifadəçilər & Balans</h2>
+      <table id="userTable" aria-label="İstifadəçilər cədvəli">
+        <thead>
+          <tr><th>Ad</th><th>Email</th><th>Balans (AZN)</th><th>Əməliyyat</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Yeni: Göndərilən şəkillər bölməsi -->
+    <div class="section" id="photosSection">
+      <h2 style="margin:0 0 8px 0;">Göndərilən Şəkillər (Çeklər)</h2>
+      <div id="photosContainer" class="photos-grid">
+        <div class="no-data" id="noPhotos">Heç bir şəkil yoxdur.</div>
+      </div>
+    </div>
   </div>
 
-  <div id="list" class="grid"></div>
-
-  <!-- Firebase SDK -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-storage-compat.js"></script>
 
   <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw",
-    authDomain: "niceuc-e5986.firebaseapp.com",
-    databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com",
-    projectId: "niceuc-e5986",
-    storageBucket: "niceuc-e5986.firebasestorage.app",
-    messagingSenderId: "242221260650",
-    appId: "1:242221260650:web:d140153a2167c4738dcf13",
-    measurementId: "G-YKKRHJKYNB"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+    /* ======= Firebase konfiqurasiya - Sənin config ilə eynidir ======= */
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw",
+      authDomain: "niceuc-e5986.firebaseapp.com",
+      databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com",
+      projectId: "niceuc-e5986",
+      storageBucket: "niceuc-e5986.firebasestorage.app",
+      messagingSenderId: "242221260650",
+      appId: "1:242221260650:web:d140153a2167c4738dcf13",
+      measurementId: "G-YKKRHJKYNB"
+    };
 
-  // receipts/ altında push edilən hər qeydi kart kimi göstər
-  const list = document.getElementById('list');
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const storage = firebase.storage();
 
-  // Sıralama üçün son 200 çək (istəsən artırmaq olar)
-  const ref = db.ref('receipts').limitToLast(200);
-  ref.on('child_added', snap => render(snap.key, snap.val()));
-  ref.on('child_changed', snap => update(snap.key, snap.val()));
-  ref.on('child_removed', snap => removeCard(snap.key));
+    /* ================= Balans (orijinal kodun əsası) ================= */
+    const userTableBody = document.getElementById('userTable').querySelector('tbody');
+    const userRows = {}; // uid -> row element
 
-  function tsFormat(ms){
-    if(!ms) return '';
-    const d = new Date(ms);
-    return d.toLocaleString();
-  }
+    function loadUsers(){
+      const usersRef = db.ref('users');
+      usersRef.get().then(snapshot => {
+        // snapshot.forEach may not guarantee order; we'll iterate
+        snapshot.forEach(child => {
+          const uid = child.key;
+          const data = child.val();
+          const balanceRef = db.ref('balances/' + uid);
 
-  function cardTemplate(key, data){
-    const {url, name='', email='', createdAt=null} = data || {};
-    return `
-      <div class="card" id="card-${key}">
-        <a href="${url}" target="_blank" rel="noopener">
-          <img class="thumb" src="${url}" alt="çek">
-        </a>
-        <div class="meta">
-          <div><strong>${name || 'İstifadəçi'}</strong></div>
-          <div class="small">${email || ''}</div>
-          <div class="small">${tsFormat(createdAt)}</div>
-          <div class="small"><a href="${url}" target="_blank" rel="noopener">Şəkli aç</a></div>
-        </div>
-      </div>
-    `;
-  }
+          balanceRef.get().then(bsnap=>{
+            const balance = bsnap.val() || 0;
 
-  function render(key, data){
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = cardTemplate(key, data).trim();
-    const el = wrapper.firstElementChild;
-    list.prepend(el); // ən son gələn üstdə
-  }
-
-  function update(key, data){
-    const el = document.getElementById('card-' + key);
-    if(el){
-      el.outerHTML = cardTemplate(key, data);
+            if(!userRows[uid]){
+              const tr = document.createElement('tr');
+              tr.id = 'row-'+uid;
+              tr.innerHTML = `
+                <td>${escapeHtml(data.name || '')}</td>
+                <td>${escapeHtml(data.email || '')}</td>
+                <td id="bal-${uid}">${parseFloat(balance).toFixed(2)}</td>
+                <td>
+                  <button class="add" onclick="adjustBalance('${uid}',1)">+1</button>
+                  <button class="sub" onclick="adjustBalance('${uid}',-1)">-1</button><br>
+                  <input type="number" id="input-${uid}" value="0">
+                  <button class="apply" onclick="changeBalance('${uid}')">Tətbiq et</button>
+                </td>
+              `;
+              userTableBody.appendChild(tr);
+              userRows[uid] = tr;
+            } else {
+              const balTd = document.getElementById('bal-'+uid);
+              if(balTd) balTd.textContent = parseFloat(balance).toFixed(2);
+            }
+          }).catch(err=>{
+            console.error('balanceRef.get error', err);
+          });
+        });
+      }).catch(err=>{
+        console.error('usersRef.get error', err);
+      });
     }
-  }
 
-  function removeCard(key){
-    const el = document.getElementById('card-' + key);
-    if(el) el.remove();
-  }
+    function adjustBalance(uid,amount){
+      const balanceRef = db.ref('balances/'+uid);
+      balanceRef.transaction(current => (current||0) + amount);
+    }
+
+    function changeBalance(uid){
+      const input = document.getElementById('input-'+uid);
+      const val = parseFloat(input.value);
+      if(isNaN(val)) return;
+      const balanceRef = db.ref('balances/'+uid);
+      balanceRef.transaction(current => (current||0) + val);
+      input.value = 0;
+    }
+
+    // İlk yükləmə və periodik yeniləmə (orijinal tərzinə uyğun)
+    loadUsers();
+    setInterval(loadUsers, 1000);
+
+    /* ================= Şəkillər/Çeklər bölməsi (realtime listener) ================= */
+    const photosContainer = document.getElementById('photosContainer');
+    const noPhotosEl = document.getElementById('noPhotos');
+
+    // Helper: ISO timestamp format
+    function tsFormat(ms){
+      if(!ms) return '';
+      const d = new Date(ms);
+      return d.toLocaleString();
+    }
+
+    // XSS-dan qorunmaq üçün sadə escape
+    function escapeHtml(s){
+      return String(s || '').replace(/[&<>"'`]/g, (c)=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#x60;'
+      })[c]);
+    }
+
+    // receipts/ və ya photos/ node-dan gələnləri göstər
+    const photosRef = db.ref('photos'); // əgər sən user.js-də receipts istifadə etmisən, burada 'receipts' yaz
+    // həm child_added həm də value istifadə edə bilərik; child_added daha performanslı
+    photosRef.limitToLast(500).on('child_added', snap => {
+      const key = snap.key;
+      const data = snap.val();
+      renderPhotoCard(key, data);
+    });
+
+    photosRef.on('child_changed', snap => {
+      updatePhotoCard(snap.key, snap.val());
+    });
+
+    photosRef.on('child_removed', snap => {
+      removePhotoCard(snap.key);
+    });
+
+    function renderPhotoCard(key, data){
+      // Hər yeni gələn ən üstdə görünsün
+      if(!data || !data.url) return;
+      noPhotosEl.style.display = 'none';
+
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+      card.id = 'photo-'+key;
+
+      const img = document.createElement('img');
+      img.src = data.url;
+      img.alt = 'çek';
+      img.loading = 'lazy';
+      img.onerror = () => { img.src = ''; img.style.background = '#111'; };
+
+      const meta = document.createElement('div');
+      meta.className = 'photo-meta';
+      meta.innerHTML = `
+        <div><strong>${escapeHtml(data.name || 'İstifadəçi')}</strong></div>
+        <div class="small">${escapeHtml(data.email || '')}</div>
+        <div class="small">${tsFormat(data.createdAt)}</div>
+      `;
+
+      const actions = document.createElement('div');
+      actions.className = 'photo-actions';
+
+      const openBtn = document.createElement('button');
+      openBtn.className = 'link-btn';
+      openBtn.textContent = 'Şəkli aç';
+      openBtn.addEventListener('click', ()=> window.open(data.url, '_blank'));
+
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del-btn';
+      delBtn.textContent = 'Sil';
+      delBtn.addEventListener('click', async ()=>{
+        if(!confirm('Bu şəkili silmək istəyirsən?')) return;
+        try{
+          // Sil: DB entry sil və Storage obyektini də sil (əgər path göstərilibsə)
+          // data.storagePath kimi bir sahə varsa onu istifadə etmək yaxşıdır.
+          // Burada linkdən fayl yolunu çıxarmaq çətin ola bilər, amma biz DB node-u silirik.
+          await db.ref('photos/' + key).remove();
+          // (Opsional) Storage-dan da sildirmək üçün əgər data.storagePath mövcuddursa:
+          if(data.storagePath){
+            await storage.ref(data.storagePath).delete().catch(()=>{});
+          }
+        }catch(err){
+          console.error('silme xətası', err);
+          alert('Silərkən xəta: ' + err.message);
+        }
+      });
+
+      actions.appendChild(openBtn);
+      actions.appendChild(delBtn);
+
+      meta.appendChild(actions);
+
+      card.appendChild(img);
+      card.appendChild(meta);
+
+      // prepend: son əlavə edilən yuxarıda görünsün
+      photosContainer.prepend(card);
+    }
+
+    function updatePhotoCard(key, data){
+      const el = document.getElementById('photo-' + key);
+      if(!el) {
+        renderPhotoCard(key,data);
+        return;
+      }
+      const img = el.querySelector('img');
+      const meta = el.querySelector('.photo-meta');
+      if(img) img.src = data.url;
+      if(meta){
+        meta.innerHTML = `
+          <div><strong>${escapeHtml(data.name || 'İstifadəçi')}</strong></div>
+          <div class="small">${escapeHtml(data.email || '')}</div>
+          <div class="small">${tsFormat(data.createdAt)}</div>
+        `;
+        const actions = document.createElement('div');
+        actions.className = 'photo-actions';
+        const openBtn = document.createElement('button');
+        openBtn.className = 'link-btn';
+        openBtn.textContent = 'Şəkli aç';
+        openBtn.addEventListener('click', ()=> window.open(data.url, '_blank'));
+        const delBtn = document.createElement('button');
+        delBtn.className = 'del-btn';
+        delBtn.textContent = 'Sil';
+        delBtn.addEventListener('click', async ()=>{
+          if(!confirm('Bu şəkili silmək istəyirsən?')) return;
+          try{
+            await db.ref('photos/' + key).remove();
+            if(data.storagePath) await storage.ref(data.storagePath).delete().catch(()=>{});
+          }catch(err){ console.error(err); alert('Silərkən xəta: '+err.message); }
+        });
+        meta.appendChild(actions);
+        actions.appendChild(openBtn);
+        actions.appendChild(delBtn);
+      }
+    }
+
+    function removePhotoCard(key){
+      const el = document.getElementById('photo-' + key);
+      if(el) el.remove();
+      // əgər heç bir photo qalmazsa göstər
+      if(!photosContainer.querySelector('.photo-card')){
+        noPhotosEl.style.display = 'block';
+      }
+    }
+
+    /* ========== Qeyd: Bu admin faylı yalnız görüntüləmə və balans idarəsini göstərir.
+       İstifadəçilər şəkil yükləyərkən onların client (user) səhifəsi aşağıdakı qaydada
+       `photos/` node-a yeni obyekt push etməlidir:
+         {
+           uid: "...",
+           name: "...",
+           email: "...",
+           url: "https://.../....jpg",
+           storagePath: "photos/uid/timestamp.jpg"   <-- optional, silmək üçün faydalı
+           createdAt: <ServerValue.TIMESTAMP>
+         }
+       Mən user tərəfi üçün əvvəllər göndərdiyim kod bu strukturu yaradır (receipts və ya photos).
+    =========================================================== */
+
+    // Xatırlatma: admin panel realtime listener-lərlə işləyir, yeniləmə avtomatikdır.
   </script>
 </body>
 </html>
