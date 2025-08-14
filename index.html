@@ -3,20 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Panel - Balans İdarəsi</title>
+<title>Admin Panel - Gmail Giriş</title>
 <style>
-:root{
-  --bg:#1e1e2f;
-  --card:#2e2e4a;
-  --text:#f8fafc;
-  --accent:#22c55e;
-  --danger:#f87171;
-}
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial;
-  background:var(--bg);
-  color:var(--text);
+  background:#1e1e2f;
+  color:#f8fafc;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -48,15 +41,15 @@ button.adjust{
   cursor:pointer;
   font-weight:600;
 }
-button.add{background:var(--accent);color:#fff;}
-button.sub{background:var(--danger);color:#fff;}
+button.add{background:#22c55e;color:#fff;}
+button.sub{background:#f87171;color:#fff;}
 </style>
 </head>
 <body>
 
-<h1>Admin Panel - Balans İdarəsi</h1>
+<h1>Admin Panel - Gmail Giriş</h1>
 <div id="userInfo"></div>
-<button id="loginBtn"><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G"> Google ilə Giriş</button>
+<button id="loginBtn"><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G"> Gmail ilə Giriş</button>
 
 <table id="userTable" style="display:none">
   <thead>
@@ -97,24 +90,14 @@ const userTable = document.getElementById('userTable').querySelector('tbody');
 loginBtn.addEventListener('click', () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
-    .then(res => checkAdmin(res.user))
-    .catch(err => alert(err.message));
-});
-
-// Admin yoxlama
-function checkAdmin(user){
-  const adminRef = db.ref('admins/' + user.uid);
-  adminRef.get().then(snapshot => {
-    if(snapshot.exists()){
-      userInfoDiv.textContent = `Salam, ${user.displayName} (${user.email}) - Admin Giriş etdi`;
+    .then(res => {
+      const user = res.user;
+      userInfoDiv.textContent = `Salam, ${user.displayName} (${user.email})`;
       loginBtn.style.display='none';
       loadUsers();
-    } else {
-      alert("Siz admin deyilsiniz!");
-      auth.signOut();
-    }
-  });
-}
+    })
+    .catch(err => alert(err.message));
+});
 
 // İstifadəçiləri yüklə
 function loadUsers(){
@@ -126,7 +109,6 @@ function loadUsers(){
       const data = child.val();
       const balanceRef = db.ref('balances/' + uid);
 
-      // Balansı oxu
       balanceRef.get().then(bsnap => {
         const balance = bsnap.val() || 0;
 
@@ -153,7 +135,6 @@ function adjustBalance(uid, amount){
   balanceRef.transaction(current => {
     return (current || 0) + amount;
   });
-  // UI avtomatik yenilənəcək onValue listener ilə
 }
 </script>
 </body>
