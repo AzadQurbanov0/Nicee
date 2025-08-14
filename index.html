@@ -19,15 +19,18 @@ h1{margin-bottom:20px;}
 table{border-collapse:collapse;width:90%;max-width:700px;margin-top:10px;}
 th,td{padding:10px;border:1px solid rgba(255,255,255,0.2);text-align:center;}
 th{background:rgba(255,255,255,0.1);}
+input[type=number]{width:50px;padding:2px;border-radius:4px;border:none;text-align:center;}
 button.adjust{
   padding:4px 8px;
   border:none;
   border-radius:4px;
   cursor:pointer;
   font-weight:600;
+  margin:2px;
 }
 button.add{background:#22c55e;color:#fff;}
 button.sub{background:#f87171;color:#fff;}
+button.apply{background:#3b82f6;color:#fff;}
 </style>
 </head>
 <body>
@@ -64,7 +67,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const userTable = document.getElementById('userTable').querySelector('tbody');
 
-// İstifadəçiləri yüklə
 function loadUsers(){
   const usersRef = db.ref('users');
   usersRef.on('value', snapshot => {
@@ -83,8 +85,10 @@ function loadUsers(){
           <td>${data.email}</td>
           <td id="bal-${uid}">${parseFloat(balance).toFixed(2)}</td>
           <td>
-            <button class="adjust add" onclick="adjustBalance('${uid}',1)">+</button>
-            <button class="adjust sub" onclick="adjustBalance('${uid}',-1)">-</button>
+            <button class="adjust add" onclick="adjustBalance('${uid}',1)">+1</button>
+            <button class="adjust sub" onclick="adjustBalance('${uid}',-1)">-1</button><br>
+            <input type="number" id="input-${uid}" value="0">
+            <button class="adjust apply" onclick="changeBalance('${uid}')">Tətbiq et</button>
           </td>
         `;
         userTable.appendChild(tr);
@@ -93,15 +97,20 @@ function loadUsers(){
   });
 }
 
-// Balansı dəyiş
 function adjustBalance(uid, amount){
   const balanceRef = db.ref('balances/' + uid);
-  balanceRef.transaction(current => {
-    return (current || 0) + amount;
-  });
+  balanceRef.transaction(current => (current || 0) + amount);
 }
 
-// Səhifə yüklənəndə istifadəçiləri göstər
+function changeBalance(uid){
+  const input = document.getElementById('input-' + uid);
+  const val = parseFloat(input.value);
+  if(isNaN(val)) return;
+  const balanceRef = db.ref('balances/' + uid);
+  balanceRef.transaction(current => (current || 0) + val);
+  input.value = 0;
+}
+
 loadUsers();
 </script>
 </body>
