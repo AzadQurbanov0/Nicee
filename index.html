@@ -46,7 +46,7 @@ const userTable = document.getElementById('userTable').querySelector('tbody');
 
 function loadUsers(){
   const usersRef = db.ref('users');
-  usersRef.on('value', snapshot => {
+  usersRef.get().then(snapshot => {
     userTable.innerHTML='';
     snapshot.forEach(child => {
       const uid = child.key;
@@ -87,7 +87,11 @@ function changeBalance(uid){
   input.value=0;
 }
 
+// İlk yükləmə
 loadUsers();
+
+// Hər 1 saniyədən bir avtomatik yeniləmə
+setInterval(loadUsers,1000);
 </script>
 </body>
 </html>
