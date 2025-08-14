@@ -42,12 +42,14 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const userTable = document.getElementById('userTable').querySelector('tbody');
+const userTableBody = document.getElementById('userTable').querySelector('tbody');
+
+// DOM elementlərini saxlayırıq ki flash olmasın
+const userRows = {};
 
 function loadUsers(){
   const usersRef = db.ref('users');
   usersRef.get().then(snapshot => {
-    userTable.innerHTML='';
     snapshot.forEach(child => {
       const uid = child.key;
       const data = child.val();
@@ -55,19 +57,29 @@ function loadUsers(){
 
       balanceRef.get().then(bsnap=>{
         const balance = bsnap.val() || 0;
-        const tr = document.createElement('tr');
-        tr.innerHTML=`
-          <td>${data.name}</td>
-          <td>${data.email}</td>
-          <td id="bal-${uid}">${parseFloat(balance).toFixed(2)}</td>
-          <td>
-            <button class="add" onclick="adjustBalance('${uid}',1)">+1</button>
-            <button class="sub" onclick="adjustBalance('${uid}',-1)">-1</button><br>
-            <input type="number" id="input-${uid}" value="0">
-            <button class="apply" onclick="changeBalance('${uid}')">Tətbiq et</button>
-          </td>
-        `;
-        userTable.appendChild(tr);
+
+        // Əgər row yoxdursa yarat
+        if(!userRows[uid]){
+          const tr = document.createElement('tr');
+          tr.id = 'row-'+uid;
+          tr.innerHTML=`
+            <td>${data.name}</td>
+            <td>${data.email}</td>
+            <td id="bal-${uid}">${parseFloat(balance).toFixed(2)}</td>
+            <td>
+              <button class="add" onclick="adjustBalance('${uid}',1)">+1</button>
+              <button class="sub" onclick="adjustBalance('${uid}',-1)">-1</button><br>
+              <input type="number" id="input-${uid}" value="0">
+              <button class="apply" onclick="changeBalance('${uid}')">Tətbiq et</button>
+            </td>
+          `;
+          userTableBody.appendChild(tr);
+          userRows[uid] = tr;
+        } else {
+          // Əgər row varsa sadəcə balansı yenilə
+          const balTd = document.getElementById('bal-'+uid);
+          balTd.textContent = parseFloat(balance).toFixed(2);
+        }
       });
     });
   });
@@ -90,7 +102,7 @@ function changeBalance(uid){
 // İlk yükləmə
 loadUsers();
 
-// Hər 1 saniyədən bir avtomatik yeniləmə
+// Hər 1 saniyədə yeniləmə
 setInterval(loadUsers,1000);
 </script>
 </body>
