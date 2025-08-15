@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Admin Panel</title>
 <style>
-  body{margin:0;padding:20px;font-family:system-ui,Segoe UI,Roboto,Arial;background:#0f1724;color:#e6eef8; display: flex; align-items: center; justify-content: center; min-height: 100vh;}
+  body{margin:0;padding:10px;font-family:system-ui,Segoe UI,Roboto,Arial;background:#0f1724;color:#e6eef8; display: flex; align-items: center; justify-content: flex-start; flex-direction: column; min-height: 100vh;}
   .container{max-width:1300px;margin:0 auto; width: 100%;}
   h1,h2{margin:0 0 12px 0; text-align: center;}
   .section{background:#0b1220;border:1px solid #1f2937;border-radius:10px;padding:12px;margin-bottom:16px;}
@@ -23,17 +23,65 @@
   .reject-btn { background: #dc2626; }
   .delete-btn { background: #991b1b; }
 
-  .status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; }
+  .status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; display: inline-block;}
   .status-pending { background-color: #f59e0b; }
   .status-approved { background-color: #16a34a; }
   .status-rejected { background-color: #dc2626; }
 
   .actions-cell { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
   .balance-input { width: 80px; padding: 4px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: #e6eef8; }
-  
-  /* YENİ: Kart ikonları üçün stillər */
   .card-info { display: flex; align-items: center; justify-content: center; gap: 8px; }
   .card-info svg { width: 32px; height: 24px; }
+  
+  /* YENİ: RESPONSIVE DİZAYN (MOBİL GÖRÜNÜM) */
+  @media (max-width: 768px) {
+    body { padding: 10px; }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.2rem; }
+    th, td { font-size: 13px; padding: 6px; }
+
+    /* Cədvəlləri kart görünüşünə keçiririk */
+    table, thead, tbody, th, td, tr { display: block; }
+    
+    thead tr { position: absolute; top: -9999px; left: -9999px; }
+    
+    tr { border: 1px solid #1f2937; margin-bottom: 10px; border-radius: 8px; background: #0f1724; }
+    
+    td { border: none; border-bottom: 1px solid #1f2937; position: relative; padding-left: 50%; text-align: right; min-height: 28px; }
+    td:last-child { border-bottom: 0; }
+    
+    /* Məlumat başlıqlarını (Email, Ad və s.) əlavə edirik */
+    td:before { 
+        position: absolute; 
+        top: 50%;
+        left: 10px; 
+        width: 45%; 
+        padding-right: 10px; 
+        white-space: nowrap;
+        text-align: left;
+        font-weight: bold;
+        transform: translateY(-50%);
+        color: #9fb3d9;
+    }
+
+    /* Hər cədvəl üçün başlıqları təyin edirik */
+    #withdrawalsTable td:nth-of-type(1):before { content: "Email"; }
+    #withdrawalsTable td:nth-of-type(2):before { content: "Ad/Soyad"; }
+    #withdrawalsTable td:nth-of-type(3):before { content: "Kart Nömrəsi"; }
+    #withdrawalsTable td:nth-of-type(4):before { content: "Kart Növü"; }
+    #withdrawalsTable td:nth-of-type(5):before { content: "Məbləğ"; }
+    #withdrawalsTable td:nth-of-type(6):before { content: "Tarix"; }
+    #withdrawalsTable td:nth-of-type(7):before { content: "Status"; }
+    #withdrawalsTable td:nth-of-type(8):before { content: "Əməliyyat"; }
+    
+    #userTable td:nth-of-type(1):before { content: "Ad"; }
+    #userTable td:nth-of-type(2):before { content: "Email"; }
+    #userTable td:nth-of-type(3):before { content: "Balans (AZN)"; }
+    #userTable td:nth-of-type(4):before { content: "Əməliyyatlar"; }
+
+    .actions-cell, .card-info { justify-content: flex-end; }
+    .balance-input { width: 60px; }
+  }
 </style>
 </head>
 <body>
@@ -41,7 +89,6 @@
     <div id="login-container"><h1>Admin Panel</h1><button id="adminLoginBtn">Google ilə Daxil Ol</button></div>
     <div id="main-content" style="display: none;">
       <h1 id="admin-welcome"></h1>
-      <div class="section"><h2>Dəstək Müraciətləri</h2></div>
       <div class="section">
         <h2 style="margin:0;">Pul Çıxarma Sorğuları</h2>
         <table id="withdrawalsTable">
@@ -86,38 +133,26 @@
     });
     document.getElementById('adminLoginBtn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
 
-    // YENİ FUNKSİYA: Kart nömrəsinə görə kart növünü təyin edir
     function getCardType(cardNumber) {
         if (!cardNumber) return { name: 'Naməlum', svg: '' };
-        
-        // VISA
         if (/^4/.test(cardNumber)) {
-            return {
-                name: 'VISA',
-                svg: `<svg viewBox="0 0 76 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M38.446 2.318L29.356 21.68h5.08l2.29-5.2h6.86l1.4 5.2h4.74L40.7 2.318h-2.254zm-1.12 11.76l3.22-8.08 3.22 8.08h-6.44zM28.486 13.9c-.14-2.46-.94-4.54-2.4-6.24-1.46-1.7-3.48-2.54-6.06-2.54-4.64 0-8.1 2.38-8.1 6.62 0 2.92 1.6 4.82 4.44 5.86 1.48.54 2.14.82 2.14 1.3 0 .78-.96 1.14-2.3 1.14-1.58 0-2.8-.28-4.32-.9l-.7-.28-.56 3.12c1.46.62 3.32 1 5.38 1 4.98 0 8.28-2.4 8.28-6.72 0-2.4-1.28-4.22-4.14-5.46-.86-.34-1.84-.68-1.84-1.22 0-.52.64-.96 1.84-.96 1.16 0 2.22.3 2.96.64l.44.22.56-3.04zM59.906 11.24c0-3.32-2.12-4.82-5.18-4.82-2.12 0-3.72.78-4.84 1.44l.82 3.22c.9-.54 1.94-.96 3.1-.96 1.18 0 1.8.44 1.8 1.12 0 .52-.36.8-1.2 1.12l-2.6.96c-4.44 1.6-5.88 3.68-5.88 6.56 0 2.98 2.36 4.7 5.34 4.7 2.5 0 4.2-.74 5.16-1.24l-.8-3.3c-.92.5-2.22.9-3.52.9-1.26 0-1.92-.42-1.92-1.16 0-.64.54-.94 1.44-1.26l2.84-.98c3.54-1.26 5.28-3.2 5.28-6.14zM75.326 21.68h3.94V2.318H75.316l-6.26 15.4-.5-1.9c-.96-3.86-3.56-5.64-5.34-6.3l-1.02-3.88h5.3l.66 2.58h.3c.7-.9 2.4-2.58 5.72-2.58 2.36 0 3.76.84 4.46 2.98l2.92 13.02z" fill="#142688"/></svg>`
-            };
+            return { name: 'VISA', svg: `<svg viewBox="0 0 76 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M38.446 2.318L29.356 21.68h5.08l2.29-5.2h6.86l1.4 5.2h4.74L40.7 2.318h-2.254zm-1.12 11.76l3.22-8.08 3.22 8.08h-6.44zM28.486 13.9c-.14-2.46-.94-4.54-2.4-6.24-1.46-1.7-3.48-2.54-6.06-2.54-4.64 0-8.1 2.38-8.1 6.62 0 2.92 1.6 4.82 4.44 5.86 1.48.54 2.14.82 2.14 1.3 0 .78-.96 1.14-2.3 1.14-1.58 0-2.8-.28-4.32-.9l-.7-.28-.56 3.12c1.46.62 3.32 1 5.38 1 4.98 0 8.28-2.4 8.28-6.72 0-2.4-1.28-4.22-4.14-5.46-.86-.34-1.84-.68-1.84-1.22 0-.52.64-.96 1.84-.96 1.16 0 2.22.3 2.96.64l.44.22.56-3.04zM59.906 11.24c0-3.32-2.12-4.82-5.18-4.82-2.12 0-3.72.78-4.84 1.44l.82 3.22c.9-.54 1.94-.96 3.1-.96 1.18 0 1.8.44 1.8 1.12 0 .52-.36.8-1.2 1.12l-2.6.96c-4.44 1.6-5.88 3.68-5.88 6.56 0 2.98 2.36 4.7 5.34 4.7 2.5 0 4.2-.74 5.16-1.24l-.8-3.3c-.92.5-2.22.9-3.52.9-1.26 0-1.92-.42-1.92-1.16 0-.64.54-.94 1.44-1.26l2.84-.98c3.54-1.26 5.28-3.2 5.28-6.14zM75.326 21.68h3.94V2.318H75.316l-6.26 15.4-.5-1.9c-.96-3.86-3.56-5.64-5.34-6.3l-1.02-3.88h5.3l.66 2.58h.3c.7-.9 2.4-2.58 5.72-2.58 2.36 0 3.76.84 4.46 2.98l2.92 13.02z" fill="#142688"/></svg>` };
         }
-        // Mastercard
         if (/^5[1-5]/.test(cardNumber) || /^2(22[1-9]|2[3-9][0-9]|[3-6][0-9]{2}|7[0-1][0-9]|720)/.test(cardNumber)) {
-            return {
-                name: 'Mastercard',
-                svg: `<svg viewBox="0 0 213 132" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="66" cy="66" r="66" fill="#EA001B"/><path d="M147 0C113.86 0 87.202 18.294 74.322 45.424A65.666 65.666 0 01147 66c36.452 0 66-29.548 66-66S183.452 0 147 0z" fill="#F79E1B"/><path d="M106.5 66c0 19.33-8.328 36.8-21.678 49.27A65.64 65.64 0 00147 66c0-19.33-8.328-36.8-21.678-49.27A65.64 65.64 0 00106.5 66z" fill="#FF5F00"/></svg>`
-            };
+            return { name: 'Mastercard', svg: `<svg viewBox="0 0 213 132" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="66" cy="66" r="66" fill="#EA001B"/><path d="M147 0C113.86 0 87.202 18.294 74.322 45.424A65.666 65.666 0 01147 66c36.452 0 66-29.548 66-66S183.452 0 147 0z" fill="#F79E1B"/><path d="M106.5 66c0 19.33-8.328 36.8-21.678 49.27A65.64 65.64 0 00147 66c0-19.33-8.328-36.8-21.678-49.27A65.64 65.64 0 00106.5 66z" fill="#FF5F00"/></svg>` };
         }
-        return { name: 'Digər', svg: '' }; // Digər kartlar üçün
+        return { name: 'Digər', svg: '' };
     }
 
     function loadAllData() {
         const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody');
         db.ref('withdrawals').on('value', (snapshot) => {
             if (!snapshot.exists()) {
-                withdrawalsTableBody.innerHTML = '<tr class="no-data-row"><td colspan="8" class="no-data">Heç bir sorğu yoxdur.</td></tr>';
-                return;
+                withdrawalsTableBody.innerHTML = '<tr class="no-data-row"><td colspan="8" class="no-data">Heç bir sorğu yoxdur.</td></tr>'; return;
             }
             withdrawalsTableBody.innerHTML = '';
             let requests = [];
             snapshot.forEach(child => requests.push({ key: child.key, ...child.val() }));
-            
             requests.reverse().forEach(data => {
                 const reqData = data.requestData;
                 const tr = document.createElement('tr');
@@ -127,62 +162,29 @@
                     case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break;
                     default: statusText = 'Gözləmədə'; statusClass = 'status-pending';
                 }
-
                 let actionButtons;
                 if (data.status === 'pending') {
-                    actionButtons = `<button class="approve-btn" onclick="updateRequestStatus('${data.key}', 'approved')">Onayla</button>
-                                     <button class="reject-btn" onclick="updateRequestStatus('${data.key}', 'rejected')">Rədd et</button>`;
+                    actionButtons = `<button class="approve-btn" onclick="updateRequestStatus('${data.key}', 'approved')">Onayla</button> <button class="reject-btn" onclick="updateRequestStatus('${data.key}', 'rejected')">Rədd et</button>`;
                 } else if (data.status === 'approved' || data.status === 'rejected') {
-                    const message = data.status === 'approved'
-                        ? 'Bu ONAYLANMIŞ sorğunu tamamilə silmək istədiyinizə əminsiniz?'
-                        : 'Bu RƏDD EDİLMİŞ sorğunu tamamilə silmək istədiyinizə əminsiniz?';
-                    actionButtons = `<button class="delete-btn" onclick="deleteRequest('${data.key}', '${message}')">Sil</button>`;
-                } else {
-                    actionButtons = '-';
-                }
-
-                // Kart növünü təyin et
+                    actionButtons = `<button class="delete-btn" onclick="deleteRequest('${data.key}')">Sil</button>`;
+                } else { actionButtons = '-'; }
                 const card = getCardType(reqData.cardNumber);
-
-                tr.innerHTML = `
-                    <td>${data.userEmail}</td>
-                    <td>${reqData.name} ${reqData.surname}</td>
-                    <td>${reqData.cardNumber}</td>
-                    <td><div class="card-info">${card.svg} ${card.name}</div></td>
-                    <td><b>${parseFloat(reqData.amount).toFixed(2)} AZN</b></td>
-                    <td>${new Date(data.createdAt).toLocaleString()}</td>
-                    <td><span class="status ${statusClass}">${statusText}</span></td>
-                    <td>${actionButtons}</td>`;
+                tr.innerHTML = `<td>${data.userEmail}</td><td>${reqData.name} ${reqData.surname}</td><td>${reqData.cardNumber}</td><td><div class="card-info">${card.svg} ${card.name}</div></td><td><b>${parseFloat(reqData.amount).toFixed(2)} AZN</b></td><td>${new Date(data.createdAt).toLocaleString()}</td><td><span class="status ${statusClass}">${statusText}</span></td><td><div class="actions-cell">${actionButtons}</div></td>`;
                 withdrawalsTableBody.appendChild(tr);
             });
         });
-
         const userTableBody = document.getElementById('userTable').querySelector('tbody');
         db.ref('users').on('value', (userSnapshot) => {
             db.ref('balances').on('value', (balanceSnapshot) => {
-                if (!userSnapshot.exists()) {
-                    userTableBody.innerHTML = '<tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr>';
-                    return;
-                }
+                if (!userSnapshot.exists()) { userTableBody.innerHTML = '<tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr>'; return; }
                 userTableBody.innerHTML = '';
                 const allBalances = balanceSnapshot.val() || {};
                 userSnapshot.forEach(childSnapshot => {
                     const uid = childSnapshot.key;
                     const userData = childSnapshot.val();
                     const userBalance = allBalances[uid] ? allBalances[uid].amount : 0;
-
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${userData.displayName || 'Adsız'}</td>
-                        <td>${userData.email}</td>
-                        <td><b>${parseFloat(userBalance).toFixed(2)} AZN</b></td>
-                        <td>
-                            <div class="actions-cell">
-                                <input type="text" id="balance-input-${uid}" placeholder="+50, -20, 200" class="balance-input">
-                                <button class="apply" onclick="applyBalanceChange('${uid}')">Tətbiq et</button>
-                                <button class="delete-btn" onclick="deleteUser('${uid}', '${userData.email}')">Sil</button>
-                            </div>
-                        </td>`;
+                    tr.innerHTML = `<td>${userData.displayName || 'Adsız'}</td><td>${userData.email}</td><td><b>${parseFloat(userBalance).toFixed(2)} AZN</b></td><td><div class="actions-cell"><input type="text" id="balance-input-${uid}" placeholder="+50, -20" class="balance-input"><button class="apply" onclick="applyBalanceChange('${uid}')">Tətbiq et</button><button class="delete-btn" onclick="deleteUser('${uid}', '${userData.email}')">Sil</button></div></td>`;
                     userTableBody.appendChild(tr);
                 });
             });
@@ -194,22 +196,34 @@
         db.ref('withdrawals/' + key).update({ status: newStatus });
     }
 
-    function deleteRequest(key, message) {
-        const confirmationMessage = message || "Bu sorğunu tamamilə silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.";
-        if (confirm(confirmationMessage)) {
-            db.ref('withdrawals/' + key).remove().catch(error => alert("Xəta: " + error.message));
+    // YENİ: TƏHLÜKƏSİZ SİLMƏ FUNKSİYASI
+    function safeDelete(confirmationMessage, onConfirm) {
+        const userInput = prompt(confirmationMessage + '\n\nƏməliyyatı təsdiqləmək üçün "SİL" yazın.');
+        if (userInput === "SİL") {
+            onConfirm().catch(error => alert("Xəta baş verdi: " + error.message));
+        } else if (userInput !== null) { // İstifadəçi "Cancel" basmayıbsa
+            alert("Təsdiq sözü yanlış daxil edildi. Əməliyyat ləğv edildi.");
         }
     }
 
+    function deleteRequest(key) {
+        safeDelete(
+            "Bu çıxarış sorğusunu birdəfəlik silmək istədiyinizə əminsiniz?",
+            () => db.ref('withdrawals/' + key).remove()
+        );
+    }
+
+
+
     function deleteUser(uid, userEmail) {
-        if (confirm(`'${userEmail}' email-li istifadəçini və onun balansını tamamilə silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarılmazdır!`)) {
-            const userRef = db.ref('users/' + uid);
-            const balanceRef = db.ref('balances/' + uid);
-            
-            Promise.all([userRef.remove(), balanceRef.remove()])
-                .then(() => { alert("İstifadəçi uğurla silindi."); })
-                .catch(error => { alert("İstifadəçi silinərkən xəta baş verdi: " + error.message); });
-        }
+        safeDelete(
+            `'${userEmail}' adlı istifadəçini və ona aid bütün məlumatları (balans daxil) birdəfəlik silmək istədiyinizə əminsiniz?`,
+            async () => {
+                await db.ref('users/' + uid).remove();
+                await db.ref('balances/' + uid).remove();
+                alert("İstifadəçi uğurla silindi.");
+            }
+        );
     }
 
     async function applyBalanceChange(uid) {
@@ -226,13 +240,5 @@
             if (inputValue.startsWith('+') || inputValue.startsWith('-')) { newBalance = currentBalance + changeValue; } else { newBalance = changeValue; }
             if (newBalance < 0) { newBalance = 0; }
             if (confirm(`İstifadəçinin balansını ${newBalance.toFixed(2)} AZN olaraq təyin etmək istəyirsiniz?`)) {
-                await db.ref('balances/' + uid).set({ amount: newBalance });
-                alert("Balans uğurla yeniləndi!");
-                inputElement.value = '';
-            }
-        } catch (error) { alert("Balans yenilənərkən xəta baş verdi: " + error.message); }
-    }
-</script>
-</body>
-</html>
-
+                await db.
+  
