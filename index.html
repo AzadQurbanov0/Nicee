@@ -10,7 +10,7 @@
   .container{max-width:1100px;margin:0 auto;}
   .section{background:#0b1220;border:1px solid #1f2937;border-radius:10px;padding:12px;margin-bottom:16px;}
   table{width:100%;border-collapse:collapse;margin-top:8px;}
-  th,td{padding:8px;border:1px solid rgba(255,255,255,0.06);text-align:center;font-size:14px;}
+  th,td{padding:8px;border:1px solid rgba(255,255,255,0.06);text-align:center;font-size:14px; word-break: break-word;}
   th{background:rgba(255,255,255,0.03);}
   .controls button{padding:6px 10px;border-radius:6px;border:none;cursor:pointer;margin:2px;}
   .add{background:#16a34a;color:white;}
@@ -26,6 +26,7 @@
   .photo-actions{display:flex;gap:8px;margin-top:8px;}
   .link-btn{background:#0ea5e9;color:white;padding:6px;border-radius:6px;border:none;cursor:pointer;}
   .del-btn{background:#ef4444;color:white;padding:6px;border-radius:6px;border:none;cursor:pointer;}
+  .complete-btn {background:#16a34a;color:white;padding:6px;border-radius:6px;border:none;cursor:pointer;}
   .no-data{opacity:0.7;text-align:center;padding:18px;color:#9fb3d9;}
 </style>
 </head>
@@ -33,7 +34,18 @@
   <div class="container">
     <h1>Admin Panel - Gizli</h1>
 
-    <!-- Balans bölməsi (Sənin orijinal cədvəlin) -->
+    <div class="section" id="withdrawalsSection">
+      <h2 style="margin:0 0 8px 0;">Pul Çıxarma Sorğuları (Kart Məlumatları)</h2>
+      <table id="withdrawalsTable" aria-label="Sorğular cədvəli">
+        <thead>
+          <tr><th>İstifadəçi Email</th><th>Ad</th><th>Soyad</th><th>Kart Nömrəsi</th><th>Tarix</th><th>Əməliyyat</th></tr>
+        </thead>
+        <tbody>
+            <tr class="no-data-row"><td colspan="6" class="no-data">Heç bir sorğu yoxdur.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="section" id="balancesSection">
       <h2 style="margin:0 0 8px 0;">İstifadəçilər & Balans</h2>
       <table id="userTable" aria-label="İstifadəçilər cədvəli">
@@ -44,7 +56,6 @@
       </table>
     </div>
 
-    <!-- Yeni: Göndərilən şəkillər bölməsi -->
     <div class="section" id="photosSection">
       <h2 style="margin:0 0 8px 0;">Göndərilən Şəkillər (Çeklər)</h2>
       <div id="photosContainer" class="photos-grid">
@@ -53,13 +64,11 @@
     </div>
   </div>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-storage-compat.js"></script>
 
   <script>
-    /* ======= Firebase konfiqurasiya - Sənin config ilə eynidir ======= */
     const firebaseConfig = {
       apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw",
       authDomain: "niceuc-e5986.firebaseapp.com",
@@ -74,23 +83,68 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const storage = firebase.storage();
+    
+    function tsFormat(ms){
+      if(!ms) return '';
+      return new Date(ms).toLocaleString();
+    }
+    function escapeHtml(s){
+      return String(s || '').replace(/[&<>"'`]/g, (c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#x60;'})[c]);
+    }
+    
+    const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody');
+    const withdrawalsRef = db.ref('withdrawals');
 
-    /* ================= Balans (orijinal kodun əsası) ================= */
+    withdrawalsRef.on('child_added', snap => {
+        const key = snap.key;
+        const data = snap.val();
+        renderWithdrawalRow(key, data);
+    });
+
+    withdrawalsRef.on('child_removed', snap => {
+        const row = document.getElementById('req-'+snap.key);
+        if(row) row.remove();
+        if(withdrawalsTableBody.children.length === 1 && withdrawalsTableBody.querySelector('.no-data-row')){
+             withdrawalsTableBody.querySelector('.no-data-row').style.display = 'table-row';
+        }
+    });
+
+    function renderWithdrawalRow(key, data){
+        const noDataRow = withdrawalsTableBody.querySelector('.no-data-row');
+        if (noDataRow) noDataRow.style.display = 'none';
+
+        const tr = document.createElement('tr');
+        tr.id = 'req-' + key;
+        tr.innerHTML = `
+            <td>${escapeHtml(data.userEmail)}</td>
+            <td>${escapeHtml(data.requestData.name)}</td>
+            <td>${escapeHtml(data.requestData.surname)}</td>
+            <td><strong>${escapeHtml(data.requestData.cardNumber)}</strong></td>
+            <td>${tsFormat(data.createdAt)}</td>
+            <td>
+                <button class="complete-btn" onclick="processWithdrawal('${key}')">Tamamlandı</button>
+            </td>
+        `;
+        withdrawalsTableBody.prepend(tr);
+    }
+    
+    function processWithdrawal(key){
+        if(!confirm('Bu sorğunu yerinə yetirdiniz və siyahıdan silmək istəyirsiniz?')) return;
+        db.ref('withdrawals/' + key).remove()
+            .then(()=> console.log(`Sorğu ${key} silindi.`))
+            .catch(err => alert('Silərkən xəta baş verdi: ' + err.message));
+    }
+
     const userTableBody = document.getElementById('userTable').querySelector('tbody');
-    const userRows = {}; // uid -> row element
+    const userRows = {};
 
     function loadUsers(){
-      const usersRef = db.ref('users');
-      usersRef.get().then(snapshot => {
-        // snapshot.forEach may not guarantee order; we'll iterate
+      db.ref('users').get().then(snapshot => {
         snapshot.forEach(child => {
           const uid = child.key;
           const data = child.val();
-          const balanceRef = db.ref('balances/' + uid);
-
-          balanceRef.get().then(bsnap=>{
+          db.ref('balances/' + uid).get().then(bsnap=>{
             const balance = bsnap.val() || 0;
-
             if(!userRows[uid]){
               const tr = document.createElement('tr');
               tr.id = 'row-'+uid;
@@ -111,192 +165,65 @@
               const balTd = document.getElementById('bal-'+uid);
               if(balTd) balTd.textContent = parseFloat(balance).toFixed(2);
             }
-          }).catch(err=>{
-            console.error('balanceRef.get error', err);
           });
         });
-      }).catch(err=>{
-        console.error('usersRef.get error', err);
       });
     }
 
     function adjustBalance(uid,amount){
-      const balanceRef = db.ref('balances/'+uid);
-      balanceRef.transaction(current => (current||0) + amount);
+      db.ref('balances/'+uid).transaction(current => (current||0) + amount);
     }
 
     function changeBalance(uid){
       const input = document.getElementById('input-'+uid);
       const val = parseFloat(input.value);
       if(isNaN(val)) return;
-      const balanceRef = db.ref('balances/'+uid);
-      balanceRef.transaction(current => (current||0) + val);
+      db.ref('balances/'+uid).transaction(current => (current||0) + val);
       input.value = 0;
     }
-
-    // İlk yükləmə və periodik yeniləmə (orijinal tərzinə uyğun)
     loadUsers();
-    setInterval(loadUsers, 1000);
+    setInterval(loadUsers, 5000);
 
-    /* ================= Şəkillər/Çeklər bölməsi (realtime listener) ================= */
     const photosContainer = document.getElementById('photosContainer');
     const noPhotosEl = document.getElementById('noPhotos');
+    const photosRef = db.ref('photos');
 
-    // Helper: ISO timestamp format
-    function tsFormat(ms){
-      if(!ms) return '';
-      const d = new Date(ms);
-      return d.toLocaleString();
-    }
-
-    // XSS-dan qorunmaq üçün sadə escape
-    function escapeHtml(s){
-      return String(s || '').replace(/[&<>"'`]/g, (c)=>({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;', '`':'&#x60;'
-      })[c]);
-    }
-
-    // receipts/ və ya photos/ node-dan gələnləri göstər
-    const photosRef = db.ref('photos'); // əgər sən user.js-də receipts istifadə etmisən, burada 'receipts' yaz
-    // həm child_added həm də value istifadə edə bilərik; child_added daha performanslı
-    photosRef.limitToLast(500).on('child_added', snap => {
-      const key = snap.key;
-      const data = snap.val();
-      renderPhotoCard(key, data);
-    });
-
-    photosRef.on('child_changed', snap => {
-      updatePhotoCard(snap.key, snap.val());
-    });
-
-    photosRef.on('child_removed', snap => {
-      removePhotoCard(snap.key);
-    });
+    photosRef.limitToLast(500).on('child_added', snap => renderPhotoCard(snap.key, snap.val()));
+    photosRef.on('child_removed', snap => removePhotoCard(snap.key));
 
     function renderPhotoCard(key, data){
-      // Hər yeni gələn ən üstdə görünsün
       if(!data || !data.url) return;
       noPhotosEl.style.display = 'none';
-
       const card = document.createElement('div');
       card.className = 'photo-card';
       card.id = 'photo-'+key;
-
-      const img = document.createElement('img');
-      img.src = data.url;
-      img.alt = 'çek';
-      img.loading = 'lazy';
-      img.onerror = () => { img.src = ''; img.style.background = '#111'; };
-
-      const meta = document.createElement('div');
-      meta.className = 'photo-meta';
-      meta.innerHTML = `
-        <div><strong>${escapeHtml(data.name || 'İstifadəçi')}</strong></div>
-        <div class="small">${escapeHtml(data.email || '')}</div>
-        <div class="small">${tsFormat(data.createdAt)}</div>
-      `;
-
-      const actions = document.createElement('div');
-      actions.className = 'photo-actions';
-
-      const openBtn = document.createElement('button');
-      openBtn.className = 'link-btn';
-      openBtn.textContent = 'Şəkli aç';
-      openBtn.addEventListener('click', ()=> window.open(data.url, '_blank'));
-
-      const delBtn = document.createElement('button');
-      delBtn.className = 'del-btn';
-      delBtn.textContent = 'Sil';
-      delBtn.addEventListener('click', async ()=>{
-        if(!confirm('Bu şəkili silmək istəyirsən?')) return;
-        try{
-          // Sil: DB entry sil və Storage obyektini də sil (əgər path göstərilibsə)
-          // data.storagePath kimi bir sahə varsa onu istifadə etmək yaxşıdır.
-          // Burada linkdən fayl yolunu çıxarmaq çətin ola bilər, amma biz DB node-u silirik.
-          await db.ref('photos/' + key).remove();
-          // (Opsional) Storage-dan da sildirmək üçün əgər data.storagePath mövcuddursa:
-          if(data.storagePath){
-            await storage.ref(data.storagePath).delete().catch(()=>{});
-          }
-        }catch(err){
-          console.error('silme xətası', err);
-          alert('Silərkən xəta: ' + err.message);
-        }
-      });
-
-      actions.appendChild(openBtn);
-      actions.appendChild(delBtn);
-
-      meta.appendChild(actions);
-
-      card.appendChild(img);
-      card.appendChild(meta);
-
-      // prepend: son əlavə edilən yuxarıda görünsün
-      photosContainer.prepend(card);
-    }
-
-    function updatePhotoCard(key, data){
-      const el = document.getElementById('photo-' + key);
-      if(!el) {
-        renderPhotoCard(key,data);
-        return;
-      }
-      const img = el.querySelector('img');
-      const meta = el.querySelector('.photo-meta');
-      if(img) img.src = data.url;
-      if(meta){
-        meta.innerHTML = `
+      card.innerHTML = `
+        <img src="${escapeHtml(data.url)}" alt="çek" loading="lazy" onerror="this.src=''">
+        <div class="photo-meta">
           <div><strong>${escapeHtml(data.name || 'İstifadəçi')}</strong></div>
           <div class="small">${escapeHtml(data.email || '')}</div>
           <div class="small">${tsFormat(data.createdAt)}</div>
-        `;
-        const actions = document.createElement('div');
-        actions.className = 'photo-actions';
-        const openBtn = document.createElement('button');
-        openBtn.className = 'link-btn';
-        openBtn.textContent = 'Şəkli aç';
-        openBtn.addEventListener('click', ()=> window.open(data.url, '_blank'));
-        const delBtn = document.createElement('button');
-        delBtn.className = 'del-btn';
-        delBtn.textContent = 'Sil';
-        delBtn.addEventListener('click', async ()=>{
-          if(!confirm('Bu şəkili silmək istəyirsən?')) return;
-          try{
-            await db.ref('photos/' + key).remove();
-            if(data.storagePath) await storage.ref(data.storagePath).delete().catch(()=>{});
-          }catch(err){ console.error(err); alert('Silərkən xəta: '+err.message); }
-        });
-        meta.appendChild(actions);
-        actions.appendChild(openBtn);
-        actions.appendChild(delBtn);
-      }
+          <div class="photo-actions">
+            <button class="link-btn" onclick="window.open('${escapeHtml(data.url)}', '_blank')">Şəkli aç</button>
+            <button class="del-btn" id="del-${key}">Sil</button>
+          </div>
+        </div>
+      `;
+      photosContainer.prepend(card);
+      document.getElementById('del-'+key).addEventListener('click', async ()=>{
+        if(!confirm('Bu şəkili silmək istəyirsən?')) return;
+        try{
+          await db.ref('photos/' + key).remove();
+          if(data.storagePath) await storage.ref(data.storagePath).delete().catch(()=>{});
+        } catch(err){ alert('Silərkən xəta: ' + err.message); }
+      });
     }
-
+    
     function removePhotoCard(key){
       const el = document.getElementById('photo-' + key);
       if(el) el.remove();
-      // əgər heç bir photo qalmazsa göstər
-      if(!photosContainer.querySelector('.photo-card')){
-        noPhotosEl.style.display = 'block';
-      }
+      if(!photosContainer.querySelector('.photo-card')) noPhotosEl.style.display = 'block';
     }
-
-    /* ========== Qeyd: Bu admin faylı yalnız görüntüləmə və balans idarəsini göstərir.
-       İstifadəçilər şəkil yükləyərkən onların client (user) səhifəsi aşağıdakı qaydada
-       `photos/` node-a yeni obyekt push etməlidir:
-         {
-           uid: "...",
-           name: "...",
-           email: "...",
-           url: "https://.../....jpg",
-           storagePath: "photos/uid/timestamp.jpg"   <-- optional, silmək üçün faydalı
-           createdAt: <ServerValue.TIMESTAMP>
-         }
-       Mən user tərəfi üçün əvvəllər göndərdiyim kod bu strukturu yaradır (receipts və ya photos).
-    =========================================================== */
-
-    // Xatırlatma: admin panel realtime listener-lərlə işləyir, yeniləmə avtomatikdır.
   </script>
 </body>
 </html>
