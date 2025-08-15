@@ -1,103 +1,92 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Admin Panel</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Para Çuvalı</title>
 <style>
-  :root { --bg-main: #0f1724; --bg-section: #0b1220; --border-color: #1f2937; --text-main: #e6eef8; --text-muted: #9fb3d9; --green: #16a34a; --red: #dc2626; --blue: #2563eb; --yellow: #f59e0b; --purple: #4f46e5; }
-  body{margin:0;padding:20px;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg-main);color:var(--text-main); display: flex; align-items: center; justify-content: center; min-height: 100vh;}
-  .container{max-width:1300px;margin:0 auto; width: 100%;}
-  h1,h2{margin:0 0 12px 0; text-align: center;}
-  .section{background:var(--bg-section);border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-bottom:16px;}
-  table{width:100%;border-collapse:collapse;margin-top:8px;}
-  th,td{padding:8px 10px;border:1px solid rgba(255,255,255,0.06);text-align:center;font-size:14px; word-break: break-word; vertical-align: middle;}
-  th{background:rgba(255,255,255,0.03);}
-  .no-data{opacity:0.7;text-align:center;padding:18px;color:var(--text-muted);}
-  #login-container { text-align: center; padding-top: 20vh;}
-  #adminLoginBtn { background: #4285F4; color: white; border: none; padding: 12px 24px; font-size: 1.1rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
-  .btn { padding: 5px 10px; border-radius: 6px; border: none; cursor: pointer; color: white; font-size: 0.8rem; margin: 2px; }
-  .btn-green { background: var(--green); } .btn-red { background: var(--red); } .btn-blue { background: var(--blue); } .btn-dark-red { background: #991b1b; }
-  .status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; }
-  .status-pending { background-color: var(--yellow); } .status-approved { background-color: var(--green); } .status-rejected { background-color: var(--red); }
-  .actions-cell { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
-  .balance-input { width: 80px; padding: 4px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: var(--text-main); }
-  
-  /* === DƏSTƏK MƏRKƏZİ STİLLƏRİ === */
-  #support-center { display: flex; gap: 16px; min-height: 60vh; max-height: 70vh; }
-  #chat-list-container { flex: 0 0 300px; background: rgba(0,0,0,0.1); border-radius: 8px; overflow-y: auto; padding: 8px; }
-  .chat-list-item { padding: 12px; border-radius: 6px; cursor: pointer; margin-bottom: 6px; border: 1px solid transparent; transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; }
-  .chat-list-item:hover { background: rgba(255,255,255,0.05); border-color: var(--border-color); }
-  .chat-list-item.active { background: var(--blue); color: white; }
-  .new-message-indicator { width: 10px; height: 10px; background-color: var(--green); border-radius: 50%; }
-  #chat-view-container { flex-grow: 1; border-radius: 8px; background: rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
-  #chat-view-header { padding: 12px; background: rgba(0,0,0,0.2); font-weight: bold; text-align: center; border-bottom: 1px solid var(--border-color); }
-  #messages-container { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-  .message { max-width: 70%; padding: 8px 12px; border-radius: 10px; line-height: 1.4; word-break: break-word; }
-  .message.user { background: #374151; color: white; align-self: flex-start; }
-  .message.admin { background: var(--purple); color: white; align-self: flex-end; }
-  #reply-area { display: flex; padding: 10px; border-top: 1px solid var(--border-color); }
-  #reply-input { flex-grow: 1; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 8px; color: white; }
-  #send-reply-btn { background: var(--purple); color: white; border: none; padding: 0 16px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
-  #chat-placeholder { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); }
+:root{
+  --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e; --card:rgba(255,255,255,0.06);
+  --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial,'Apple Color Emoji','Segoe UI Emoji';
+  color:var(--text); background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; overflow:hidden;
+}
+.wrap{display:grid;place-items:center;gap:12px;text-align:center;padding:20px;}
+.user-info{font-size:1rem;font-weight:600;opacity:.9;margin-bottom:6px;}
+.card{
+  position:relative; width:min(60vw,320px); aspect-ratio:1/1; display:grid; place-items:center;
+  background: radial-gradient(60% 60% at 50% 30%,var(--glass),transparent 70%),var(--card);
+  border:1px solid rgba(255,255,255,0.14); border-radius:24px;
+  box-shadow:0 15px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  backdrop-filter:blur(6px);
+}
+.bag{font-size:clamp(5rem,18vw,12rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.balance{margin-top:10px;display:grid;place-items:center;font-weight:700;letter-spacing:1px;text-shadow:0 2px 5px rgba(0,0,0,0.5);}
+.balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem);opacity:.9;margin-right:4px;}
+.balance .value{font-size:clamp(1.5rem,5vw,2.5rem);line-height:1;}
+.google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600;}
+.action-buttons button { position: fixed; right: 20px; padding: 8px 14px; font-size: 0.9rem; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+#payBtn { top: 20px; background: #22c55e; }
+#cekBtn { top: 58px; background: #2563eb; }
+#pulCekBtn { top: 96px; background: #f59e0b; }
+#notification-bell { position: fixed; top: 20px; left: 20px; font-size: 28px; cursor: pointer; user-select: none; z-index: 10000; }
+#notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+.modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
+.modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color:white; width: min(90vw, 350px); }
 
-  /* MOBİL STİLLƏRİ */
-  @media screen and (max-width: 768px) {
-    body { padding: 10px; }
-    #support-center { flex-direction: column; height: auto; max-height: none; }
-    #chat-list-container { flex-basis: 200px; }
-    table, thead, tbody, th, td, tr { display: block; }
-    thead tr { position: absolute; top: -9999px; left: -9999px; }
-    tr { margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
-    td { border: none; border-bottom: 1px solid rgba(255,255,255,0.06); position: relative; padding-left: 50%; text-align: right; min-height: 30px; display: flex; align-items: center; justify-content: flex-end; }
-    td:last-child { border-bottom: 0; }
-    td:before { content: attr(data-label); position: absolute; left: 10px; width: 45%; padding-right: 10px; white-space: nowrap; text-align: left; font-weight: bold; opacity: 0.8; }
-    .actions-cell { flex-direction: column; align-items: stretch; padding: 10px; gap: 8px; }
-    .balance-input, .btn { width: 100%; box-sizing: border-box; padding: 8px; margin: 0; }
-  }
+.modalContent input {
+  display: block;
+  width: 95%;
+  margin: 10px auto;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #FFFFFF;
+  color: #212529;
+  font-size: 1rem;
+}
+
+.modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
+#notifications-list { max-height: 400px; overflow-y: auto; text-align: left; margin-top: 15px; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+.notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
+.notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.notification-item-amount { font-size: 1.1rem; font-weight: bold; }
+.notification-item-status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; font-size: 0.8rem;}
+.notification-item-body { font-size: 0.85rem; opacity: 0.8; }
+.notification-item-footer { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
+.status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
+.status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
+.status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
+#support-widget { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
+#chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
+#chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
+#chat-window { position: absolute; bottom: 80px; right: 0; width: 320px; max-width: 90vw; height: 400px; background: var(--bg3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: none; flex-direction: column; overflow: hidden; }
+#chat-header { padding: 10px; background: rgba(0,0,0,0.2); font-weight: bold; text-align: center; }
+#chat-messages { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.message { max-width: 80%; padding: 8px 12px; border-radius: 10px; line-height: 1.4; word-break: break-word; }
+.message.user { background: #2563eb; color: white; align-self: flex-end; }
+.message.admin { background: #4b5563; color: white; align-self: flex-start; }
+#chat-input-area { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+#chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
+#send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
 </style>
 </head>
 <body>
-<div class="container">
-    <div id="login-container"><h1>Admin Panel</h1><button id="adminLoginBtn">Google ilə Daxil Ol</button></div>
-    <div id="main-content" style="display: none;">
-      <h1 id="admin-welcome"></h1>
-      
-      <div class="section">
-        <h2 style="margin:0;">Dəstək Mərkəzi</h2>
-        <div id="support-center">
-            <div id="chat-list-container"></div>
-            <div id="chat-view-container">
-                <div id="chat-placeholder">Söhbətə baxmaq üçün siyahıdan bir istifadəçi seçin</div>
-                <div id="chat-view" style="display:none; height:100%; flex-direction:column; display:flex;">
-                    <div id="chat-view-header"></div>
-                    <div id="messages-container"></div>
-                    <div id="reply-area">
-                        <input type="text" id="reply-input" placeholder="Cavabınızı yazın...">
-                        <button id="send-reply-btn">Göndər</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2 style="margin:0;">Pul Çıxarma Sorğuları</h2>
-        <table id="withdrawalsTable">
-            <thead><tr><th>Email</th><th>Ad/Soyad</th><th>Kart</th><th>Məbləğ</th><th>Tarix</th><th>Status</th><th>Əməliyyat</th></tr></thead>
-            <tbody><tr class="no-data-row"><td colspan="7" class="no-data">Heç bir sorğu yoxdur.</td></tr></tbody>
-        </table>
-      </div>
-
-      <div class="section">
-          <h2 style="margin:0;">İstifadəçilər & Balans</h2>
-          <table id="userTable">
-              <thead><tr><th>Ad</th><th>Email</th><th>Balans (AZN)</th><th>Əməliyyatlar</th></tr></thead>
-                <tbody><tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr></tbody>
-            </table>
-        </div>
-    </div>
-</div>
+<div id="notification-bell"><span>🔔</span><div id="notification-badge" style="display:none;">1</div></div>
+<div class="wrap"><div id="userInfo" class="user-info"></div><div class="card"><div class="bag">💰</div><div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div></div><button class="google-btn" id="loginBtn">🌐 Giriş</button></div>
+<div class="action-buttons"><button id="payBtn">💲 YÜKLƏ</button><button id="cekBtn">📷 ÇEK</button><button id="pulCekBtn">🏦 ÇEK</button></div>
+<div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
+<div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
+<div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
+<div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Əməliyyat Tarixçəsi</h3><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
+<div id="support-widget"><div id="chat-window"><div id="chat-header">Dəstək</div><div id="chat-messages"></div><div id="chat-input-area"><input type="text" id="chat-input" placeholder="Mesajınızı yazın..."><button id="send-chat-btn"> göndər</button></div></div><button id="chat-toggle-btn"><span>💬</span><div id="chat-notification-badge" style="display:none;"></div></button></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
@@ -107,209 +96,138 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    let currentChatUid = null;
-    let messagesListener = null;
+    let currentBalance = 0, balanceListener = null, chatStateListener = null, messageListener = null;
 
     auth.onAuthStateChanged(user => {
-        const mainContent = document.getElementById('main-content');
+        const supportWidget = document.getElementById('support-widget');
         if (user) {
-            mainContent.style.display = 'block';
-            document.getElementById('login-container').style.display = 'none';
-            document.getElementById('admin-welcome').textContent = `Xoş gəldiniz, ${user.displayName}`;
-            loadAllData();
+            document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
+            db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
+            if (balanceListener) balanceListener.off();
+            balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
+                const balanceData = snapshot.val();
+                let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
+                currentBalance = newBalance;
+                document.getElementById('balance').textContent = newBalance.toFixed(2);
+            });
+            supportWidget.style.display = 'block';
+            initializeSupportChat(user);
         } else {
-            mainContent.style.display = 'none';
-            document.getElementById('login-container').style.display = 'block';
+            document.getElementById('userInfo').textContent = '';
+            document.getElementById('balance').textContent = '0.00';
+            currentBalance = 0;
+            if (balanceListener) balanceListener.off();
+            if (chatStateListener) chatStateListener.off();
+            if (messageListener) messageListener.off();
+            supportWidget.style.display = 'none';
         }
     });
-    document.getElementById('adminLoginBtn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
+
+    document.getElementById('loginBtn').addEventListener('click', () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(error => alert(error.message)); });
+    document.getElementById('payBtn').addEventListener('click', () => document.getElementById('payModal').style.display = 'flex');
+    document.getElementById('cekBtn').addEventListener('click', () => document.getElementById('cekModal').style.display = 'flex');
+    document.getElementById('pulCekBtn').addEventListener('click', () => document.getElementById('pulCekModal').style.display = 'flex');
+    document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
+    document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
     
-    function loadAllData() {
-        loadSupportChats();
-        loadWithdrawals();
-        loadUsersAndBalances();
-    }
-
-    function loadSupportChats() {
-        const chatListContainer = document.getElementById('chat-list-container');
-        const chatRef = db.ref('support_chats').orderByChild('last_updated');
-        chatRef.on('value', snapshot => {
-            chatListContainer.innerHTML = '';
-            if (!snapshot.exists()) {
-                chatListContainer.innerHTML = '<p class="no-data">Heç bir söhbət yoxdur.</p>';
-                return;
-            }
-            let chats = [];
-            snapshot.forEach(child => {
-                chats.push({ uid: child.key, ...child.val() });
-            });
-            chats.reverse();
-
-            chats.forEach(chatData => {
-                const item = document.createElement('div');
-                item.className = 'chat-list-item';
-                if (chatData.uid === currentChatUid) {
-                    item.classList.add('active');
-                }
-                item.innerHTML = `<span>${chatData.user_email || 'Naməlum'}</span> ${chatData.new_message_for_admin ? '<div class="new-message-indicator"></div>' : ''}`;
-                item.onclick = () => openChat(chatData.uid, chatData.user_email);
-                chatListContainer.appendChild(item);
-            });
-        });
-
-        document.getElementById('send-reply-btn').onclick = sendAdminReply;
-        document.getElementById('reply-input').onkeydown = (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendAdminReply();
-            }
-        };
-    }
-
-    function openChat(uid, userEmail) {
-        currentChatUid = uid;
-        document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
-        const activeItem = [...document.querySelectorAll('.chat-list-item')].find(el => el.textContent.includes(userEmail));
-        if (activeItem) activeItem.classList.add('active');
-
-        document.getElementById('chat-placeholder').style.display = 'none';
-        document.getElementById('chat-view').style.display = 'flex';
-        document.getElementById('chat-view-header').textContent = `Söhbət: ${userEmail}`;
-        const messagesContainer = document.getElementById('messages-container');
-        messagesContainer.innerHTML = '';
-
-        if (messagesListener) {
-            messagesListener.off();
-        }
-
-        db.ref(`support_chats/${uid}`).update({ new_message_for_admin: false });
-
-        const messagesRef = db.ref(`support_chats/${uid}/messages`).limitToLast(100);
-        messagesListener = messagesRef.on('child_added', msgSnapshot => {
-            const msg = msgSnapshot.val();
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${msg.sender === 'admin' ? 'admin' : 'user'}`;
-            msgDiv.textContent = msg.text;
-            messagesContainer.appendChild(msgDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        });
-    }
-
-    function sendAdminReply() {
-        const input = document.getElementById('reply-input');
-        const text = input.value.trim();
-        if (text === '' || !currentChatUid) return;
-
-        const messageData = { text: text, sender: 'admin', timestamp: firebase.database.ServerValue.TIMESTAMP };
-        db.ref(`support_chats/${currentChatUid}/messages`).push(messageData);
-
-        db.ref(`support_chats/${currentChatUid}`).update({
-            last_message: text,
-            last_updated: firebase.database.ServerValue.TIMESTAMP,
-            new_message_for_admin: false,
-            new_message_for_user_count: firebase.database.ServerValue.increment(1)
-        });
-
-        input.value = '';
-    }
-    
-    function updateRequestStatus(key, newStatus) { if(confirm(`Statusu '${newStatus}' olaraq dəyiş?`)) db.ref('withdrawals/' + key).update({ status: newStatus }); }
-    function deleteRequest(key, msg) { if(confirm(msg || "Sorğunu silmək istəyirsiniz?")) db.ref('withdrawals/' + key).remove(); }
-    function deleteUser(uid, email) { if(confirm(`'${email}' istifadəçisini sil? Bu əməliyyat geri qaytarılmazdır.`)) { db.ref('users/' + uid).remove(); db.ref('balances/' + uid).remove(); }}
-    
-    async function applyBalanceChange(uid) {
-        const inputElement = document.getElementById(`balance-input-${uid}`);
-        const inputValue = inputElement.value.trim();
-        if (inputValue === '') { return alert("Zəhmət olmasa, bir dəyər daxil edin."); }
-        try {
-            const balanceSnapshot = await db.ref('balances/' + uid).once('value');
-            let currentBalance = balanceSnapshot.exists() && balanceSnapshot.val().amount ? parseFloat(balanceSnapshot.val().amount) : 0;
-            if (isNaN(currentBalance)) currentBalance = 0;
-            
-            const changeValue = parseFloat(inputValue.replace(',', '.'));
-            if (isNaN(changeValue)) { return alert("Zəhmət olmasa, düzgün rəqəm daxil edin (məsələn: 50, +50, -20)."); }
-
-            let newBalance = (inputValue.startsWith('+') || inputValue.startsWith('-')) ? currentBalance + changeValue : changeValue;
-            if (newBalance < 0) newBalance = 0;
-
-            if (confirm(`İstifadəçinin balansını ${newBalance.toFixed(2)} AZN olaraq təyin etmək istəyirsiniz?`)) {
-                await db.ref('balances/' + uid).set({ amount: newBalance });
-                alert("Balans uğurla yeniləndi!");
-                inputElement.value = '';
-            }
-        } catch (error) {
-            alert("Balans yenilənərkən xəta baş verdi: " + error.message);
-        }
-    }
-    
-    // === DƏYİŞİKLİK BU FUNKSİYADADIR ===
-    function loadWithdrawals() {
-        const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody');
-        db.ref('withdrawals').on('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                withdrawalsTableBody.innerHTML = '<tr class="no-data-row"><td colspan="7" class="no-data">Heç bir sorğu yoxdur.</td></tr>';
-                return;
-            }
-            withdrawalsTableBody.innerHTML = '';
-            let requests = [];
-            snapshot.forEach(child => {
-                requests.push({ key: child.key, ...child.val() });
-            });
-
-            // === YENİ SIRALAMA MƏNTİQİ ===
-            requests.sort((a, b) => {
-                const a_is_pending = a.status === 'pending';
-                const b_is_pending = b.status === 'pending';
-
-                if (a_is_pending && !b_is_pending) return -1; // "a" ("pending") yuxarıda olsun
-                if (!a_is_pending && b_is_pending) return 1;  // "b" ("pending") yuxarıda olsun
-
-                // Əgər hər ikisi "pending"dirsə və ya heç biri deyilsə, tarixə görə sırala
-                return b.createdAt - a.createdAt; // Ən yeni olan yuxarıda
-            });
-            // === SIRALAMA SONU ===
-
-            requests.forEach(data => {
-                const reqData = data.requestData;
-                const tr = document.createElement('tr');
+    document.getElementById('notification-bell').addEventListener('click', () => {
+        const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.');
+        const modal = document.getElementById('notificationsModal'), list = document.getElementById('notifications-list');
+        modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none';
+        list.innerHTML = '<p>Yüklənir...</p>';
+        db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(20).once('value', snapshot => {
+            if (!snapshot.exists()) { list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>'; return; }
+            list.innerHTML = ''; let items = []; snapshot.forEach(child => items.push(child.val()));
+            items.reverse().forEach(data => {
+                const itemDiv = document.createElement('div'), reqData = data.requestData;
                 let statusText, statusClass;
-                switch (data.status) {
-                    case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break;
-                    case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break;
-                    default: statusText = 'Gözləmədə'; statusClass = 'status-pending';
-                }
-                let actionButtons;
-                if (data.status === 'pending') {
-                    actionButtons = `<button class="btn btn-green" onclick="updateRequestStatus('${data.key}', 'approved')">Onayla</button><button class="btn btn-red" onclick="updateRequestStatus('${data.key}', 'rejected')">Rədd et</button>`;
-                } else {
-                    actionButtons = `<button class="btn btn-dark-red" onclick="deleteRequest('${data.key}', 'Bu sorğunu silmək istədiyinizə əminsiniz?')">Sil</button>`;
-                }
-                tr.innerHTML = `<td data-label="Email">${data.userEmail}</td><td data-label="Ad/Soyad">${reqData.name} ${reqData.surname}</td><td data-label="Kart">${reqData.cardNumber}</td><td data-label="Məbləğ"><b>${parseFloat(reqData.amount).toFixed(2)} AZN</b></td><td data-label="Tarix">${new Date(data.createdAt).toLocaleString()}</td><td data-label="Status"><span class="status ${statusClass}">${statusText}</span></td><td data-label="Əməliyyat"><div class="actions-cell">${actionButtons}</div></td>`;
-                withdrawalsTableBody.appendChild(tr);
+                switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; default: statusText = 'Gözləmədə'; statusClass = 'status-pending'; }
+                itemDiv.className = `notification-item ${statusClass}`;
+                const maskedCardNumber = '**** ' + reqData.cardNumber.slice(-4);
+                itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount">${parseFloat(reqData.amount).toFixed(2)} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body">Kart: ${maskedCardNumber}</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`;
+                list.appendChild(itemDiv);
             });
         });
-    }
+    });
 
-    function loadUsersAndBalances() {
-        const userTableBody = document.getElementById('userTable').querySelector('tbody');
-        db.ref('users').on('value', (userSnapshot) => {
-            db.ref('balances').on('value', (balanceSnapshot) => {
-                if (!userSnapshot.exists()) {
-                    userTableBody.innerHTML = '<tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr>';
-                    return;
-                }
-                userTableBody.innerHTML = '';
-                const allBalances = balanceSnapshot.val() || {};
-                userSnapshot.forEach(childSnapshot => {
-                    const uid = childSnapshot.key;
-                    const userData = childSnapshot.val();
-                    const userBalance = allBalances[uid] && allBalances[uid].amount ? allBalances[uid].amount : 0;
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td data-label="Ad">${userData.displayName || 'Adsız'}</td><td data-label="Email">${userData.email}</td><td data-label="Balans (AZN)"><b>${parseFloat(userBalance).toFixed(2)} AZN</b></td><td data-label="Əməliyyatlar"><div class="actions-cell"><input type="text" id="balance-input-${uid}" placeholder="+50, -20, 200" class="balance-input"><button class="btn btn-blue" onclick="applyBalanceChange('${uid}')">Tətbiq et</button><button class="btn btn-dark-red" onclick="deleteUser('${uid}', '${userData.email}')">Sil</button></div></td>`;
-                    userTableBody.appendChild(tr);
+    // === AVTOMATİK SİSTEM ÜÇÜN YENİLƏNMİŞ KOD ===
+    document.getElementById('withdrawBtn').addEventListener('click', () => {
+        const user = auth.currentUser;
+        if (!user) return alert('Zəhmət olmasa, daxil olun.');
+
+        const amount = parseFloat(document.getElementById('withdrawAmount').value);
+        const name = document.getElementById('userName').value.trim();
+        const surname = document.getElementById('userSurname').value.trim();
+        const card = document.getElementById('cardNumber').value.trim();
+
+        if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.');
+        if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.');
+
+        const balanceRef = db.ref('balances/' + user.uid);
+        
+        // Balans əməliyyatını təhlükəsiz Transaction ilə edirik
+        balanceRef.transaction(currentData => {
+            let currentBalance = (currentData && currentData.amount) ? currentData.amount : 0;
+            if (amount > currentBalance) {
+                // Balans kifayət etmirsə, əməliyyatı ləğv et
+                return; // undefined qaytarmaq əməliyyatı ləğv edir
+            }
+            // Balansdan məbləği çıx
+            return { amount: currentBalance - amount };
+        }, (error, committed, snapshot) => {
+            if (error) {
+                alert('Əməliyyat zamanı xəta baş verdi: ' + error.message);
+            } else if (!committed) {
+                // Əgər transaction ləğv edilibsə (balans çatışmazlığı)
+                alert('Balansınızda kifayət qədər vəsait yoxdur.');
+            } else {
+                // Əgər balansdan pul uğurla çıxılıbsa, indi sorğunu yarat
+                const request = { 
+                    uid: user.uid, 
+                    userEmail: user.email, 
+                    requestData: { name, surname, cardNumber: card, amount }, 
+                    status: 'pending', 
+                    createdAt: firebase.database.ServerValue.TIMESTAMP 
+                };
+                
+                db.ref('withdrawals').push(request).then(() => {
+                    alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.');
+                    document.getElementById('notification-badge').style.display = 'flex';
+                    document.getElementById('pulCekModal').style.display = 'none';
+                    document.getElementById('withdrawAmount').value = '';
+                    document.getElementById('userName').value = '';
+                    document.getElementById('userSurname').value = '';
+                    document.getElementById('cardNumber').value = '';
+                }).catch(err => {
+                    alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message);
+                    // Sorğu yaradıla bilmədisə, pulu geri qaytarmaq vacibdir
+                    balanceRef.transaction(currentData => {
+                        let currentBalance = (currentData && currentData.amount) ? currentData.amount : 0;
+                        return { amount: currentBalance + amount };
+                    });
                 });
-            });
+            }
         });
+    });
+
+    function initializeSupportChat(user) {
+        const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge');
+        if (messageListener) messageListener.off(); if (chatStateListener) chatStateListener.off();
+        chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } };
+        const chatRef = db.ref(`support_chats/${user.uid}`);
+        chatStateListener = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; });
+        chatMessages.innerHTML = '';
+        const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50);
+        messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; });
+        const sendMessage = () => {
+            const text = chatInput.value.trim(); if (text === '') return;
+            const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP };
+            db.ref(`support_chats/${user.uid}/messages`).push(messageData);
+            db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true });
+            chatInput.value = '';
+        };
+        sendChatBtn.onclick = sendMessage;
+        chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
     }
 </script>
 </body>
