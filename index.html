@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Admin Panel - Giriş</title>
+<title>Admin Panel</title>
 <style>
   body{margin:0;padding:20px;font-family:system-ui,Segoe UI,Roboto,Arial;background:#0f1724;color:#e6eef8; display: flex; align-items: center; justify-content: center; min-height: 100vh;}
   .container{max-width:1200px;margin:0 auto; width: 100%;}
@@ -14,17 +14,13 @@
   th{background:rgba(255,255,255,0.03);}
   .no-data{opacity:0.7;text-align:center;padding:18px;color:#9fb3d9;}
   
-  /* Giriş Düyməsi */
   #login-container { text-align: center; }
-  #adminLoginBtn {
-    background: #4285F4; color: white; border: none; padding: 12px 24px;
-    font-size: 1.1rem; border-radius: 8px; cursor: pointer; font-weight: 600;
-  }
+  #adminLoginBtn { background: #4285F4; color: white; border: none; padding: 12px 24px; font-size: 1.1rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
   
-  /* Admin Chat Stili */
   #support-section { display: flex; height: 500px; gap: 15px; }
   #chat-list-container { flex: 0 0 300px; background: #071122; border-radius: 8px; overflow-y: auto; padding: 5px; }
   .chat-list-item { padding: 10px; border-bottom: 1px solid #1f2937; cursor: pointer; }
+  .chat-list-item:hover { background: #1f2937; }
   .chat-list-item.active { background: #2563eb; }
   .chat-list-item.unread strong { color: #f59e0b; }
   .chat-list-item .last-msg { font-size: 0.8rem; opacity: 0.7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -42,12 +38,10 @@
 <body>
 
   <div class="container">
-    
     <div id="login-container">
         <h1>Admin Panel</h1>
         <button id="adminLoginBtn">Google ilə Daxil Ol</button>
     </div>
-
     <div id="main-content" style="display: none;">
       <h1 id="admin-welcome"></h1>
       <div class="section"><h2>Dəstək Müraciətləri</h2><div id="support-section"><div id="chat-list-container"><p class="no-data">Heç bir müraciət yoxdur.</p></div><div id="chat-view-container"><p id="select-chat-prompt">Söhbətə baxmaq üçün soldan bir istifadəçi seçin.</p><div id="admin-chat-messages" style="display:none;"></div><div id="admin-chat-input-area" style="display:none;"><input type="text" id="admin-chat-input" placeholder="Cavabınızı yazın..."><button id="admin-send-btn">Göndər</button></div></div></div></div>
@@ -67,6 +61,10 @@
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
     const adminLoginBtn = document.getElementById('adminLoginBtn');
+    
+    // Qlobal dəyişənlər
+    let activeChatUid = null;
+    let messageListener = null;
 
     auth.onAuthStateChanged((user) => {
         if (user) {
@@ -87,31 +85,44 @@
 
     function loadAllData() {
         // --- DƏSTƏK SİSTEMİ (CHAT) ---
-        // Bu hissədə dəyişiklik yoxdur, olduğu kimi qalır...
         const chatListContainer = document.getElementById('chat-list-container');
-        // ... (chat kodunun qalanı)
+        db.ref('support_chats').orderByChild('last_updated').on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                chatListContainer.innerHTML = '<p class="no-data">Heç bir müraciət yoxdur.</p>';
+                return;
+            }
+            chatListContainer.innerHTML = '';
+            const chats = [];
+            snapshot.forEach(child => chats.push({ uid: child.key, ...child.val() }));
+            chats.reverse().forEach(chat => {
+                const item = document.createElement('div');
+                item.className = 'chat-list-item';
+                item.dataset.uid = chat.uid;
+                if (chat.new_message_for_admin) item.classList.add('unread');
+                item.innerHTML = `<strong>${chat.user_email}</strong><div class="last-msg">${chat.last_message}</div>`;
+                item.onclick = () => openChat(chat.uid);
+                chatListContainer.appendChild(item);
+            });
+        });
 
-        // --- İSTİFADƏÇİLƏR VƏ BALANS (DÜZƏLİŞ EDİLMİŞ HİSSƏ) ---
+        // --- İSTİFADƏÇİLƏR VƏ BALANS ---
         const userTableBody = document.getElementById('userTable').querySelector('tbody');
-
-        // Addım 1: İstifadəçilər yüklənəndə cədvəlin strukturunu qur.
         db.ref('users').on('value', (userSnapshot) => {
             if (!userSnapshot.exists()) {
                  userTableBody.innerHTML = '<tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr>';
                  return;
             }
-            // Hər dəfə istifadəçi siyahısı dəyişəndə cədvəli yenidən qururuq
             userTableBody.innerHTML = ''; 
             userSnapshot.forEach(userChild => {
                 const uid = userChild.key;
                 const userData = userChild.val();
-                
                 const tr = document.createElement('tr');
-                tr.id = `user-row-${uid}`; // Hər sətrə unikal ID veririk
+                tr.id = `user-row-${uid}`;
                 tr.innerHTML = `
                     <td>${userData.name}</td>
                     <td>${userData.email}</td>
-                    <td id="balance-cell-${uid}">Yüklənir...</td> <td>
+                    <td id="balance-cell-${uid}">Yüklənir...</td>
+                    <td>
                         <input type="number" id="input-${uid}" placeholder="Məbləğ" style="width: 80px;">
                         <button class="apply" onclick="applyBalanceChange('${uid}')" style="padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; background: #2563eb; color: white;">Tətbiq et</button>
                     </td>
@@ -119,41 +130,31 @@
                 userTableBody.appendChild(tr);
             });
         });
-
-        // Addım 2: BALANSLARI AYRICA VƏ REAL-VAXTDA DİNLƏ
         db.ref('balances').on('value', (balanceSnapshot) => {
             const balances = balanceSnapshot.val() || {};
-            // Bütün balanslar üzrə dövr edirik
             for (const uid in balances) {
-                // Həmin istifadəçiyə aid balans xanasını tapırıq
                 const balanceCell = document.getElementById(`balance-cell-${uid}`);
                 if (balanceCell) {
-                    // Və dəyərini dərhal yeniləyirik
                     balanceCell.textContent = parseFloat(balances[uid]).toFixed(2);
                 }
             }
         });
     }
 
-    // Balans dəyişmə funksiyası (dəyişiklik yoxdur)
+    // --- KÖMƏKÇİ FUNKSİYALAR ---
     function applyBalanceChange(uid) {
         const input = document.getElementById('input-' + uid);
         const amount = parseFloat(input.value);
         if (isNaN(amount)) return alert("Düzgün məbləğ daxil edin (məs: 50 və ya -50).");
         db.ref('balances/' + uid).transaction(current => (current || 0) + amount)
-            .then(() => {
-                input.value = ''; // Uğurlu olarsa inputu təmizlə
-                console.log(`Balance for ${uid} updated.`);
-            })
+            .then(() => { input.value = ''; })
             .catch(error => alert("Balans yenilənərkən xəta: " + error.message));
     }
-
-    // Chat funksiyaları (bunları da əlavə edirik, çünki loadAllData içində tam yazılmayıb)
+    
     function openChat(uid) {
         const adminChatMessages = document.getElementById('admin-chat-messages');
         const selectChatPrompt = document.getElementById('select-chat-prompt');
-        let activeChatUid = uid;
-        let messageListener = null;
+        activeChatUid = uid;
 
         document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
         document.querySelector(`.chat-list-item[data-uid="${uid}"]`).classList.add('active');
@@ -161,6 +162,7 @@
         adminChatMessages.style.display = 'flex';
         document.getElementById('admin-chat-input-area').style.display = 'flex';
         db.ref(`support_chats/${uid}/new_message_for_admin`).set(false);
+        
         if (messageListener) messageListener.off();
         adminChatMessages.innerHTML = '';
         const messagesRef = db.ref(`support_chats/${uid}/messages`).limitToLast(100);
@@ -172,22 +174,20 @@
             adminChatMessages.appendChild(msgDiv);
             adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
         });
-        
-        // sendAdminMessage funksiyasını da hər dəfə yenidən təyin edirik ki, düzgün uid ilə işləsin
-        document.getElementById('admin-send-btn').onclick = () => sendAdminMessage(activeChatUid);
-        document.getElementById('admin-chat-input').onkeydown = e => { if (e.key === 'Enter') sendAdminMessage(activeChatUid); };
     }
 
-    function sendAdminMessage(uid) {
+    function sendAdminMessage() {
         const adminChatInput = document.getElementById('admin-chat-input');
         const text = adminChatInput.value.trim();
-        if (text === '' || !uid) return;
+        if (text === '' || !activeChatUid) return;
         const messageData = { text: text, sender: 'admin', timestamp: firebase.database.ServerValue.TIMESTAMP };
-        db.ref(`support_chats/${uid}/messages`).push(messageData);
-        db.ref(`support_chats/${uid}`).update({ last_message: "Admin: " + text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: false });
-        db.ref(`support_chats/${uid}/new_message_for_user_count`).transaction(count => (count || 0) + 1);
+        db.ref(`support_chats/${activeChatUid}/messages`).push(messageData);
+        db.ref(`support_chats/${activeChatUid}`).update({ last_message: "Admin: " + text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: false });
+        db.ref(`support_chats/${activeChatUid}/new_message_for_user_count`).transaction(count => (count || 0) + 1);
         adminChatInput.value = '';
     }
+    document.getElementById('admin-send-btn').onclick = sendAdminMessage;
+    document.getElementById('admin-chat-input').onkeydown = e => { if (e.key === 'Enter') sendAdminMessage(); };
 </script>
 </body>
 </html>
