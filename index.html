@@ -76,6 +76,28 @@ body{
 #chat-input-area { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 #chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
 #send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
+
+/* === Balans Artımı Bildirişi (Anons) Stili === */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #22c55e; /* Yaşıl rəng */
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  z-index: 10001;
+  font-size: 0.95rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+.toast-notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>
 </head>
 <body>
@@ -96,32 +118,84 @@ body{
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    let currentBalance = 0, balanceListener = null, chatStateListener = null, messageListener = null;
+    let balanceListener = null, chatStateListener = null, messageListener = null;
 
     auth.onAuthStateChanged(user => {
         const supportWidget = document.getElementById('support-widget');
         if (user) {
             document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
             db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
+            
             if (balanceListener) balanceListener.off();
+
+            let currentBalance = -1; // Balansın əvvəlki vəziyyətini yoxlamaq üçün
             balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
                 const balanceData = snapshot.val();
                 let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
+
+                if (currentBalance === -1 || newBalance === currentBalance) {
+                    document.getElementById('balance').textContent = newBalance.toFixed(2);
+                } 
+                else if (newBalance > currentBalance) {
+                    const amountAdded = newBalance - currentBalance;
+                    showToastNotification(`+${amountAdded.toFixed(2)} AZN balansınıza əlavə edildi.`);
+                    animateBalance(currentBalance, newBalance);
+                } 
+                else {
+                    document.getElementById('balance').textContent = newBalance.toFixed(2);
+                }
+                
                 currentBalance = newBalance;
-                document.getElementById('balance').textContent = newBalance.toFixed(2);
             });
+
             supportWidget.style.display = 'block';
             initializeSupportChat(user);
         } else {
             document.getElementById('userInfo').textContent = '';
             document.getElementById('balance').textContent = '0.00';
-            currentBalance = 0;
             if (balanceListener) balanceListener.off();
             if (chatStateListener) chatStateListener.off();
             if (messageListener) messageListener.off();
             supportWidget.style.display = 'none';
         }
     });
+    
+    function animateBalance(start, end) {
+        const balanceEl = document.getElementById('balance');
+        const duration = 1000;
+        const frameDuration = 1000 / 60;
+        const totalFrames = Math.round(duration / frameDuration);
+        const easeOutQuad = t => t * (2 - t);
+        let currentFrame = 0;
+        const countUp = () => {
+            currentFrame++;
+            const progress = easeOutQuad(currentFrame / totalFrames);
+            const currentValue = start + (end - start) * progress;
+            balanceEl.textContent = currentValue.toFixed(2);
+            if (currentFrame < totalFrames) {
+                requestAnimationFrame(countUp);
+            } else {
+                balanceEl.textContent = end.toFixed(2);
+            }
+        };
+        requestAnimationFrame(countUp);
+    }
+
+    function showToastNotification(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 500);
+        }, 4000);
+    }
 
     document.getElementById('loginBtn').addEventListener('click', () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(error => alert(error.message)); });
     document.getElementById('payBtn').addEventListener('click', () => document.getElementById('payModal').style.display = 'flex');
@@ -150,38 +224,29 @@ body{
         });
     });
 
-    // === AVTOMATİK SİSTEM ÜÇÜN YENİLƏNMİŞ KOD ===
     document.getElementById('withdrawBtn').addEventListener('click', () => {
         const user = auth.currentUser;
         if (!user) return alert('Zəhmət olmasa, daxil olun.');
-
         const amount = parseFloat(document.getElementById('withdrawAmount').value);
         const name = document.getElementById('userName').value.trim();
         const surname = document.getElementById('userSurname').value.trim();
         const card = document.getElementById('cardNumber').value.trim();
-
         if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.');
         if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.');
-
         const balanceRef = db.ref('balances/' + user.uid);
         
-        // Balans əməliyyatını təhlükəsiz Transaction ilə edirik
         balanceRef.transaction(currentData => {
             let currentBalance = (currentData && currentData.amount) ? currentData.amount : 0;
             if (amount > currentBalance) {
-                // Balans kifayət etmirsə, əməliyyatı ləğv et
-                return; // undefined qaytarmaq əməliyyatı ləğv edir
+                return;
             }
-            // Balansdan məbləği çıx
             return { amount: currentBalance - amount };
         }, (error, committed, snapshot) => {
             if (error) {
                 alert('Əməliyyat zamanı xəta baş verdi: ' + error.message);
             } else if (!committed) {
-                // Əgər transaction ləğv edilibsə (balans çatışmazlığı)
                 alert('Balansınızda kifayət qədər vəsait yoxdur.');
             } else {
-                // Əgər balansdan pul uğurla çıxılıbsa, indi sorğunu yarat
                 const request = { 
                     uid: user.uid, 
                     userEmail: user.email, 
@@ -189,7 +254,6 @@ body{
                     status: 'pending', 
                     createdAt: firebase.database.ServerValue.TIMESTAMP 
                 };
-                
                 db.ref('withdrawals').push(request).then(() => {
                     alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.');
                     document.getElementById('notification-badge').style.display = 'flex';
@@ -200,7 +264,6 @@ body{
                     document.getElementById('cardNumber').value = '';
                 }).catch(err => {
                     alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message);
-                    // Sorğu yaradıla bilmədisə, pulu geri qaytarmaq vacibdir
                     balanceRef.transaction(currentData => {
                         let currentBalance = (currentData && currentData.amount) ? currentData.amount : 0;
                         return { amount: currentBalance + amount };
@@ -220,15 +283,4 @@ body{
         const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50);
         messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; });
         const sendMessage = () => {
-            const text = chatInput.value.trim(); if (text === '') return;
-            const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP };
-            db.ref(`support_chats/${user.uid}/messages`).push(messageData);
-            db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true });
-            chatInput.value = '';
-        };
-        sendChatBtn.onclick = sendMessage;
-        chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
-    }
-</script>
-</body>
-</html>
+            const text = ch
