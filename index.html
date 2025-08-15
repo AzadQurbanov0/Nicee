@@ -23,7 +23,7 @@
   .actions-cell { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
   .balance-input { width: 80px; padding: 4px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: var(--text-main); }
   
-  /* === YENİ DƏSTƏK MƏRKƏZİ STİLLƏRİ === */
+  /* === DƏSTƏK MƏRKƏZİ STİLLƏRİ === */
   #support-center { display: flex; gap: 16px; min-height: 60vh; max-height: 70vh; }
   #chat-list-container { flex: 0 0 300px; background: rgba(0,0,0,0.1); border-radius: 8px; overflow-y: auto; padding: 8px; }
   .chat-list-item { padding: 12px; border-radius: 6px; cursor: pointer; margin-bottom: 6px; border: 1px solid transparent; transition: all 0.2s ease; display: flex; justify-content: space-between; align-items: center; }
@@ -45,7 +45,7 @@
   @media screen and (max-width: 768px) {
     body { padding: 10px; }
     #support-center { flex-direction: column; height: auto; max-height: none; }
-    #chat-list-container { flex-basis: 200px; } /* Siyahının hündürlüyü */
+    #chat-list-container { flex-basis: 200px; }
     table, thead, tbody, th, td, tr { display: block; }
     thead tr { position: absolute; top: -9999px; left: -9999px; }
     tr { margin-bottom: 15px; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
@@ -211,25 +211,54 @@
         db.ref(`support_chats/${currentChatUid}`).update({
             last_message: text,
             last_updated: firebase.database.ServerValue.TIMESTAMP,
-            new_message_for_admin: false, // Admin cavabladığı üçün artıq yeni deyil
-            new_message_for_user_count: firebase.database.ServerValue.increment(1) // İstifadəçi üçün bildiriş sayını artır
+            new_message_for_admin: false,
+            new_message_for_user_count: firebase.database.ServerValue.increment(1)
         });
 
         input.value = '';
     }
-
-    function loadWithdrawals() { /* Bu funksiya dəyişməyib */ }
-    function loadUsersAndBalances() { /* Bu funksiya dəyişməyib */ }
-    // ... Digər köməkçi funksiyalar (deleteUser, applyBalanceChange etc.) buraya əlavə edilə bilər...
-    // Nümunə üçün əvvəlki kodlardan kopyalayın
     
-    // Placeholder functions to avoid errors if not copied from previous code
     function updateRequestStatus(key, newStatus) { if(confirm(`Statusu '${newStatus}' olaraq dəyiş?`)) db.ref('withdrawals/' + key).update({ status: newStatus }); }
-    function deleteRequest(key, msg) { if(confirm(msg)) db.ref('withdrawals/' + key).remove(); }
-    function deleteUser(uid, email) { if(confirm(`'${email}' istifadəçisini sil?`)) { db.ref('users/' + uid).remove(); db.ref('balances/' + uid).remove(); }}
-    async function applyBalanceChange(uid) { /* implementation from previous code */ }
+    function deleteRequest(key, msg) { if(confirm(msg || "Sorğunu silmək istəyirsiniz?")) db.ref('withdrawals/' + key).remove(); }
+    function deleteUser(uid, email) { if(confirm(`'${email}' istifadəçisini sil? Bu əməliyyat geri qaytarılmazdır.`)) { db.ref('users/' + uid).remove(); db.ref('balances/' + uid).remove(); }}
     
-    // Re-implementing other functions to make the code complete
+    async function applyBalanceChange(uid) {
+        const inputElement = document.getElementById(`balance-input-${uid}`);
+        const inputValue = inputElement.value.trim();
+        if (inputValue === '') {
+            alert("Zəhmət olmasa, bir dəyər daxil edin.");
+            return;
+        }
+        try {
+            const balanceSnapshot = await db.ref('balances/' + uid).once('value');
+            let currentBalance = balanceSnapshot.exists() && balanceSnapshot.val().amount ? parseFloat(balanceSnapshot.val().amount) : 0;
+            if (isNaN(currentBalance)) currentBalance = 0;
+            
+            const changeValue = parseFloat(inputValue.replace(',', '.'));
+            if (isNaN(changeValue)) {
+                alert("Zəhmət olmasa, düzgün rəqəm daxil edin (məsələn: 50, +50, -20).");
+                return;
+            }
+
+            let newBalance;
+            if (inputValue.startsWith('+') || inputValue.startsWith('-')) {
+                newBalance = currentBalance + changeValue;
+            } else {
+                newBalance = changeValue;
+            }
+
+            if (newBalance < 0) newBalance = 0;
+
+            if (confirm(`İstifadəçinin balansını ${newBalance.toFixed(2)} AZN olaraq təyin etmək istəyirsiniz?`)) {
+                await db.ref('balances/' + uid).set({ amount: newBalance });
+                alert("Balans uğurla yeniləndi!");
+                inputElement.value = '';
+            }
+        } catch (error) {
+            alert("Balans yenilənərkən xəta baş verdi: " + error.message);
+        }
+    }
+    
     function loadWithdrawals() {
         const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody');
         db.ref('withdrawals').on('value', (snapshot) => {
@@ -275,7 +304,7 @@
                 userSnapshot.forEach(childSnapshot => {
                     const uid = childSnapshot.key;
                     const userData = childSnapshot.val();
-                    const userBalance = allBalances[uid] ? allBalances[uid].amount : 0;
+                    const userBalance = allBalances[uid] && allBalances[uid].amount ? allBalances[uid].amount : 0;
                     const tr = document.createElement('tr');
                     tr.innerHTML = `<td data-label="Ad">${userData.displayName || 'Adsız'}</td><td data-label="Email">${userData.email}</td><td data-label="Balans (AZN)"><b>${parseFloat(userBalance).toFixed(2)} AZN</b></td><td data-label="Əməliyyatlar"><div class="actions-cell"><input type="text" id="balance-input-${uid}" placeholder="+50, -20, 200" class="balance-input"><button class="btn btn-blue" onclick="applyBalanceChange('${uid}')">Tətbiq et</button><button class="btn btn-dark-red" onclick="deleteUser('${uid}', '${userData.email}')">Sil</button></div></td>`;
                     userTableBody.appendChild(tr);
@@ -283,7 +312,6 @@
             });
         });
     }
-
 </script>
 </body>
 </html>
