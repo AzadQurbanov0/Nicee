@@ -143,7 +143,7 @@
             snapshot.forEach(child => {
                 chats.push({ uid: child.key, ...child.val() });
             });
-            chats.reverse(); // Son yenilənənlər yuxarıda olsun
+            chats.reverse();
 
             chats.forEach(chatData => {
                 const item = document.createElement('div');
@@ -168,7 +168,6 @@
 
     function openChat(uid, userEmail) {
         currentChatUid = uid;
-        // Aktiv elementi yenilə
         document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
         const activeItem = [...document.querySelectorAll('.chat-list-item')].find(el => el.textContent.includes(userEmail));
         if (activeItem) activeItem.classList.add('active');
@@ -180,7 +179,7 @@
         messagesContainer.innerHTML = '';
 
         if (messagesListener) {
-            messagesListener.off(); // Köhnə listener'i söndür
+            messagesListener.off();
         }
 
         db.ref(`support_chats/${uid}`).update({ new_message_for_admin: false });
@@ -201,11 +200,7 @@
         const text = input.value.trim();
         if (text === '' || !currentChatUid) return;
 
-        const messageData = {
-            text: text,
-            sender: 'admin',
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        };
+        const messageData = { text: text, sender: 'admin', timestamp: firebase.database.ServerValue.TIMESTAMP };
         db.ref(`support_chats/${currentChatUid}/messages`).push(messageData);
 
         db.ref(`support_chats/${currentChatUid}`).update({
@@ -225,28 +220,16 @@
     async function applyBalanceChange(uid) {
         const inputElement = document.getElementById(`balance-input-${uid}`);
         const inputValue = inputElement.value.trim();
-        if (inputValue === '') {
-            alert("Zəhmət olmasa, bir dəyər daxil edin.");
-            return;
-        }
+        if (inputValue === '') { return alert("Zəhmət olmasa, bir dəyər daxil edin."); }
         try {
             const balanceSnapshot = await db.ref('balances/' + uid).once('value');
             let currentBalance = balanceSnapshot.exists() && balanceSnapshot.val().amount ? parseFloat(balanceSnapshot.val().amount) : 0;
             if (isNaN(currentBalance)) currentBalance = 0;
             
             const changeValue = parseFloat(inputValue.replace(',', '.'));
-            if (isNaN(changeValue)) {
-                alert("Zəhmət olmasa, düzgün rəqəm daxil edin (məsələn: 50, +50, -20).");
-                return;
-            }
+            if (isNaN(changeValue)) { return alert("Zəhmət olmasa, düzgün rəqəm daxil edin (məsələn: 50, +50, -20)."); }
 
-            let newBalance;
-            if (inputValue.startsWith('+') || inputValue.startsWith('-')) {
-                newBalance = currentBalance + changeValue;
-            } else {
-                newBalance = changeValue;
-            }
-
+            let newBalance = (inputValue.startsWith('+') || inputValue.startsWith('-')) ? currentBalance + changeValue : changeValue;
             if (newBalance < 0) newBalance = 0;
 
             if (confirm(`İstifadəçinin balansını ${newBalance.toFixed(2)} AZN olaraq təyin etmək istəyirsiniz?`)) {
@@ -259,6 +242,7 @@
         }
     }
     
+    // === DƏYİŞİKLİK BU FUNKSİYADADIR ===
     function loadWithdrawals() {
         const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody');
         db.ref('withdrawals').on('value', (snapshot) => {
@@ -268,8 +252,23 @@
             }
             withdrawalsTableBody.innerHTML = '';
             let requests = [];
-            snapshot.forEach(child => requests.push({ key: child.key, ...child.val() }));
-            requests.reverse();
+            snapshot.forEach(child => {
+                requests.push({ key: child.key, ...child.val() });
+            });
+
+            // === YENİ SIRALAMA MƏNTİQİ ===
+            requests.sort((a, b) => {
+                const a_is_pending = a.status === 'pending';
+                const b_is_pending = b.status === 'pending';
+
+                if (a_is_pending && !b_is_pending) return -1; // "a" ("pending") yuxarıda olsun
+                if (!a_is_pending && b_is_pending) return 1;  // "b" ("pending") yuxarıda olsun
+
+                // Əgər hər ikisi "pending"dirsə və ya heç biri deyilsə, tarixə görə sırala
+                return b.createdAt - a.createdAt; // Ən yeni olan yuxarıda
+            });
+            // === SIRALAMA SONU ===
+
             requests.forEach(data => {
                 const reqData = data.requestData;
                 const tr = document.createElement('tr');
