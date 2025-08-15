@@ -10,7 +10,7 @@
   h1,h2{margin:0 0 12px 0; text-align: center;}
   .section{background:#0b1220;border:1px solid #1f2937;border-radius:10px;padding:12px;margin-bottom:16px;}
   table{width:100%;border-collapse:collapse;margin-top:8px;}
-  th,td{padding:8px 10px;border:1px solid rgba(255,255,255,0.06);text-align:center;font-size:14px; word-break: break-word;}
+  th,td{padding:8px 10px;border:1px solid rgba(255,255,255,0.06);text-align:center;font-size:14px; word-break: break-word; vertical-align: middle;}
   th{background:rgba(255,255,255,0.03);}
   .no-data{opacity:0.7;text-align:center;padding:18px;color:#9fb3d9;}
   
@@ -27,6 +27,9 @@
   .status-pending { background-color: #f59e0b; }
   .status-approved { background-color: #16a34a; }
   .status-rejected { background-color: #dc2626; }
+
+  .actions-cell { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; }
+  .balance-input { width: 80px; padding: 4px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: #e6eef8; }
 </style>
 </head>
 <body>
@@ -48,7 +51,7 @@
           <h2 style="margin:0;">İstifadəçilər & Balans</h2>
           <table id="userTable">
               <thead>
-                  <tr><th>Ad</th><th>Email</th><th>Balans (AZN)</th><th>Balansı Dəyiş</th></tr>
+                  <tr><th>Ad</th><th>Email</th><th>Balans (AZN)</th><th>Əməliyyatlar</th></tr>
                 </thead>
                 <tbody><tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr></tbody>
             </table>
@@ -60,13 +63,11 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
 <script>
-    // --- FIREBASE KONFİQURASİYASI ---
     const firebaseConfig = { apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw", authDomain: "niceuc-e5986.firebaseapp.com", databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com", projectId: "niceuc-e5986", appId: "1:242221260650:web:d140153a2167c4738dcf13" };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // --- GİRİŞ KONTROLU ---
     auth.onAuthStateChanged(user => {
         const mainContent = document.getElementById('main-content');
         if (user) {
@@ -81,9 +82,7 @@
     });
     document.getElementById('adminLoginBtn').addEventListener('click', () => auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()));
 
-    // --- BÜTÜN MƏLUMATLARI YÜKLƏYƏN ƏSAS FUNKSİYA ---
     function loadAllData() {
-        
         // --- PUL ÇIXARMA SORĞULARI ---
         const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody');
         db.ref('withdrawals').on('value', (snapshot) => {
@@ -98,23 +97,19 @@
             requests.reverse().forEach(data => {
                 const reqData = data.requestData;
                 const tr = document.createElement('tr');
-                
                 let statusText, statusClass;
                 switch (data.status) {
                     case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break;
                     case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break;
                     default: statusText = 'Gözləmədə'; statusClass = 'status-pending';
                 }
-                
                 let actionButtons;
                 if (data.status === 'pending') {
                     actionButtons = `<button class="approve-btn" onclick="updateRequestStatus('${data.key}', 'approved')">Onayla</button>
                                      <button class="reject-btn" onclick="updateRequestStatus('${data.key}', 'rejected')">Rədd et</button>`;
                 } else if (data.status === 'rejected') {
                     actionButtons = `<button class="delete-btn" onclick="deleteRequest('${data.key}')">Sil</button>`;
-                } else {
-                    actionButtons = '-';
-                }
+                } else { actionButtons = '-'; }
 
                 tr.innerHTML = `
                     <td>${data.userEmail}</td>
@@ -123,27 +118,21 @@
                     <td><b>${parseFloat(reqData.amount).toFixed(2)} AZN</b></td>
                     <td>${new Date(data.createdAt).toLocaleString()}</td>
                     <td><span class="status ${statusClass}">${statusText}</span></td>
-                    <td>${actionButtons}</td>
-                `;
+                    <td>${actionButtons}</td>`;
                 withdrawalsTableBody.appendChild(tr);
             });
         });
 
-        // --- İSTİFADƏÇİLƏR VƏ BALANS (DÜZƏLDİLMİŞ KOD) ---
+        // --- İSTİFADƏÇİLƏR VƏ BALANS ---
         const userTableBody = document.getElementById('userTable').querySelector('tbody');
-        const usersRef = db.ref('users');
-        const balancesRef = db.ref('balances');
-
-        usersRef.on('value', (userSnapshot) => {
-            balancesRef.on('value', (balanceSnapshot) => {
+        db.ref('users').on('value', (userSnapshot) => {
+            db.ref('balances').on('value', (balanceSnapshot) => {
                 if (!userSnapshot.exists()) {
                     userTableBody.innerHTML = '<tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr>';
                     return;
                 }
-
                 userTableBody.innerHTML = '';
                 const allBalances = balanceSnapshot.val() || {};
-
                 userSnapshot.forEach(childSnapshot => {
                     const uid = childSnapshot.key;
                     const userData = childSnapshot.val();
@@ -154,11 +143,13 @@
                         <td>${userData.displayName || 'Adsız'}</td>
                         <td>${userData.email}</td>
                         <td><b>${parseFloat(userBalance).toFixed(2)} AZN</b></td>
-                        <td style="display: flex; align-items: center; justify-content: center; gap: 5px;">
-                            <input type="number" id="balance-input-${uid}" placeholder="Yeni balans" style="width: 80px; padding: 4px; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: #e6eef8;">
-                            <button class="apply" onclick="applyBalanceChange('${uid}')">Tətbiq et</button>
-                        </td>
-                    `;
+                        <td>
+                            <div class="actions-cell">
+                                <input type="text" id="balance-input-${uid}" placeholder="+50, -20, 200" class="balance-input">
+                                <button class="apply" onclick="applyBalanceChange('${uid}')">Tətbiq et</button>
+                                <button class="delete-btn" onclick="deleteUser('${uid}', '${userData.email}')">Sil</button>
+                            </div>
+                        </td>`;
                     userTableBody.appendChild(tr);
                 });
             });
@@ -167,39 +158,83 @@
 
     // --- KÖMƏKÇİ FUNKSİYALAR ---
 
-    // Sorğu statusunu yeniləyir (Onayla/Rədd et)
     function updateRequestStatus(key, newStatus) {
         if (!confirm(`Bu sorğunu "${newStatus === 'approved' ? 'Onayla' : 'Rədd et'}" statusuna dəyişmək istəyirsiniz?`)) return;
         db.ref('withdrawals/' + key).update({ status: newStatus });
     }
 
-    // Rədd edilmiş sorğunu bazadan silir
     function deleteRequest(key) {
         if (confirm("Bu rədd edilmiş sorğunu tamamilə silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.")) {
-            db.ref('withdrawals/' + key).remove()
-              .catch(error => alert("Sorğu silinərkən xəta baş verdi: " + error.message));
+            db.ref('withdrawals/' + key).remove().catch(error => alert("Xəta: " + error.message));
         }
     }
 
-    // İstifadəçi balansını dəyişir
-    function applyBalanceChange(uid) {
-        const input = document.getElementById(`balance-input-${uid}`);
-        const newBalance = parseFloat(input.value);
+    // YENİ: İstifadəçini silir (users və balances-dan)
+    function deleteUser(uid, userEmail) {
+        if (confirm(`'${userEmail}' email-li istifadəçini və onun balansını tamamilə silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarılmazdır!`)) {
+            const userRef = db.ref('users/' + uid);
+            const balanceRef = db.ref('balances/' + uid);
+            
+            Promise.all([userRef.remove(), balanceRef.remove()])
+                .then(() => {
+                    alert("İstifadəçi uğurla silindi.");
+                })
+                .catch(error => {
+                    alert("İstifadəçi silinərkən xəta baş verdi: " + error.message);
+                });
+        }
+    }
 
-        if (isNaN(newBalance) || newBalance < 0) {
-            alert("Zəhmət olmasa, düzgün bir məbləğ daxil edin.");
+    // YENİLƏNMİŞ: Balansı artırıb/azaldır və ya birbaşa təyin edir
+    async function applyBalanceChange(uid) {
+        const inputElement = document.getElementById(`balance-input-${uid}`);
+        const inputValue = inputElement.value.trim();
+
+        if (inputValue === '') {
+            alert("Zəhmət olmasa, bir dəyər daxil edin.");
             return;
         }
 
-        if (confirm(`Bu istifadəçinin balansını ${newBalance.toFixed(2)} AZN olaraq dəyişmək istəyirsiniz?`)) {
-            db.ref('balances/' + uid).set({
-                amount: newBalance
-            }).then(() => {
+        try {
+            // 1. Mövcud balansı bazadan alırıq (NaN probleminin həlli üçün)
+            const balanceSnapshot = await db.ref('balances/' + uid).once('value');
+            const currentBalance = balanceSnapshot.exists() ? parseFloat(balanceSnapshot.val().amount) : 0;
+            
+            // Əgər mövcud balans rəqəm deyilsə, sıfırlayırıq
+            if (isNaN(currentBalance)) {
+                currentBalance = 0;
+            }
+
+            let newBalance;
+            const changeValue = parseFloat(inputValue);
+
+            // 2. Daxil edilən dəyəri yoxlayırıq
+            if (isNaN(changeValue)) {
+                alert("Zəhmət olmasa, düzgün rəqəm daxil edin (məsələn: 50, +50, -20).");
+                return;
+            }
+
+            // 3. Hesablamanı aparırıq
+            if (inputValue.startsWith('+') || inputValue.startsWith('-')) {
+                // Artırma və ya azaltma
+                newBalance = currentBalance + changeValue;
+            } else {
+                // Birbaşa yeni balans təyin etmə
+                newBalance = changeValue;
+            }
+
+            if (newBalance < 0) {
+                newBalance = 0; // Balans mənfiyə düşə bilməz
+            }
+
+            // 4. Bazanı yeniləyirik
+            if (confirm(`İstifadəçinin balansını ${newBalance.toFixed(2)} AZN olaraq təyin etmək istəyirsiniz?`)) {
+                await db.ref('balances/' + uid).set({ amount: newBalance });
                 alert("Balans uğurla yeniləndi!");
-                input.value = ''; // Input'u təmizlə
-            }).catch(error => {
-                alert("Xəta baş verdi: " + error.message);
-            });
+                inputElement.value = '';
+            }
+        } catch (error) {
+            alert("Balans yenilənərkən xəta baş verdi: " + error.message);
         }
     }
 </script>
