@@ -103,13 +103,20 @@
                     case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break;
                     default: statusText = 'Gözləmədə'; statusClass = 'status-pending';
                 }
+
+                // --- YENİLƏNMİŞ HİSSƏ ---
                 let actionButtons;
                 if (data.status === 'pending') {
                     actionButtons = `<button class="approve-btn" onclick="updateRequestStatus('${data.key}', 'approved')">Onayla</button>
                                      <button class="reject-btn" onclick="updateRequestStatus('${data.key}', 'rejected')">Rədd et</button>`;
-                } else if (data.status === 'rejected') {
-                    actionButtons = `<button class="delete-btn" onclick="deleteRequest('${data.key}')">Sil</button>`;
-                } else { actionButtons = '-'; }
+                } else if (data.status === 'approved' || data.status === 'rejected') {
+                    const message = data.status === 'approved'
+                        ? 'Bu ONAYLANMIŞ sorğunu tamamilə silmək istədiyinizə əminsiniz?'
+                        : 'Bu RƏDD EDİLMİŞ sorğunu tamamilə silmək istədiyinizə əminsiniz?';
+                    actionButtons = `<button class="delete-btn" onclick="deleteRequest('${data.key}', '${message}')">Sil</button>`;
+                } else {
+                    actionButtons = '-'; // Digər hallar üçün (ehtiyat)
+                }
 
                 tr.innerHTML = `
                     <td>${data.userEmail}</td>
@@ -163,13 +170,15 @@
         db.ref('withdrawals/' + key).update({ status: newStatus });
     }
 
-    function deleteRequest(key) {
-        if (confirm("Bu rədd edilmiş sorğunu tamamilə silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.")) {
+    // --- YENİLƏNMİŞ HİSSƏ ---
+    function deleteRequest(key, message) {
+        // Əgər mesaj verilməyibsə, standart mesaj istifadə olunur
+        const confirmationMessage = message || "Bu sorğunu tamamilə silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarıla bilməz.";
+        if (confirm(confirmationMessage)) {
             db.ref('withdrawals/' + key).remove().catch(error => alert("Xəta: " + error.message));
         }
     }
 
-    // YENİ: İstifadəçini silir (users və balances-dan)
     function deleteUser(uid, userEmail) {
         if (confirm(`'${userEmail}' email-li istifadəçini və onun balansını tamamilə silmək istədiyinizə əminsiniz? Bu əməliyyat geri qaytarılmazdır!`)) {
             const userRef = db.ref('users/' + uid);
@@ -185,7 +194,6 @@
         }
     }
 
-    // YENİLƏNMİŞ: Balansı artırıb/azaldır və ya birbaşa təyin edir
     async function applyBalanceChange(uid) {
         const inputElement = document.getElementById(`balance-input-${uid}`);
         const inputValue = inputElement.value.trim();
@@ -196,11 +204,9 @@
         }
 
         try {
-            // 1. Mövcud balansı bazadan alırıq (NaN probleminin həlli üçün)
             const balanceSnapshot = await db.ref('balances/' + uid).once('value');
-            const currentBalance = balanceSnapshot.exists() ? parseFloat(balanceSnapshot.val().amount) : 0;
+            let currentBalance = balanceSnapshot.exists() ? parseFloat(balanceSnapshot.val().amount) : 0;
             
-            // Əgər mövcud balans rəqəm deyilsə, sıfırlayırıq
             if (isNaN(currentBalance)) {
                 currentBalance = 0;
             }
@@ -208,26 +214,21 @@
             let newBalance;
             const changeValue = parseFloat(inputValue);
 
-            // 2. Daxil edilən dəyəri yoxlayırıq
             if (isNaN(changeValue)) {
                 alert("Zəhmət olmasa, düzgün rəqəm daxil edin (məsələn: 50, +50, -20).");
                 return;
             }
 
-            // 3. Hesablamanı aparırıq
             if (inputValue.startsWith('+') || inputValue.startsWith('-')) {
-                // Artırma və ya azaltma
                 newBalance = currentBalance + changeValue;
             } else {
-                // Birbaşa yeni balans təyin etmə
                 newBalance = changeValue;
             }
 
             if (newBalance < 0) {
-                newBalance = 0; // Balans mənfiyə düşə bilməz
+                newBalance = 0;
             }
 
-            // 4. Bazanı yeniləyirik
             if (confirm(`İstifadəçinin balansını ${newBalance.toFixed(2)} AZN olaraq təyin etmək istəyirsiniz?`)) {
                 await db.ref('balances/' + uid).set({ amount: newBalance });
                 alert("Balans uğurla yeniləndi!");
