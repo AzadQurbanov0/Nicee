@@ -16,7 +16,11 @@
   
   #login-container { text-align: center; }
   #adminLoginBtn { background: #4285F4; color: white; border: none; padding: 12px 24px; font-size: 1.1rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
-  
+  .apply, .complete-btn { padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; color: white; }
+  .apply { background: #2563eb; }
+  .complete-btn { background: #16a34a; }
+
+  /* Admin Chat Stili */
   #support-section { display: flex; height: 500px; gap: 15px; }
   #chat-list-container { flex: 0 0 300px; background: #071122; border-radius: 8px; overflow-y: auto; padding: 5px; }
   .chat-list-item { padding: 10px; border-bottom: 1px solid #1f2937; cursor: pointer; }
@@ -42,9 +46,23 @@
         <h1>Admin Panel</h1>
         <button id="adminLoginBtn">Google ilə Daxil Ol</button>
     </div>
+
     <div id="main-content" style="display: none;">
       <h1 id="admin-welcome"></h1>
       <div class="section"><h2>Dəstək Müraciətləri</h2><div id="support-section"><div id="chat-list-container"><p class="no-data">Heç bir müraciət yoxdur.</p></div><div id="chat-view-container"><p id="select-chat-prompt">Söhbətə baxmaq üçün soldan bir istifadəçi seçin.</p><div id="admin-chat-messages" style="display:none;"></div><div id="admin-chat-input-area" style="display:none;"><input type="text" id="admin-chat-input" placeholder="Cavabınızı yazın..."><button id="admin-send-btn">Göndər</button></div></div></div></div>
+      
+      <div class="section">
+        <h2 style="margin:0;">Pul Çıxarma Sorğuları</h2>
+        <table id="withdrawalsTable">
+            <thead>
+                <tr><th>Email</th><th>Ad/Soyad</th><th>Kart</th><th>Məbləğ (AZN)</th><th>Tarix</th><th>Əməliyyat</th></tr>
+            </thead>
+            <tbody>
+                <tr class="no-data-row"><td colspan="6" class="no-data">Heç bir sorğu yoxdur.</td></tr>
+            </tbody>
+        </table>
+      </div>
+      
       <div class="section"><h2 style="margin:0;">İstifadəçilər & Balans</h2><table id="userTable"><thead><tr><th>Ad</th><th>Email</th><th>Balans (AZN)</th><th>Balansı Dəyiş</th></tr></thead><tbody><tr class="no-data-row"><td colspan="4" class="no-data">İstifadəçi yoxdur.</td></tr></tbody></table></div>
     </div>
   </div>
@@ -60,9 +78,7 @@
 
     const loginContainer = document.getElementById('login-container');
     const mainContent = document.getElementById('main-content');
-    const adminLoginBtn = document.getElementById('adminLoginBtn');
     
-    // Qlobal dəyişənlər
     let activeChatUid = null;
     let messageListener = null;
 
@@ -78,19 +94,16 @@
         }
     });
 
-    adminLoginBtn.addEventListener('click', () => {
+    document.getElementById('adminLoginBtn').addEventListener('click', () => {
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider).catch(error => alert("Giriş zamanı xəta: " + error.message));
     });
 
     function loadAllData() {
-        // --- DƏSTƏK SİSTEMİ (CHAT) ---
+        // --- 1. DƏSTƏK SİSTEMİ (CHAT) ---
         const chatListContainer = document.getElementById('chat-list-container');
         db.ref('support_chats').orderByChild('last_updated').on('value', (snapshot) => {
-            if (!snapshot.exists()) {
-                chatListContainer.innerHTML = '<p class="no-data">Heç bir müraciət yoxdur.</p>';
-                return;
-            }
+            if (!snapshot.exists()) return;
             chatListContainer.innerHTML = '';
             const chats = [];
             snapshot.forEach(child => chats.push({ uid: child.key, ...child.val() }));
@@ -104,8 +117,33 @@
                 chatListContainer.appendChild(item);
             });
         });
+        
+        // --- 2. PUL ÇIXARMA SORĞULARI (YENİDƏN ƏLAVƏ EDİLDİ) ---
+        const withdrawalsTableBody = document.getElementById('withdrawalsTable').querySelector('tbody');
+        db.ref('withdrawals').on('value', (snapshot) => {
+            if (!snapshot.exists()) {
+                withdrawalsTableBody.innerHTML = '<tr class="no-data-row"><td colspan="6" class="no-data">Heç bir sorğu yoxdur.</td></tr>';
+                return;
+            }
+            withdrawalsTableBody.innerHTML = '';
+            snapshot.forEach(child => {
+                const key = child.key;
+                const data = child.val();
+                const reqData = data.requestData;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${data.userEmail}</td>
+                    <td>${reqData.name} ${reqData.surname}</td>
+                    <td>${reqData.cardNumber}</td>
+                    <td><b>${parseFloat(reqData.amount).toFixed(2)} AZN</b></td>
+                    <td>${new Date(data.createdAt).toLocaleString()}</td>
+                    <td><button class="complete-btn" onclick="processWithdrawal('${key}')">Tamamlandı</button></td>
+                `;
+                withdrawalsTableBody.prepend(tr); // Son gələni yuxarıda göstər
+            });
+        });
 
-        // --- İSTİFADƏÇİLƏR VƏ BALANS ---
+        // --- 3. İSTİFADƏÇİLƏR VƏ BALANS ---
         const userTableBody = document.getElementById('userTable').querySelector('tbody');
         db.ref('users').on('value', (userSnapshot) => {
             if (!userSnapshot.exists()) {
@@ -119,14 +157,9 @@
                 const tr = document.createElement('tr');
                 tr.id = `user-row-${uid}`;
                 tr.innerHTML = `
-                    <td>${userData.name}</td>
-                    <td>${userData.email}</td>
+                    <td>${userData.name}</td><td>${userData.email}</td>
                     <td id="balance-cell-${uid}">Yüklənir...</td>
-                    <td>
-                        <input type="number" id="input-${uid}" placeholder="Məbləğ" style="width: 80px;">
-                        <button class="apply" onclick="applyBalanceChange('${uid}')" style="padding: 6px 10px; border-radius: 6px; border: none; cursor: pointer; background: #2563eb; color: white;">Tətbiq et</button>
-                    </td>
-                `;
+                    <td><input type="number" id="input-${uid}" placeholder="Məbləğ" style="width: 80px;"><button class="apply" onclick="applyBalanceChange('${uid}')">Tətbiq et</button></td>`;
                 userTableBody.appendChild(tr);
             });
         });
@@ -134,35 +167,33 @@
             const balances = balanceSnapshot.val() || {};
             for (const uid in balances) {
                 const balanceCell = document.getElementById(`balance-cell-${uid}`);
-                if (balanceCell) {
-                    balanceCell.textContent = parseFloat(balances[uid]).toFixed(2);
-                }
+                if (balanceCell) balanceCell.textContent = parseFloat(balances[uid]).toFixed(2);
             }
         });
     }
 
     // --- KÖMƏKÇİ FUNKSİYALAR ---
+    function processWithdrawal(key){
+        if(confirm('Bu sorğunu yerinə yetirdiniz və siyahıdan silmək istəyirsiniz?')) {
+            db.ref('withdrawals/' + key).remove();
+        }
+    }
     function applyBalanceChange(uid) {
         const input = document.getElementById('input-' + uid);
         const amount = parseFloat(input.value);
         if (isNaN(amount)) return alert("Düzgün məbləğ daxil edin (məs: 50 və ya -50).");
-        db.ref('balances/' + uid).transaction(current => (current || 0) + amount)
-            .then(() => { input.value = ''; })
-            .catch(error => alert("Balans yenilənərkən xəta: " + error.message));
+        db.ref('balances/' + uid).transaction(current => (current || 0) + amount).then(() => { input.value = ''; });
     }
-    
     function openChat(uid) {
         const adminChatMessages = document.getElementById('admin-chat-messages');
         const selectChatPrompt = document.getElementById('select-chat-prompt');
         activeChatUid = uid;
-
         document.querySelectorAll('.chat-list-item').forEach(el => el.classList.remove('active'));
         document.querySelector(`.chat-list-item[data-uid="${uid}"]`).classList.add('active');
         selectChatPrompt.style.display = 'none';
         adminChatMessages.style.display = 'flex';
         document.getElementById('admin-chat-input-area').style.display = 'flex';
         db.ref(`support_chats/${uid}/new_message_for_admin`).set(false);
-        
         if (messageListener) messageListener.off();
         adminChatMessages.innerHTML = '';
         const messagesRef = db.ref(`support_chats/${uid}/messages`).limitToLast(100);
@@ -175,7 +206,6 @@
             adminChatMessages.scrollTop = adminChatMessages.scrollHeight;
         });
     }
-
     function sendAdminMessage() {
         const adminChatInput = document.getElementById('admin-chat-input');
         const text = adminChatInput.value.trim();
