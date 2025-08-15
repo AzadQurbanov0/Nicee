@@ -109,7 +109,6 @@ body{
 <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
 <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Əməliyyat Tarixçəsi</h3><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
 <div id="support-widget"><div id="chat-window"><div id="chat-header">Dəstək</div><div id="chat-messages"></div><div id="chat-input-area"><input type="text" id="chat-input" placeholder="Mesajınızı yazın..."><button id="send-chat-btn"> göndər</button></div></div><button id="chat-toggle-btn"><span>💬</span><div id="chat-notification-badge" style="display:none;"></div></button></div>
-
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
@@ -283,4 +282,15 @@ body{
         const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50);
         messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; });
         const sendMessage = () => {
-            const text = ch
+            const text = chatInput.value.trim(); if (text === '') return;
+            const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP };
+            db.ref(`support_chats/${user.uid}/messages`).push(messageData);
+            db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true });
+            chatInput.value = '';
+        };
+        sendChatBtn.onclick = sendMessage;
+        chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
+    }
+</script>
+</body>
+</html>
