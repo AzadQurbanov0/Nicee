@@ -67,56 +67,46 @@ body{
 
 /* GİRİŞ ANİMASİYASI ÜÇÜN STİLLƏR */
 #preloader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: var(--bg1);
-  z-index: 10001;
-  transition: opacity 1s ease-in-out;
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out;
 }
 #animated-bag {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: clamp(5rem,18vw,12rem);
-  z-index: 10002;
-  opacity: 0;
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0;
   filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35));
 }
 .content-wrapper {
-  opacity: 0;
-  visibility: hidden;
+  opacity: 0; visibility: hidden;
   transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
 }
 
-/* BALANS ARTMA ANİMASİYASI */
-.balance-update-bag {
-  animation: bag-jiggle 0.6s ease-in-out;
-}
-@keyframes bag-jiggle {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px) scale(1.05); }
+/* BALANS ARTMA ANİMASİYASI (MƏTN) */
+.balance-update-text { animation: text-flash 0.7s ease-in-out; }
+@keyframes text-flash {
+  0% { color: var(--text); transform: scale(1); }
+  50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); }
+  100% { color: var(--text); transform: scale(1); }
 }
 
-.balance-update-text {
-  animation: text-flash 0.7s ease-in-out;
+/* SİKKƏ YAĞIŞI ANİMASİYASI */
+.coin {
+  position: fixed;
+  top: -50px;
+  font-size: 2rem;
+  z-index: 9998;
+  pointer-events: none;
+  animation-name: fall-and-fade;
+  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  animation-fill-mode: forwards;
 }
-@keyframes text-flash {
-  0% { 
-    color: var(--text);
-    transform: scale(1);
+@keyframes fall-and-fade {
+  from {
+    transform: translateY(0) rotateZ(0deg);
+    opacity: 1;
   }
-  50% { 
-    color: var(--accent); /* Yaşıl rəng */
-    transform: scale(1.2);
-    text-shadow: 0 0 10px var(--accent);
-  }
-  100% {
-    color: var(--text);
-    transform: scale(1);
+  to {
+    transform: translateY(65vh) rotateZ(360deg);
+    opacity: 0;
   }
 }
 </style>
@@ -147,10 +137,46 @@ body{
     const db = firebase.database();
     let balanceListener = null, chatStateListener = null, messageListener = null;
 
+    // Rəqəmləri sayan animasiya funksiyası
+    function animateCountUp(element, start, end, duration) {
+        let startTime = null;
+        const step = (timestamp) => {
+            if (!startTime) startTime = timestamp;
+            const progress = Math.min((timestamp - startTime) / duration, 1);
+            const current = start + progress * (end - start);
+            element.textContent = current.toFixed(2);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    // SİKKƏ YAĞIŞI FUNKSİYASI
+    function createCoinShower() {
+        const coinCount = 10; // Ekrana töküləcək sikkə sayı
+        const body = document.body;
+        for (let i = 0; i < coinCount; i++) {
+            const coin = document.createElement('span');
+            coin.className = 'coin';
+            coin.innerHTML = '🪙';
+            
+            // Təsadüfi dəyərlər
+            coin.style.left = `${Math.random() * 95}vw`;
+            coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`; // 0.6s - 1.4s arası
+            coin.style.animationDelay = `${Math.random() * 0.4}s`;
+
+            body.appendChild(coin);
+
+            // Animasiya bitdikdən sonra sikkəni sil
+            setTimeout(() => {
+                coin.remove();
+            }, 2000); // Max animasiya müddətindən bir az çox
+        }
+    }
+
     auth.onAuthStateChanged(user => {
         const supportWidget = document.getElementById('support-widget');
-        
-        // Balans dəyişikliyini izləmək üçün dəyişən
         let lastKnownBalance = 0;
 
         if (user) {
@@ -162,28 +188,25 @@ body{
             balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
                 const balanceData = snapshot.val();
                 let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
+                const balanceElement = document.getElementById('balance');
 
-                // Balansın artıb-artmadığını yoxlayan məntiq
-                if (newBalance > lastKnownBalance && lastKnownBalance !== 0) {
-                    const bagElement = document.querySelector('.card .bag');
-                    const balanceElement = document.getElementById('balance');
-
-                    // Animasiya class'larını əlavə et
-                    bagElement.classList.add('balance-update-bag');
+                if (newBalance > lastKnownBalance) {
+                    // SİKKƏ YAĞIŞINI İŞƏ SAL
+                    createCoinShower();
+                    
+                    // Mətn animasiyasını işə sal
                     balanceElement.classList.add('balance-update-text');
-
-                    // Animasiya bitdikdən sonra class'ları silirik ki, təkrar işləyə bilsin
-                    bagElement.addEventListener('animationend', () => {
-                        bagElement.classList.remove('balance-update-bag');
-                    }, { once: true });
-
                     balanceElement.addEventListener('animationend', () => {
                         balanceElement.classList.remove('balance-update-text');
                     }, { once: true });
+
+                    // Rəqəmləri sayaraq yenilə
+                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200); // 1.2 saniyə
+                
+                } else {
+                    balanceElement.textContent = newBalance.toFixed(2);
                 }
                 
-                // Balansı yenilə və son qiyməti yadda saxla
-                document.getElementById('balance').textContent = newBalance.toFixed(2);
                 lastKnownBalance = newBalance;
             });
 
@@ -192,7 +215,7 @@ body{
         } else {
             document.getElementById('userInfo').textContent = '';
             document.getElementById('balance').textContent = '0.00';
-            lastKnownBalance = 0; // İstifadəçi çıxanda balansı sıfırla
+            lastKnownBalance = 0;
             if (balanceListener) balanceListener.off();
             if (chatStateListener) chatStateListener.off();
             if (messageListener) messageListener.off();
@@ -230,12 +253,10 @@ body{
     document.getElementById('withdrawBtn').addEventListener('click', () => {
         const user = auth.currentUser;
         if (!user) return alert('Zəhmət olmasa, daxil olun.');
-        
         let currentBalance = 0;
         db.ref('balances/' + user.uid).once('value', snapshot => {
             const balanceData = snapshot.val();
             currentBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
-
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const name = document.getElementById('userName').value.trim();
             const surname = document.getElementById('userSurname').value.trim();
@@ -245,7 +266,6 @@ body{
             if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.');
 
             const balanceRef = db.ref('balances/' + user.uid);
-            
             balanceRef.transaction(currentData => {
                 let currentBal = (currentData && currentData.amount) ? currentData.amount : 0;
                 if (amount > currentBal) { return; }
@@ -256,13 +276,7 @@ body{
                 } else if (!committed) {
                     alert('Balansınızda kifayət qədər vəsait yoxdur (əməliyyat ləğv edildi).');
                 } else {
-                    const request = { 
-                        uid: user.uid, 
-                        userEmail: user.email, 
-                        requestData: { name, surname, cardNumber: card, amount }, 
-                        status: 'pending', 
-                        createdAt: firebase.database.ServerValue.TIMESTAMP 
-                    };
+                    const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP };
                     db.ref('withdrawals').push(request).then(() => {
                         alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.');
                         document.getElementById('notification-badge').style.display = 'flex';
@@ -310,24 +324,17 @@ body{
         const finalBag = document.querySelector('.card .bag');
         const contentWrapper = document.querySelector('.content-wrapper');
 
-        // 1. Pərdənin yavaşca yox olması
         preloader.style.opacity = '0';
-        
-        // 2. Pərdə yox olmağa başlayarkən, mərkəzdəki kisə peyda olur
         setTimeout(() => {
             animatedBag.style.opacity = '1';
             animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)';
         }, 200);
-
-        // 3. Kisənin öz yerinə hərəkəti
         setTimeout(() => {
             const finalBagRect = finalBag.getBoundingClientRect();
             animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`;
             animatedBag.style.top = `${finalBagRect.top + finalBagRect.height / 2}px`;
             animatedBag.style.fontSize = getComputedStyle(finalBag).fontSize;
         }, 1000);
-
-        // 4. Animasiya bitdikdən sonra təmizlik işləri
         setTimeout(() => {
             preloader.style.display = 'none';
             animatedBag.style.display = 'none';
