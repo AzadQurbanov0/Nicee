@@ -7,7 +7,7 @@
 <style>
 :root{
   --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e; --card:rgba(255,255,255,0.06);
-  --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e;
+  --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e; --blue:#2563eb;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{height:100%;}
@@ -20,28 +20,37 @@ body{
 .wrap{display:grid;place-items:center;gap:12px;text-align:center;padding:20px;}
 .user-info{font-size:1rem;font-weight:600;opacity:.9;margin-bottom:6px;}
 .card{
-  position:relative; width:min(60vw,320px); aspect-ratio:1/1; display:grid; place-items:center;
+  position:relative; width:min(70vw,360px); aspect-ratio:1/1; display:grid; place-items:center;
   background: radial-gradient(60% 60% at 50% 30%,var(--glass),transparent 70%),var(--card);
   border:1px solid rgba(255,255,255,0.14); border-radius:24px;
   box-shadow:0 15px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
-  backdrop-filter:blur(6px);
+  backdrop-filter:blur(6px); padding:10px;
 }
-.bag{font-size:clamp(5rem,18vw,12rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
+.bag{font-size:clamp(4rem,15vw,10rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
 .balance{margin-top:10px;display:grid;place-items:center;font-weight:700;letter-spacing:1px;text-shadow:0 2px 5px rgba(0,0,0,0.5);}
 .balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem);opacity:.9;margin-right:4px;}
 .balance .value{font-size:clamp(1.5rem,5vw,2.5rem);line-height:1;}
+#userCodeDisplay { margin-top: 15px; font-size: 0.9rem; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; user-select: text; }
+#userCodeDisplay .code-title { font-weight: 600; opacity: 0.8; margin-bottom: 4px; display: block; font-size: 0.8rem; }
+#userCodeDisplay .code-value { font-family: 'Courier New', Courier, monospace; font-size: 1.1rem; letter-spacing: 2px; }
+#copyCodeBtn { margin-left: 8px; background: none; border: none; color: var(--text); cursor: pointer; font-size: 1rem; opacity: 0.7; }
 .google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600;}
-.action-buttons button { position: fixed; right: 20px; padding: 8px 14px; font-size: 0.9rem; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-#payBtn { top: 20px; background: #22c55e; }
-#cekBtn { top: 58px; background: #2563eb; }
-#pulCekBtn { top: 96px; background: #f59e0b; }
+.action-buttons { position: fixed; right: 20px; top: 20px; display: flex; flex-direction: column; gap: 8px; }
+.action-buttons button { padding: 8px 14px; font-size: 0.9rem; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; text-align: left; width: 130px; }
+#payBtn { background: var(--accent); }
+#cekBtn { background: var(--blue); }
+#pulCekBtn { background: #f59e0b; }
+#transferBtn { background: #8b5cf6; }
 #notification-bell { position: fixed; top: 20px; left: 20px; font-size: 28px; cursor: pointer; user-select: none; z-index: 10000; }
 #notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
 .modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
 .modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color:white; width: min(90vw, 350px); }
-.modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: #FFFFFF; color: #212529; font-size: 1rem; }
+.modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; }
 .modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
+.modalContent .primary-btn { background-color: var(--accent); color: white; }
+.modalContent .secondary-btn { background-color: var(--blue); color: white; }
+#recipientInfo { margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.95rem; display: none; }
 #notifications-list { max-height: 400px; overflow-y: auto; text-align: left; margin-top: 15px; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
 .notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
 .notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -52,6 +61,8 @@ body{
 .status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
 .status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
 .status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
+.type-transfer_sent { border-left-color: #ef4444; } .type-transfer_sent .notification-item-amount { color: #f87171; }
+.type-transfer_received { border-left-color: #22c55e; } .type-transfer_received .notification-item-amount { color: #4ade80; }
 #support-widget { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
 #chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
 #chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
@@ -64,80 +75,81 @@ body{
 #chat-input-area { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 #chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
 #send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
-
-/* GİRİŞ ANİMASİYASI ÜÇÜN STİLLƏR */
-#preloader {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out;
-}
-#animated-bag {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0;
-  filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35));
-}
-.content-wrapper {
-  opacity: 0; visibility: hidden;
-  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-}
-
-/* BALANS ARTMA ANİMASİYASI (MƏTN) */
+#preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out; }
+#animated-bag { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35)); }
+.content-wrapper { opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; }
 .balance-update-text { animation: text-flash 0.7s ease-in-out; }
-@keyframes text-flash {
-  0% { color: var(--text); transform: scale(1); }
-  50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); }
-  100% { color: var(--text); transform: scale(1); }
-}
-
-/* SİKKƏ YAĞIŞI ANİMASİYASI */
-.coin {
-  position: fixed;
-  top: -50px;
-  font-size: 2rem;
-  z-index: 9998;
-  pointer-events: none;
-  animation-name: fall-and-fade;
-  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
-  animation-fill-mode: forwards;
-}
-@keyframes fall-and-fade {
-  from {
-    transform: translateY(0) rotateZ(0deg);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(65vh) rotateZ(360deg);
-    opacity: 0;
-  }
-}
+@keyframes text-flash { 0% { color: var(--text); transform: scale(1); } 50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); } 100% { color: var(--text); transform: scale(1); } }
+.coin { position: fixed; top: -50px; font-size: 2rem; z-index: 9998; pointer-events: none; animation-name: fall-and-fade; animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); animation-fill-mode: forwards; }
+@keyframes fall-and-fade { from { transform: translateY(0) rotateZ(0deg); opacity: 1; } to { transform: translateY(65vh) rotateZ(360deg); opacity: 0; } }
 </style>
 </head>
 <body>
 
-<div id="preloader"></div>
-<div id="animated-bag">💰</div>
+<div id="preloader" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg1);z-index:10001;transition:opacity 1s ease-in-out;"></div>
+<div id="animated-bag" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(5rem,18vw,12rem);z-index:10002;opacity:0;filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));">💰</div>
 
-<div class="content-wrapper">
-    <div id="notification-bell"><span>🔔</span><div id="notification-badge" style="display:none;">1</div></div>
-    <div class="wrap"><div id="userInfo" class="user-info"></div><div class="card"><div class="bag">💰</div><div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div></div><button class="google-btn" id="loginBtn">🌐 Giriş</button></div>
-    <div class="action-buttons"><button id="payBtn">💲PUL YÜKLƏ</button><button id="cekBtn">📷 ÇEK ŞEKLİ</button><button id="pulCekBtn">🏦 PULU ÇEK</button></div>
+<div class="content-wrapper" style="opacity:0;visibility:hidden;transition:opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;">
+
+    <div id="notification-bell"><span>🔔</span><div id="notification-badge" style="display:none;"></div></div>
+
+    <div class="wrap">
+        <div id="userInfo" class="user-info"></div>
+        <div class="card">
+            <div class="bag">💰</div>
+            <div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div>
+            <div id="userCodeDisplay" style="display:none;">
+                <span class="code-title">Sizin Kart Kodunuz</span>
+                <span id="userCodeValue" class="code-value"></span>
+                <button id="copyCodeBtn" title="Kopyala">📋</button>
+            </div>
+        </div>
+        <button class="google-btn" id="loginBtn">🌐 Giriş</button>
+    </div>
+
+    <div class="action-buttons">
+        <button id="payBtn">💲 PUL YÜKLƏ</button>
+        <button id="cekBtn">📷 ÇEK ŞƏKLİ</button>
+        <button id="pulCekBtn">🏦 PULU ÇEK</button>
+        <button id="transferBtn">💸 KÖÇÜRMƏ ET</button>
+    </div>
+
     <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ LEO BANK 4098 5844 6528 0079</p><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Əməliyyat Tarixçəsi</h3><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
-    <div id="support-widget"><div id="chat-window"><div id="chat-header">Dəstək</div><div id="chat-messages"></div><div id="chat-input-area"><input type="text" id="chat-input" placeholder="Mesajınızı yazın..."><button id="send-chat-btn"> göndər</button></div></div><button id="chat-toggle-btn"><span>💬</span><div id="chat-notification-badge" style="display:none;"></div></button></div>
+    
+    <div class="modalOverlay" id="transferModal">
+        <div class="modalContent">
+            <h3>Hesaba Köçürmə</h3>
+            <input type="text" id="recipientCodeInput" placeholder="Alıcının 8 rəqəmli kodu" maxlength="8" required>
+            <input type="number" id="transferAmountInput" placeholder="Məbləğ (AZN)" required>
+            <button id="checkRecipientBtn" class="secondary-btn">Alıcını Yoxla</button>
+            <div id="recipientInfo"></div>
+            <button id="sendTransferBtn" class="primary-btn" style="display:none;">Təsdiq Et və Göndər</button>
+            <button class="close-modal-btn" style="background-color:#555;">Bağla</button>
+        </div>
+    </div>
+    
+    <div id="support-widget" style="display:none;"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw", authDomain: "niceuc-e5986.firebaseapp.com", databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com", projectId: "niceuc-e5986", appId: "1:242221260650:web:d140153a2167c4738dcf13" };
+    const firebaseConfig = { 
+        apiKey: "YOUR_API_KEY", 
+        authDomain: "YOUR_AUTH_DOMAIN", 
+        databaseURL: "YOUR_DATABASE_URL", 
+        projectId: "YOUR_PROJECT_ID", 
+        appId: "YOUR_APP_ID" 
+    };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    let balanceListener = null, chatStateListener = null, messageListener = null;
+    let balanceListener = null, currentUser = null;
 
-    // Rəqəmləri sayan animasiya funksiyası
     function animateCountUp(element, start, end, duration) {
         let startTime = null;
         const step = (timestamp) => {
@@ -145,190 +157,176 @@ body{
             const progress = Math.min((timestamp - startTime) / duration, 1);
             const current = start + progress * (end - start);
             element.textContent = current.toFixed(2);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
+            if (progress < 1) { window.requestAnimationFrame(step); }
         };
         window.requestAnimationFrame(step);
     }
-
-    // SİKKƏ YAĞIŞI FUNKSİYASI
     function createCoinShower() {
-        const coinCount = 10; // Ekrana töküləcək sikkə sayı
-        const body = document.body;
+        const coinCount = 10;
         for (let i = 0; i < coinCount; i++) {
             const coin = document.createElement('span');
             coin.className = 'coin';
             coin.innerHTML = '🪙';
-            
-            // Təsadüfi dəyərlər
             coin.style.left = `${Math.random() * 95}vw`;
-            coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`; // 0.6s - 1.4s arası
+            coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`;
             coin.style.animationDelay = `${Math.random() * 0.4}s`;
-
-            body.appendChild(coin);
-
-            // Animasiya bitdikdən sonra sikkəni sil
-            setTimeout(() => {
-                coin.remove();
-            }, 2000); // Max animasiya müddətindən bir az çox
+            document.body.appendChild(coin);
+            setTimeout(() => coin.remove(), 2000);
         }
     }
-
+    async function generateUniqueCode() {
+        let code, isUnique = false;
+        while (!isUnique) {
+            code = Math.floor(10000000 + Math.random() * 90000000).toString();
+            const snapshot = await db.ref('kartKodlari/' + code).once('value');
+            if (!snapshot.exists()) { isUnique = true; }
+        }
+        return code;
+    }
+    async function checkAndGenerateUserCode(user) {
+        const userProfileRef = db.ref('user_profiles/' + user.uid);
+        const snapshot = await userProfileRef.once('value');
+        const userProfile = snapshot.val();
+        if (!userProfile || !userProfile.kartKodu) {
+            const newCode = await generateUniqueCode();
+            const updates = {};
+            updates[`user_profiles/${user.uid}/kartKodu`] = newCode;
+            updates[`user_profiles/${user.uid}/displayName`] = user.displayName;
+            updates[`user_profiles/${user.uid}/email`] = user.email;
+            updates[`kartKodlari/${newCode}`] = user.uid;
+            await db.ref().update(updates);
+            displayUserCode(newCode);
+        } else {
+            displayUserCode(userProfile.kartKodu);
+        }
+    }
+    function displayUserCode(code) {
+        document.getElementById('userCodeValue').textContent = code;
+        document.getElementById('userCodeDisplay').style.display = 'block';
+    }
     auth.onAuthStateChanged(user => {
-        const supportWidget = document.getElementById('support-widget');
+        currentUser = user;
         let lastKnownBalance = 0;
-
         if (user) {
             document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
-            db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
-            
+            checkAndGenerateUserCode(user);
             if (balanceListener) balanceListener.off();
-
             balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
                 const balanceData = snapshot.val();
                 let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
                 const balanceElement = document.getElementById('balance');
-
-                if (newBalance > lastKnownBalance) {
-                    // SİKKƏ YAĞIŞINI İŞƏ SAL
-                    createCoinShower();
-                    
-                    // Mətn animasiyasını işə sal
-                    balanceElement.classList.add('balance-update-text');
-                    balanceElement.addEventListener('animationend', () => {
-                        balanceElement.classList.remove('balance-update-text');
-                    }, { once: true });
-
-                    // Rəqəmləri sayaraq yenilə
-                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200); // 1.2 saniyə
-                
+                if (newBalance > lastKnownBalance && lastKnownBalance !== 0) {
+                     createCoinShower();
+                     animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200);
                 } else {
                     balanceElement.textContent = newBalance.toFixed(2);
                 }
-                
                 lastKnownBalance = newBalance;
             });
-
-            supportWidget.style.display = 'block';
-            initializeSupportChat(user);
+            document.getElementById('support-widget').style.display = 'block';
         } else {
             document.getElementById('userInfo').textContent = '';
             document.getElementById('balance').textContent = '0.00';
-            lastKnownBalance = 0;
+            document.getElementById('userCodeDisplay').style.display = 'none';
             if (balanceListener) balanceListener.off();
-            if (chatStateListener) chatStateListener.off();
-            if (messageListener) messageListener.off();
-            supportWidget.style.display = 'none';
+            document.getElementById('support-widget').style.display = 'none';
         }
     });
-
-    document.getElementById('loginBtn').addEventListener('click', () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(error => alert(error.message)); });
+    document.getElementById('loginBtn').addEventListener('click', () => { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(error => alert(error.message)); });
     document.getElementById('payBtn').addEventListener('click', () => document.getElementById('payModal').style.display = 'flex');
     document.getElementById('cekBtn').addEventListener('click', () => document.getElementById('cekModal').style.display = 'flex');
     document.getElementById('pulCekBtn').addEventListener('click', () => document.getElementById('pulCekModal').style.display = 'flex');
+    document.getElementById('transferBtn').addEventListener('click', () => document.getElementById('transferModal').style.display = 'flex');
     document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
-    document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
-    
+    document.getElementById('copyCodeBtn').addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById('userCodeValue').textContent); alert('Kod kopyalandı!'); });
     document.getElementById('notification-bell').addEventListener('click', () => {
-        const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.');
+        if (!currentUser) return alert('Tarixçəyə baxmaq üçün daxil olun.');
         const modal = document.getElementById('notificationsModal'), list = document.getElementById('notifications-list');
-        modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none';
-        list.innerHTML = '<p>Yüklənir...</p>';
-        db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(20).once('value', snapshot => {
+        modal.style.display = 'flex'; list.innerHTML = '<p>Yüklənir...</p>';
+        db.ref('transactions').orderByChild('uid').equalTo(currentUser.uid).limitToLast(20).once('value', snapshot => {
             if (!snapshot.exists()) { list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>'; return; }
             list.innerHTML = ''; let items = []; snapshot.forEach(child => items.push(child.val()));
             items.reverse().forEach(data => {
-                const itemDiv = document.createElement('div'), reqData = data.requestData;
-                let statusText, statusClass;
-                switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; default: statusText = 'Gözləmədə'; statusClass = 'status-pending'; }
-                itemDiv.className = `notification-item ${statusClass}`;
-                const maskedCardNumber = '**** ' + reqData.cardNumber.slice(-4);
-                itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount">${parseFloat(reqData.amount).toFixed(2)} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body">Kart: ${maskedCardNumber}</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`;
+                const itemDiv = document.createElement('div');
+                const amount = parseFloat(data.requestData.amount).toFixed(2); let html = '';
+                switch (data.type) {
+                    case 'withdrawal':
+                        let statusText, statusClass;
+                        switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; default: statusText = 'Gözləmədə'; statusClass = 'status-pending'; }
+                        itemDiv.className = `notification-item ${statusClass}`;
+                        html = `<div class="notification-item-header"><span class="notification-item-amount">${amount} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body">Kart: **** ${data.requestData.cardNumber.slice(-4)}</div>`;
+                        break;
+                    case 'transfer_sent':
+                        itemDiv.className = `notification-item type-transfer_sent`;
+                        html = `<div class="notification-item-header"><span class="notification-item-amount">-${amount} AZN</span><span class="notification-item-status">Köçürmə (gedən)</span></div><div class="notification-item-body">Alıcı: ${data.requestData.recipientName}</div>`;
+                        break;
+                    case 'transfer_received':
+                        itemDiv.className = `notification-item type-transfer_received`;
+                        html = `<div class="notification-item-header"><span class="notification-item-amount">+${amount} AZN</span><span class="notification-item-status">Köçürmə (gələn)</span></div><div class="notification-item-body">Göndərən: ${data.requestData.senderName}</div>`;
+                        break;
+                }
+                itemDiv.innerHTML += `${html}<div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`;
                 list.appendChild(itemDiv);
             });
         });
     });
-
-    document.getElementById('withdrawBtn').addEventListener('click', () => {
-        const user = auth.currentUser;
-        if (!user) return alert('Zəhmət olmasa, daxil olun.');
-        let currentBalance = 0;
-        db.ref('balances/' + user.uid).once('value', snapshot => {
-            const balanceData = snapshot.val();
-            currentBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const name = document.getElementById('userName').value.trim();
-            const surname = document.getElementById('userSurname').value.trim();
-            const card = document.getElementById('cardNumber').value.trim();
-            if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.');
-            if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.');
-            if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.');
-
-            const balanceRef = db.ref('balances/' + user.uid);
-            balanceRef.transaction(currentData => {
-                let currentBal = (currentData && currentData.amount) ? currentData.amount : 0;
-                if (amount > currentBal) { return; }
-                return { amount: currentBal - amount };
-            }, (error, committed, snapshot) => {
-                if (error) {
-                    alert('Əməliyyat zamanı xəta baş verdi: ' + error.message);
-                } else if (!committed) {
-                    alert('Balansınızda kifayət qədər vəsait yoxdur (əməliyyat ləğv edildi).');
-                } else {
-                    const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP };
-                    db.ref('withdrawals').push(request).then(() => {
-                        alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.');
-                        document.getElementById('notification-badge').style.display = 'flex';
-                        document.getElementById('pulCekModal').style.display = 'none';
-                        document.getElementById('withdrawAmount').value = '';
-                        document.getElementById('userName').value = '';
-                        document.getElementById('userSurname').value = '';
-                        document.getElementById('cardNumber').value = '';
-                    }).catch(err => {
-                        alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message);
-                        balanceRef.transaction(currentData => {
-                            let currentBal = (currentData && currentData.amount) ? currentData.amount : 0;
-                            return { amount: currentBal + amount };
-                        });
-                    });
+    let recipientData = null;
+    document.getElementById('checkRecipientBtn').addEventListener('click', async () => {
+        const code = document.getElementById('recipientCodeInput').value;
+        const recipientInfoDiv = document.getElementById('recipientInfo');
+        const sendBtn = document.getElementById('sendTransferBtn');
+        if (code.length !== 8) { recipientInfoDiv.textContent = 'Kod 8 rəqəmli olmalıdır.'; recipientInfoDiv.style.display = 'block'; sendBtn.style.display = 'none'; return; }
+        recipientInfoDiv.textContent = 'Yoxlanılır...'; recipientInfoDiv.style.display = 'block'; sendBtn.style.display = 'none';
+        try {
+            const uidSnapshot = await db.ref('kartKodlari/' + code).once('value');
+            if (!uidSnapshot.exists()) { recipientInfoDiv.textContent = 'Bu koda malik istifadəçi tapılmadı.'; return; }
+            const recipientUid = uidSnapshot.val();
+            if (recipientUid === currentUser.uid) { recipientInfoDiv.textContent = 'Özünüzə pul köçürə bilməzsiniz.'; return; }
+            const profileSnapshot = await db.ref('user_profiles/' + recipientUid).once('value');
+            recipientData = { uid: recipientUid, name: profileSnapshot.val().displayName };
+            recipientInfoDiv.innerHTML = `Alıcı: <strong>${recipientData.name}</strong>`;
+            sendBtn.style.display = 'block';
+        } catch (error) { recipientInfoDiv.textContent = 'Xəta baş verdi: ' + error.message; }
+    });
+    document.getElementById('sendTransferBtn').addEventListener('click', () => {
+        if (!recipientData) return alert('Alıcı təsdiqlənməyib.');
+        const amount = parseFloat(document.getElementById('transferAmountInput').value);
+        if (isNaN(amount) || amount <= 0) return alert('Zəhmət olmasa, düzgün məbləğ daxil edin.');
+        const senderUid = currentUser.uid; const recipientUid = recipientData.uid;
+        db.ref('balances').transaction(currentBalances => {
+            if (currentBalances) {
+                if (!currentBalances[senderUid]) currentBalances[senderUid] = { amount: 0 };
+                if (!currentBalances[recipientUid]) currentBalances[recipientUid] = { amount: 0 };
+                if (currentBalances[senderUid].amount >= amount) {
+                    currentBalances[senderUid].amount -= amount;
+                    currentBalances[recipientUid].amount += amount;
+                    return currentBalances;
                 }
-            });
+            }
+            return;
+        }, (error, committed, snapshot) => {
+            if (error) { alert('Köçürmə zamanı xəta baş verdi: ' + error.message);
+            } else if (!committed) { alert('Balansınızda kifayət qədər vəsait yoxdur.');
+            } else {
+                const timestamp = firebase.database.ServerValue.TIMESTAMP;
+                db.ref('transactions').push({ uid: senderUid, type: 'transfer_sent', requestData: { amount, recipientName: recipientData.name }, createdAt: timestamp });
+                db.ref('transactions').push({ uid: recipientUid, type: 'transfer_received', requestData: { amount, senderName: currentUser.displayName }, createdAt: timestamp });
+                alert('Köçürmə uğurla tamamlandı!');
+                document.getElementById('transferModal').style.display = 'none';
+                document.getElementById('recipientCodeInput').value = '';
+                document.getElementById('transferAmountInput').value = '';
+                document.getElementById('recipientInfo').style.display = 'none';
+                document.getElementById('sendTransferBtn').style.display = 'none';
+            }
         });
     });
-
-    function initializeSupportChat(user) {
-        const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge');
-        if (messageListener) messageListener.off(); if (chatStateListener) chatStateListener.off();
-        chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } };
-        const chatRef = db.ref(`support_chats/${user.uid}`);
-        chatStateListener = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; });
-        chatMessages.innerHTML = '';
-        const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50);
-        messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; });
-        const sendMessage = () => {
-            const text = chatInput.value.trim(); if (text === '') return;
-            const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP };
-            db.ref(`support_chats/${user.uid}/messages`).push(messageData);
-            db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true });
-            chatInput.value = '';
-        };
-        sendChatBtn.onclick = sendMessage;
-        chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
-    }
-
-    // GİRİŞ ANİMASİYASININ MƏNTİQİ
     window.onload = function() {
         const preloader = document.getElementById('preloader');
         const animatedBag = document.getElementById('animated-bag');
         const finalBag = document.querySelector('.card .bag');
         const contentWrapper = document.querySelector('.content-wrapper');
-
         preloader.style.opacity = '0';
-        setTimeout(() => {
-            animatedBag.style.opacity = '1';
-            animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)';
-        }, 200);
+        setTimeout(() => { animatedBag.style.opacity = '1'; animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)'; }, 200);
         setTimeout(() => {
             const finalBagRect = finalBag.getBoundingClientRect();
             animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`;
