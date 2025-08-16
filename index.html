@@ -115,12 +115,12 @@ body{
     }
 
     function createCoinShower() {
-        const coinCount = 10;
+        const coinCount = 20;
         const body = document.body;
         for (let i = 0; i < coinCount; i++) {
             const coin = document.createElement('span');
             coin.className = 'coin';
-            coin.innerHTML = '🪙💸';
+            coin.innerHTML = '🪙';
             coin.style.left = `${Math.random() * 95}vw`;
             coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`;
             coin.style.animationDelay = `${Math.random() * 0.4}s`;
