@@ -155,7 +155,6 @@ body{
     document.getElementById('notification-bell').addEventListener('click', () => {
         const user = auth.currentUser;
         if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.');
-
         const modal = document.getElementById('notificationsModal');
         const list = document.getElementById('notifications-list');
         const announcementsContainer = document.getElementById('announcements-container');
@@ -163,14 +162,11 @@ body{
         document.getElementById('notification-badge').style.display = 'none';
         list.innerHTML = '<p>Yüklənir...</p>';
         announcementsContainer.innerHTML = '';
-
         const withdrawalsRef = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value');
         const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value');
         const announcementsRef = db.ref('announcements').limitToLast(5).once('value');
-
         Promise.all([withdrawalsRef, depositsRef, announcementsRef])
             .then(([withdrawalsSnapshot, depositsSnapshot, announcementsSnapshot]) => {
-                
                 if (announcementsSnapshot.exists()) {
                     let announcements = [];
                     announcementsSnapshot.forEach(child => { announcements.push(child.val()); });
@@ -181,7 +177,6 @@ body{
                         announcementsContainer.appendChild(annDiv);
                     });
                 }
-
                 if (!withdrawalsSnapshot.exists() && !depositsSnapshot.exists()) {
                     list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>';
                     return;
