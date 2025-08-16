@@ -42,13 +42,10 @@ body{
 .modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color:white; width: min(90vw, 350px); }
 .modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: #FFFFFF; color: #212529; font-size: 1rem; }
 .modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
-
-/* YENİ - ELANLAR ÜÇÜN STİL */
 #announcements-container { margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; }
 .announcement-item { background: rgba(14, 165, 233, 0.1); border-left: 4px solid #0ea5e9; padding: 12px; border-radius: 6px; text-align: left; margin-bottom: 10px; }
 .announcement-text { font-size: 0.9rem; margin: 0; white-space: pre-wrap; word-break: break-word; }
 .announcement-meta { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
-
 #notifications-list { max-height: 350px; overflow-y: auto; text-align: left; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
 .notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
 .notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -63,7 +60,25 @@ body{
 .status-cancelled { border-left-color: #6b7280; } .status-cancelled .notification-item-status { background-color: #6b7280; }
 .status-deposit { border-left-color: #3b82f6; } .status-deposit .notification-item-status { background-color: #3b82f6; }
 .cancel-btn { background: var(--red); color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
-/* ... (qalan stillər olduğu kimi qalır) ... */
+#support-widget { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
+#chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
+#chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
+#chat-window { position: absolute; bottom: 80px; right: 0; width: 320px; max-width: 90vw; height: 400px; background: var(--bg3); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: none; flex-direction: column; overflow: hidden; }
+#chat-header { padding: 10px; background: rgba(0,0,0,0.2); font-weight: bold; text-align: center; }
+#chat-messages { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+.message { max-width: 80%; padding: 8px 12px; border-radius: 10px; line-height: 1.4; word-break: break-word; }
+.message.user { background: #2563eb; color: white; align-self: flex-end; }
+.message.admin { background: #4b5563; color: white; align-self: flex-start; }
+#chat-input-area { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+#chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
+#send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
+#preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out; }
+#animated-bag { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35)); }
+.content-wrapper { opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; }
+.balance-update-text { animation: text-flash 0.7s ease-in-out; }
+@keyframes text-flash { 0% { color: var(--text); transform: scale(1); } 50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); } 100% { color: var(--text); transform: scale(1); } }
+.coin { position: fixed; top: -50px; font-size: 2rem; z-index: 9998; pointer-events: none; animation-name: fall-and-fade; animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); animation-fill-mode: forwards; }
+@keyframes fall-and-fade { from { transform: translateY(0) rotateZ(0deg); opacity: 1; } to { transform: translateY(65vh) rotateZ(360deg); opacity: 0; } }
 </style>
 </head>
 <body>
@@ -78,15 +93,7 @@ body{
     <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
-    
-    <div class="modalOverlay" id="notificationsModal">
-        <div class="modalContent">
-            <h3>Hesab Çıxarışı və Elanlar</h3>
-            <div id="announcements-container"></div> <div id="notifications-list"></div>
-            <button class="close-modal-btn">Bağla</button>
-        </div>
-    </div>
-    
+    <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Hesab Çıxarışı və Elanlar</h3><div id="announcements-container"></div><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
     <div id="support-widget"><div id="chat-window"><div id="chat-header">Dəstək</div><div id="chat-messages"></div><div id="chat-input-area"><input type="text" id="chat-input" placeholder="Mesajınızı yazın..."><button id="send-chat-btn"> göndər</button></div></div><button id="chat-toggle-btn"><span>💬</span><div id="chat-notification-badge" style="display:none;"></div></button></div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
@@ -99,7 +106,6 @@ body{
     const db = firebase.database();
     let balanceListener = null, chatStateListener = null, messageListener = null;
 
-    // ... (digər funksiyalar olduğu kimi qalır) ...
     function animateCountUp(element, start, end, duration) { let startTime = null; const step = (timestamp) => { if (!startTime) startTime = timestamp; const progress = Math.min((timestamp - startTime) / duration, 1); const current = start + progress * (end - start); element.textContent = current.toFixed(2); if (progress < 1) { window.requestAnimationFrame(step); } }; window.requestAnimationFrame(step); }
     function createCoinShower() { const coinCount = 10; const body = document.body; for (let i = 0; i < coinCount; i++) { const coin = document.createElement('span'); coin.className = 'coin'; coin.innerHTML = '🪙'; coin.style.left = `${Math.random() * 95}vw`; coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`; coin.style.animationDelay = `${Math.random() * 0.4}s`; body.appendChild(coin); setTimeout(() => { coin.remove(); }, 2000); } }
 
@@ -146,27 +152,25 @@ body{
     document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
     document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
     
-    // YENİLƏNMİŞ HESAB ÇIXARIŞI MƏNTİQİ (ELANLAR ƏLAVƏ EDİLİB)
     document.getElementById('notification-bell').addEventListener('click', () => {
         const user = auth.currentUser;
         if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.');
 
         const modal = document.getElementById('notificationsModal');
         const list = document.getElementById('notifications-list');
-        const announcementsContainer = document.getElementById('announcements-container'); // YENİ
+        const announcementsContainer = document.getElementById('announcements-container');
         modal.style.display = 'flex';
         document.getElementById('notification-badge').style.display = 'none';
         list.innerHTML = '<p>Yüklənir...</p>';
-        announcementsContainer.innerHTML = ''; // YENİ
+        announcementsContainer.innerHTML = '';
 
         const withdrawalsRef = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value');
         const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value');
-        const announcementsRef = db.ref('announcements').limitToLast(5).once('value'); // YENİ
+        const announcementsRef = db.ref('announcements').limitToLast(5).once('value');
 
-        Promise.all([withdrawalsRef, depositsRef, announcementsRef]) // YENİLƏNDİ
-            .then(([withdrawalsSnapshot, depositsSnapshot, announcementsSnapshot]) => { // YENİLƏNDİ
+        Promise.all([withdrawalsRef, depositsRef, announcementsRef])
+            .then(([withdrawalsSnapshot, depositsSnapshot, announcementsSnapshot]) => {
                 
-                // 1. Elanları göstər
                 if (announcementsSnapshot.exists()) {
                     let announcements = [];
                     announcementsSnapshot.forEach(child => { announcements.push(child.val()); });
@@ -178,7 +182,6 @@ body{
                     });
                 }
 
-                // 2. Əməliyyatları göstər
                 if (!withdrawalsSnapshot.exists() && !depositsSnapshot.exists()) {
                     list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>';
                     return;
@@ -199,7 +202,6 @@ body{
             });
     });
 
-    // ... (qalan bütün köhnə funksiyalar olduğu kimi qalır) ...
     document.getElementById('withdrawBtn').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Zəhmət olmasa, daxil olun.'); let currentBalance = 0; db.ref('balances/' + user.uid).once('value', snapshot => { const balanceData = snapshot.val(); currentBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0; const amount = parseFloat(document.getElementById('withdrawAmount').value); const name = document.getElementById('userName').value.trim(); const surname = document.getElementById('userSurname').value.trim(); const card = document.getElementById('cardNumber').value.trim(); if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.'); if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.'); if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.'); const balanceRef = db.ref('balances/' + user.uid); balanceRef.transaction(currentData => { let currentBal = (currentData && currentData.amount) ? currentData.amount : 0; if (amount > currentBal) { return; } return { amount: currentBal - amount }; }, (error, committed, snapshot) => { if (error) { alert('Əməliyyat zamanı xəta baş verdi: ' + error.message); } else if (!committed) { alert('Balansınızda kifayət qədər vəsait yoxdur (əməliyyat ləğv edildi).'); } else { const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP }; db.ref('withdrawals').push(request).then(() => { alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.'); document.getElementById('notification-badge').style.display = 'flex'; document.getElementById('pulCekModal').style.display = 'none'; ['withdrawAmount', 'userName', 'userSurname', 'cardNumber'].forEach(id => document.getElementById(id).value = ''); }).catch(err => { alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message); balanceRef.transaction(currentData => ({ amount: ((currentData && currentData.amount) || 0) + amount })); }); } }); }); });
     function initializeSupportChat(user) { const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge'); if (messageListener) messageListener.off(); if (chatStateListener) chatStateListener.off(); chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } }; const chatRef = db.ref(`support_chats/${user.uid}`); chatStateListener = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; }); chatMessages.innerHTML = ''; const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50); messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; }); const sendMessage = () => { const text = chatInput.value.trim(); if (text === '') return; const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP }; db.ref(`support_chats/${user.uid}/messages`).push(messageData); db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true }); chatInput.value = ''; }; sendChatBtn.onclick = sendMessage; chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }; }
     window.onload = function() { const preloader = document.getElementById('preloader'); const animatedBag = document.getElementById('animated-bag'); const finalBag = document.querySelector('.card .bag'); const contentWrapper = document.querySelector('.content-wrapper'); preloader.style.opacity = '0'; setTimeout(() => { animatedBag.style.opacity = '1'; animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)'; }, 200); setTimeout(() => { const finalBagRect = finalBag.getBoundingClientRect(); animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`; animatedBag.style.top = `${finalBagRect.top + finalBagRect.height / 2}px`; animatedBag.style.fontSize = getComputedStyle(finalBag).fontSize; }, 1000); setTimeout(() => { preloader.style.display = 'none'; animatedBag.style.display = 'none'; contentWrapper.style.opacity = '1'; contentWrapper.style.visibility = 'visible'; }, 2200); };
