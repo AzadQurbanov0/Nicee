@@ -65,7 +65,7 @@ body{
 #chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
 #send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
 
-/* ANİMASİYA ÜÇÜN STİLLƏR */
+/* GİRİŞ ANİMASİYASI ÜÇÜN STİLLƏR */
 #preloader {
   position: fixed;
   top: 0;
@@ -90,6 +90,34 @@ body{
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+/* BALANS ARTMA ANİMASİYASI */
+.balance-update-bag {
+  animation: bag-jiggle 0.6s ease-in-out;
+}
+@keyframes bag-jiggle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px) scale(1.05); }
+}
+
+.balance-update-text {
+  animation: text-flash 0.7s ease-in-out;
+}
+@keyframes text-flash {
+  0% { 
+    color: var(--text);
+    transform: scale(1);
+  }
+  50% { 
+    color: var(--accent); /* Yaşıl rəng */
+    transform: scale(1.2);
+    text-shadow: 0 0 10px var(--accent);
+  }
+  100% {
+    color: var(--text);
+    transform: scale(1);
+  }
 }
 </style>
 </head>
@@ -121,6 +149,10 @@ body{
 
     auth.onAuthStateChanged(user => {
         const supportWidget = document.getElementById('support-widget');
+        
+        // Balans dəyişikliyini izləmək üçün dəyişən
+        let lastKnownBalance = 0;
+
         if (user) {
             document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
             db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
@@ -130,7 +162,29 @@ body{
             balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
                 const balanceData = snapshot.val();
                 let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
+
+                // Balansın artıb-artmadığını yoxlayan məntiq
+                if (newBalance > lastKnownBalance && lastKnownBalance !== 0) {
+                    const bagElement = document.querySelector('.card .bag');
+                    const balanceElement = document.getElementById('balance');
+
+                    // Animasiya class'larını əlavə et
+                    bagElement.classList.add('balance-update-bag');
+                    balanceElement.classList.add('balance-update-text');
+
+                    // Animasiya bitdikdən sonra class'ları silirik ki, təkrar işləyə bilsin
+                    bagElement.addEventListener('animationend', () => {
+                        bagElement.classList.remove('balance-update-bag');
+                    }, { once: true });
+
+                    balanceElement.addEventListener('animationend', () => {
+                        balanceElement.classList.remove('balance-update-text');
+                    }, { once: true });
+                }
+                
+                // Balansı yenilə və son qiyməti yadda saxla
                 document.getElementById('balance').textContent = newBalance.toFixed(2);
+                lastKnownBalance = newBalance;
             });
 
             supportWidget.style.display = 'block';
@@ -138,6 +192,7 @@ body{
         } else {
             document.getElementById('userInfo').textContent = '';
             document.getElementById('balance').textContent = '0.00';
+            lastKnownBalance = 0; // İstifadəçi çıxanda balansı sıfırla
             if (balanceListener) balanceListener.off();
             if (chatStateListener) chatStateListener.off();
             if (messageListener) messageListener.off();
@@ -248,7 +303,7 @@ body{
         chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
     }
 
-    // ANİMASİYA MƏNTİQİ
+    // GİRİŞ ANİMASİYASININ MƏNTİQİ
     window.onload = function() {
         const preloader = document.getElementById('preloader');
         const animatedBag = document.getElementById('animated-bag');
