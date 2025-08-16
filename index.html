@@ -46,12 +46,15 @@ body{
 .notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
 .notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .notification-item-amount { font-size: 1.1rem; font-weight: bold; }
+.notification-item-amount.positive { color: #22c55e; } /* YENİ */
+.notification-item-amount.negative { color: #fca5a5; } /* YENİ */
 .notification-item-status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; font-size: 0.8rem;}
 .notification-item-body { font-size: 0.85rem; opacity: 0.8; }
 .notification-item-footer { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
 .status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
 .status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
 .status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
+.status-deposit { border-left-color: #3b82f6; } .status-deposit .notification-item-status { background-color: #3b82f6; } /* YENİ */
 #support-widget { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
 #chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
 #chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
@@ -64,51 +67,13 @@ body{
 #chat-input-area { display: flex; padding: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
 #chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px; color: white; }
 #send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
-
-/* GİRİŞ ANİMASİYASI ÜÇÜN STİLLƏR */
-#preloader {
-  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-  background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out;
-}
-#animated-bag {
-  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0;
-  filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35));
-}
-.content-wrapper {
-  opacity: 0; visibility: hidden;
-  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-}
-
-/* BALANS ARTMA ANİMASİYASI (MƏTN) */
+#preloader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg1); z-index: 10001; transition: opacity 1s ease-in-out; }
+#animated-bag { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: clamp(5rem,18vw,12rem); z-index: 10002; opacity: 0; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.35)); }
+.content-wrapper { opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; }
 .balance-update-text { animation: text-flash 0.7s ease-in-out; }
-@keyframes text-flash {
-  0% { color: var(--text); transform: scale(1); }
-  50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); }
-  100% { color: var(--text); transform: scale(1); }
-}
-
-/* SİKKƏ YAĞIŞI ANİMASİYASI */
-.coin {
-  position: fixed;
-  top: -50px;
-  font-size: 2rem;
-  z-index: 9998;
-  pointer-events: none;
-  animation-name: fall-and-fade;
-  animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53);
-  animation-fill-mode: forwards;
-}
-@keyframes fall-and-fade {
-  from {
-    transform: translateY(0) rotateZ(0deg);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(65vh) rotateZ(360deg);
-    opacity: 0;
-  }
-}
+@keyframes text-flash { 0% { color: var(--text); transform: scale(1); } 50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); } 100% { color: var(--text); transform: scale(1); } }
+.coin { position: fixed; top: -50px; font-size: 2rem; z-index: 9998; pointer-events: none; animation-name: fall-and-fade; animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); animation-fill-mode: forwards; }
+@keyframes fall-and-fade { from { transform: translateY(0) rotateZ(0deg); opacity: 1; } to { transform: translateY(65vh) rotateZ(360deg); opacity: 0; } }
 </style>
 </head>
 <body>
@@ -119,15 +84,15 @@ body{
 <div class="content-wrapper">
     <div id="notification-bell"><span>🔔</span><div id="notification-badge" style="display:none;">1</div></div>
     <div class="wrap"><div id="userInfo" class="user-info"></div><div class="card"><div class="bag">💰</div><div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div></div><button class="google-btn" id="loginBtn">🌐 Giriş</button></div>
-    <div class="action-buttons"><button id="payBtn">💲 YÜKLƏ</button><button id="cekBtn">📷 ÇEK</button><button id="pulCekBtn">🏦 ÇEK</button></div>
-    <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
+    <div class="action-buttons"><button id="payBtn">💲 YÜKLƏ</button><button id="cekBtn">📷 ÇEK ŞEKLİ</button><button id="pulCekBtn">🏦PUL ÇEK</button></div>
+    <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 BALASI ARTIR M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Əməliyyat Tarixçəsi</h3><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
+    <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Hesab Çıxarışı</h3><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
     <div id="support-widget"><div id="chat-window"><div id="chat-header">Dəstək</div><div id="chat-messages"></div><div id="chat-input-area"><input type="text" id="chat-input" placeholder="Mesajınızı yazın..."><button id="send-chat-btn"> göndər</button></div></div><button id="chat-toggle-btn"><span>💬</span><div id="chat-notification-badge" style="display:none;"></div></button></div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
 <script>
@@ -137,7 +102,6 @@ body{
     const db = firebase.database();
     let balanceListener = null, chatStateListener = null, messageListener = null;
 
-    // Rəqəmləri sayan animasiya funksiyası
     function animateCountUp(element, start, end, duration) {
         let startTime = null;
         const step = (timestamp) => {
@@ -145,33 +109,23 @@ body{
             const progress = Math.min((timestamp - startTime) / duration, 1);
             const current = start + progress * (end - start);
             element.textContent = current.toFixed(2);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
+            if (progress < 1) { window.requestAnimationFrame(step); }
         };
         window.requestAnimationFrame(step);
     }
 
-    // SİKKƏ YAĞIŞI FUNKSİYASI
     function createCoinShower() {
-        const coinCount = 10; // Ekrana töküləcək sikkə sayı
+        const coinCount = 10;
         const body = document.body;
         for (let i = 0; i < coinCount; i++) {
             const coin = document.createElement('span');
             coin.className = 'coin';
             coin.innerHTML = '🪙';
-            
-            // Təsadüfi dəyərlər
             coin.style.left = `${Math.random() * 95}vw`;
-            coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`; // 0.6s - 1.4s arası
+            coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`;
             coin.style.animationDelay = `${Math.random() * 0.4}s`;
-
             body.appendChild(coin);
-
-            // Animasiya bitdikdən sonra sikkəni sil
-            setTimeout(() => {
-                coin.remove();
-            }, 2000); // Max animasiya müddətindən bir az çox
+            setTimeout(() => { coin.remove(); }, 2000);
         }
     }
 
@@ -190,23 +144,16 @@ body{
                 let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
                 const balanceElement = document.getElementById('balance');
 
-                if (newBalance > lastKnownBalance) {
-                    // SİKKƏ YAĞIŞINI İŞƏ SAL
+                if (newBalance > lastKnownBalance && lastKnownBalance !== 0) {
                     createCoinShower();
-                    
-                    // Mətn animasiyasını işə sal
                     balanceElement.classList.add('balance-update-text');
                     balanceElement.addEventListener('animationend', () => {
                         balanceElement.classList.remove('balance-update-text');
                     }, { once: true });
-
-                    // Rəqəmləri sayaraq yenilə
-                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200); // 1.2 saniyə
-                
+                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200);
                 } else {
                     balanceElement.textContent = newBalance.toFixed(2);
                 }
-                
                 lastKnownBalance = newBalance;
             });
 
@@ -230,25 +177,81 @@ body{
     document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
     document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
     
+    // ================= YENİ HESAB ÇIXARIŞI MƏNTİQİ =================
     document.getElementById('notification-bell').addEventListener('click', () => {
-        const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.');
-        const modal = document.getElementById('notificationsModal'), list = document.getElementById('notifications-list');
-        modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none';
+        const user = auth.currentUser;
+        if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.');
+
+        const modal = document.getElementById('notificationsModal');
+        const list = document.getElementById('notifications-list');
+        modal.style.display = 'flex';
+        document.getElementById('notification-badge').style.display = 'none';
         list.innerHTML = '<p>Yüklənir...</p>';
-        db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(20).once('value', snapshot => {
-            if (!snapshot.exists()) { list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>'; return; }
-            list.innerHTML = ''; let items = []; snapshot.forEach(child => items.push(child.val()));
-            items.reverse().forEach(data => {
-                const itemDiv = document.createElement('div'), reqData = data.requestData;
-                let statusText, statusClass;
-                switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; default: statusText = 'Gözləmədə'; statusClass = 'status-pending'; }
-                itemDiv.className = `notification-item ${statusClass}`;
-                const maskedCardNumber = '**** ' + reqData.cardNumber.slice(-4);
-                itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount">${parseFloat(reqData.amount).toFixed(2)} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body">Kart: ${maskedCardNumber}</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`;
-                list.appendChild(itemDiv);
+
+        const withdrawalsRef = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value');
+        const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value');
+
+        Promise.all([withdrawalsRef, depositsRef])
+            .then(([withdrawalsSnapshot, depositsSnapshot]) => {
+                if (!withdrawalsSnapshot.exists() && !depositsSnapshot.exists()) {
+                    list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>';
+                    return;
+                }
+
+                let allTransactions = [];
+
+                withdrawalsSnapshot.forEach(child => {
+                    allTransactions.push({ ...child.val(), type: 'withdrawal' });
+                });
+
+                depositsSnapshot.forEach(child => {
+                    allTransactions.push({ ...child.val(), type: 'deposit' });
+                });
+
+                allTransactions.sort((a, b) => b.createdAt - a.createdAt);
+
+                list.innerHTML = '';
+                allTransactions.forEach(data => {
+                    const itemDiv = document.createElement('div');
+                    
+                    if (data.type === 'deposit') {
+                        itemDiv.className = 'notification-item status-deposit';
+                        itemDiv.innerHTML = `
+                            <div class="notification-item-header">
+                                <span class="notification-item-amount positive">+${parseFloat(data.amount).toFixed(2)} AZN</span>
+                                <span class="notification-item-status">Mədaxil</span>
+                            </div>
+                            <div class="notification-item-body">Balansınıza vəsait əlavə edildi.</div>
+                            <div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>
+                        `;
+                    } else { // Withdrawal
+                        const reqData = data.requestData;
+                        let statusText, statusClass;
+                        switch (data.status) {
+                            case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break;
+                            case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break;
+                            default: statusText = 'Gözləmədə'; statusClass = 'status-pending';
+                        }
+                        itemDiv.className = `notification-item ${statusClass}`;
+                        const maskedCardNumber = reqData.cardNumber ? '**** ' + reqData.cardNumber.slice(-4) : 'Kart məlumatı yoxdur';
+                        itemDiv.innerHTML = `
+                            <div class="notification-item-header">
+                                <span class="notification-item-amount negative">-${parseFloat(reqData.amount).toFixed(2)} AZN</span>
+                                <span class="notification-item-status">${statusText}</span>
+                            </div>
+                            <div class="notification-item-body">Kart: ${maskedCardNumber}</div>
+                            <div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>
+                        `;
+                    }
+                    list.appendChild(itemDiv);
+                });
+
+            }).catch(error => {
+                list.innerHTML = '<p>Məlumatları yükləyərkən xəta baş verdi.</p>';
+                console.error("Error fetching transactions:", error);
             });
-        });
     });
+    // =============================================================
 
     document.getElementById('withdrawBtn').addEventListener('click', () => {
         const user = auth.currentUser;
@@ -281,16 +284,10 @@ body{
                         alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.');
                         document.getElementById('notification-badge').style.display = 'flex';
                         document.getElementById('pulCekModal').style.display = 'none';
-                        document.getElementById('withdrawAmount').value = '';
-                        document.getElementById('userName').value = '';
-                        document.getElementById('userSurname').value = '';
-                        document.getElementById('cardNumber').value = '';
+                        ['withdrawAmount', 'userName', 'userSurname', 'cardNumber'].forEach(id => document.getElementById(id).value = '');
                     }).catch(err => {
                         alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message);
-                        balanceRef.transaction(currentData => {
-                            let currentBal = (currentData && currentData.amount) ? currentData.amount : 0;
-                            return { amount: currentBal + amount };
-                        });
+                        balanceRef.transaction(currentData => ({ amount: ((currentData && currentData.amount) || 0) + amount }));
                     });
                 }
             });
@@ -317,7 +314,6 @@ body{
         chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
     }
 
-    // GİRİŞ ANİMASİYASININ MƏNTİQİ
     window.onload = function() {
         const preloader = document.getElementById('preloader');
         const animatedBag = document.getElementById('animated-bag');
@@ -325,10 +321,7 @@ body{
         const contentWrapper = document.querySelector('.content-wrapper');
 
         preloader.style.opacity = '0';
-        setTimeout(() => {
-            animatedBag.style.opacity = '1';
-            animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)';
-        }, 200);
+        setTimeout(() => { animatedBag.style.opacity = '1'; animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)'; }, 200);
         setTimeout(() => {
             const finalBagRect = finalBag.getBoundingClientRect();
             animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`;
