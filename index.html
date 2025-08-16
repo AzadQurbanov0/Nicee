@@ -7,7 +7,7 @@
 <style>
 :root{
   --bg1:#0f0c29; --bg2:#302b63; --bg3:#24243e; --card:rgba(255,255,255,0.06);
-  --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e;
+  --glass:rgba(255,255,255,0.12); --text:#f8fafc; --accent:#22c55e; --red:#dc2626;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 html{height:100%;}
@@ -40,24 +40,22 @@ body{
 #notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
 .modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
 .modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color:white; width: min(90vw, 350px); }
-.modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255,255,255,0.1); color: white; font-size: 1rem; }
-/* Fayl yükləmə üçün stil */
-.modalContent input[type="file"]::file-selector-button { background-color: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; margin-right: 10px;}
-#uploadStatus { margin-top: 12px; font-weight: 600; }
+.modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: #FFFFFF; color: #212529; font-size: 1rem; }
 .modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
-.modalContent button:disabled { background-color: #555; cursor: not-allowed; }
 #notifications-list { max-height: 400px; overflow-y: auto; text-align: left; margin-top: 15px; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
 .notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
 .notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
 .notification-item-amount { font-size: 1.1rem; font-weight: bold; }
 .notification-item-amount.positive { color: #22c55e; } .notification-item-amount.negative { color: #fca5a5; }
 .notification-item-status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; font-size: 0.8rem;}
-.notification-item-body { font-size: 0.85rem; opacity: 0.8; }
+.notification-item-body { font-size: 0.85rem; opacity: 0.8; display: flex; justify-content: space-between; align-items: center; } /* YENİLƏNDİ */
 .notification-item-footer { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
 .status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
 .status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
 .status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
+.status-cancelled { border-left-color: #6b7280; } .status-cancelled .notification-item-status { background-color: #6b7280; } /* YENİ */
 .status-deposit { border-left-color: #3b82f6; } .status-deposit .notification-item-status { background-color: #3b82f6; }
+.cancel-btn { background: var(--red); color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: 600; } /* YENİ */
 #support-widget { position: fixed; bottom: 20px; right: 20px; z-index: 10000; }
 #chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
 #chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
@@ -89,18 +87,7 @@ body{
     <div class="wrap"><div id="userInfo" class="user-info"></div><div class="card"><div class="bag">💰</div><div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div></div><button class="google-btn" id="loginBtn">🌐 Giriş</button></div>
     <div class="action-buttons"><button id="payBtn">💲 YÜKLƏ</button><button id="cekBtn">📷 ÇEK</button><button id="pulCekBtn">🏦 ÇEK</button></div>
     <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
-    
-    <div class="modalOverlay" id="cekModal">
-        <div class="modalContent">
-            <h3>Çek Şəklini Yüklə</h3>
-            <p style="font-size:0.9rem; opacity:0.8; margin-bottom:10px;">Ödənişi təsdiq etmək üçün çəkin şəklini seçin.</p>
-            <input type="file" id="receiptUploader" accept="image/*">
-            <div id="uploadStatus"></div>
-            <button id="uploadReceiptBtn" style="background-color: #2563eb; color:white;">Yüklə</button>
-            <button class="close-modal-btn" style="background-color:#555; color:white;">Bağla</button>
-        </div>
-    </div>
-
+    <div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Hesab Çıxarışı</h3><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
     <div id="support-widget"><div id="chat-window"><div id="chat-header">Dəstək</div><div id="chat-messages"></div><div id="chat-input-area"><input type="text" id="chat-input" placeholder="Mesajınızı yazın..."><button id="send-chat-btn"> göndər</button></div></div><button id="chat-toggle-btn"><span>💬</span><div id="chat-notification-badge" style="display:none;"></div></button></div>
@@ -108,115 +95,243 @@ body{
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-storage-compat.js"></script> <script>
+<script>
     const firebaseConfig = { apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw", authDomain: "niceuc-e5986.firebaseapp.com", databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com", projectId: "niceuc-e5986", appId: "1:242221260650:web:d140153a2167c4738dcf13" };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    const storage = firebase.storage(); // YENİ
     let balanceListener = null, chatStateListener = null, messageListener = null;
 
-    // ... (animateCountUp və createCoinShower funksiyaları dəyişməz qalır) ...
     function animateCountUp(element, start, end, duration) { let startTime = null; const step = (timestamp) => { if (!startTime) startTime = timestamp; const progress = Math.min((timestamp - startTime) / duration, 1); const current = start + progress * (end - start); element.textContent = current.toFixed(2); if (progress < 1) { window.requestAnimationFrame(step); } }; window.requestAnimationFrame(step); }
     function createCoinShower() { const coinCount = 10; const body = document.body; for (let i = 0; i < coinCount; i++) { const coin = document.createElement('span'); coin.className = 'coin'; coin.innerHTML = '🪙'; coin.style.left = `${Math.random() * 95}vw`; coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`; coin.style.animationDelay = `${Math.random() * 0.4}s`; body.appendChild(coin); setTimeout(() => { coin.remove(); }, 2000); } }
 
     auth.onAuthStateChanged(user => {
-        // ... (Bu blok dəyişməz qalır) ...
-        const supportWidget = document.getElementById('support-widget'); let lastKnownBalance = 0; if (user) { document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`; db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email }); if (balanceListener) balanceListener.off(); balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => { const balanceData = snapshot.val(); let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0; const balanceElement = document.getElementById('balance'); if (newBalance > lastKnownBalance && lastKnownBalance !== 0) { createCoinShower(); balanceElement.classList.add('balance-update-text'); balanceElement.addEventListener('animationend', () => { balanceElement.classList.remove('balance-update-text'); }, { once: true }); animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200); } else { balanceElement.textContent = newBalance.toFixed(2); } lastKnownBalance = newBalance; }); supportWidget.style.display = 'block'; initializeSupportChat(user); } else { document.getElementById('userInfo').textContent = ''; document.getElementById('balance').textContent = '0.00'; lastKnownBalance = 0; if (balanceListener) balanceListener.off(); if (chatStateListener) chatStateListener.off(); if (messageListener) messageListener.off(); supportWidget.style.display = 'none'; }
+        const supportWidget = document.getElementById('support-widget');
+        let lastKnownBalance = 0;
+        if (user) {
+            document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
+            db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
+            if (balanceListener) balanceListener.off();
+            balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
+                const balanceData = snapshot.val();
+                let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
+                const balanceElement = document.getElementById('balance');
+                if (newBalance > lastKnownBalance && lastKnownBalance !== 0) {
+                    createCoinShower();
+                    balanceElement.classList.add('balance-update-text');
+                    balanceElement.addEventListener('animationend', () => { balanceElement.classList.remove('balance-update-text'); }, { once: true });
+                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200);
+                } else {
+                    balanceElement.textContent = newBalance.toFixed(2);
+                }
+                lastKnownBalance = newBalance;
+            });
+            supportWidget.style.display = 'block';
+            initializeSupportChat(user);
+        } else {
+            document.getElementById('userInfo').textContent = '';
+            document.getElementById('balance').textContent = '0.00';
+            lastKnownBalance = 0;
+            if (balanceListener) balanceListener.off();
+            if (chatStateListener) chatStateListener.off();
+            if (messageListener) messageListener.off();
+            supportWidget.style.display = 'none';
+        }
     });
+
+    // ================= YENİ FUNKSİYA: SORĞUNU LƏĞV ET =================
+    function cancelWithdrawal(withdrawalId, amount) {
+        const parsedAmount = parseFloat(amount);
+        if (!confirm(`${parsedAmount.toFixed(2)} AZN məbləğindəki çıxarış sorğusunu ləğv etmək istədiyinizə əminsiniz? Məbləğ balansınıza geri qaytarılacaq.`)) {
+            return;
+        }
+
+        const user = auth.currentUser;
+        if (!user) return alert("Xəta: İstifadəçi tapılmadı.");
+
+        const withdrawalRef = db.ref(`withdrawals/${withdrawalId}`);
+
+        withdrawalRef.once('value').then(snapshot => {
+            const request = snapshot.val();
+            if (!request || request.status !== 'pending') {
+                alert("Bu sorğu artıq emal edilib və ləğv edilə bilməz.");
+                document.getElementById('notification-bell').click(); // Pəncərəni yenilə
+                return;
+            }
+
+            const updates = {};
+            updates[`/withdrawals/${withdrawalId}/status`] = 'cancelled';
+            updates[`/balances/${user.uid}/amount`] = firebase.database.ServerValue.increment(parsedAmount);
+
+            db.ref().update(updates).then(() => {
+                alert("Sorğunuz ləğv edildi və məbləğ balansınıza geri qaytarıldı.");
+                // Pəncərəni bağlayıb yenidən açaraq məlumatları yeniləyirik
+                const modal = document.getElementById('notificationsModal');
+                if (modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                    setTimeout(() => document.getElementById('notification-bell').click(), 200);
+                }
+            }).catch(error => {
+                alert("Xəta baş verdi: " + error.message);
+            });
+        });
+    }
 
     document.getElementById('loginBtn').addEventListener('click', () => { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider).catch(error => alert(error.message)); });
     document.getElementById('payBtn').addEventListener('click', () => document.getElementById('payModal').style.display = 'flex');
     document.getElementById('cekBtn').addEventListener('click', () => document.getElementById('cekModal').style.display = 'flex');
     document.getElementById('pulCekBtn').addEventListener('click', () => document.getElementById('pulCekModal').style.display = 'flex');
-    document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => {
-        const modal = e.target.closest('.modalOverlay');
-        modal.style.display = 'none';
-        // Yükləmə pəncərəsini bağlayanda statusu təmizlə
-        if (modal.id === 'cekModal') {
-            document.getElementById('uploadStatus').textContent = '';
-            document.getElementById('receiptUploader').value = '';
-        }
-    }));
+    document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
+    document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
     
-    // YENİ - ÇEK YÜKLƏMƏ MƏNTİQİ
-    document.getElementById('uploadReceiptBtn').addEventListener('click', () => {
+    document.getElementById('notification-bell').addEventListener('click', () => {
         const user = auth.currentUser;
-        if (!user) {
-            alert("Şəkil yükləmək üçün daxil olmalısınız.");
-            return;
-        }
+        if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.');
 
-        const fileInput = document.getElementById('receiptUploader');
-        const file = fileInput.files[0];
-        const statusDiv = document.getElementById('uploadStatus');
-        const uploadBtn = document.getElementById('uploadReceiptBtn');
+        const modal = document.getElementById('notificationsModal');
+        const list = document.getElementById('notifications-list');
+        modal.style.display = 'flex';
+        document.getElementById('notification-badge').style.display = 'none';
+        list.innerHTML = '<p>Yüklənir...</p>';
 
-        if (!file) {
-            statusDiv.textContent = "Zəhmət olmasa, bir şəkil seçin.";
-            statusDiv.style.color = "#fca5a5"; // red
-            return;
-        }
+        const withdrawalsRef = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value');
+        const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value');
 
-        // Yükləmə zamanı düyməni deaktiv et
-        uploadBtn.disabled = true;
-        uploadBtn.textContent = "Yüklənir...";
-        statusDiv.textContent = "Gözləyin...";
-        statusDiv.style.color = "#f8fafc"; // white
+        Promise.all([withdrawalsRef, depositsRef])
+            .then(([withdrawalsSnapshot, depositsSnapshot]) => {
+                if (!withdrawalsSnapshot.exists() && !depositsSnapshot.exists()) {
+                    list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>';
+                    return;
+                }
+                let allTransactions = [];
+                withdrawalsSnapshot.forEach(child => { allTransactions.push({ key: child.key, ...child.val() }); });
+                depositsSnapshot.forEach(child => { allTransactions.push({ ...child.val(), type: 'deposit' }); });
+                allTransactions.sort((a, b) => b.createdAt - a.createdAt);
+                list.innerHTML = '';
+                allTransactions.forEach(data => {
+                    const itemDiv = document.createElement('div');
+                    if (data.type === 'deposit') {
+                        itemDiv.className = 'notification-item status-deposit';
+                        itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount positive">+${parseFloat(data.amount).toFixed(2)} AZN</span><span class="notification-item-status">Mədaxil</span></div><div class="notification-item-body"><span>Balansınıza vəsait əlavə edildi.</span></div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`;
+                    } else { // Withdrawal
+                        const reqData = data.requestData;
+                        let statusText, statusClass;
+                        switch (data.status) {
+                            case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break;
+                            case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break;
+                            case 'pending': statusText = 'Gözləmədə'; statusClass = 'status-pending'; break;
+                            case 'cancelled': statusText = 'Ləğv Edildi'; statusClass = 'status-cancelled'; break; // YENİ STATUS
+                            default: statusText = data.status; statusClass = 'status-cancelled';
+                        }
+                        
+                        let actionHtml = '';
+                        if (data.status === 'pending') {
+                            actionHtml = `<button class="cancel-btn" onclick="cancelWithdrawal('${data.key}', ${reqData.amount})">Ləğv Et</button>`;
+                        }
 
-        const fileName = `${new Date().getTime()}-${file.name}`;
-        const storageRef = storage.ref(`receipts/${user.uid}/${fileName}`);
-
-        const uploadTask = storageRef.put(file);
-
-        uploadTask.on('state_changed', 
-            (snapshot) => {
-                // Yükləmə faizini göstər
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                statusDiv.textContent = `Yüklənir: ${Math.round(progress)}%`;
-            }, 
-            (error) => {
-                // Xəta baş verdikdə
-                console.error("Upload failed:", error);
-                statusDiv.textContent = "Xəta baş verdi. Yenidən cəhd edin.";
-                statusDiv.style.color = "#fca5a5";
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = "Yüklə";
-            }, 
-            () => {
-                // Yükləmə uğurlu olduqda
-                uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-                    // Məlumat bazasına qeyd yarat
-                    const receiptInfo = {
-                        uid: user.uid,
-                        userEmail: user.email,
-                        userName: user.displayName,
-                        imageUrl: downloadURL,
-                        storagePath: storageRef.fullPath,
-                        createdAt: firebase.database.ServerValue.TIMESTAMP
-                    };
-                    db.ref('receipt_uploads').push(receiptInfo);
-
-                    statusDiv.textContent = "Çek uğurla göndərildi!";
-                    statusDiv.style.color = "#22c55e"; // green
-                    uploadBtn.disabled = false;
-                    uploadBtn.textContent = "Yüklə";
-                    
-                    setTimeout(() => {
-                        document.getElementById('cekModal').style.display = 'none';
-                        statusDiv.textContent = "";
-                        fileInput.value = "";
-                    }, 2000);
+                        itemDiv.className = `notification-item ${statusClass}`;
+                        const maskedCardNumber = reqData.cardNumber ? '**** ' + reqData.cardNumber.slice(-4) : 'Kart məlumatı yoxdur';
+                        itemDiv.innerHTML = `
+                            <div class="notification-item-header">
+                                <span class="notification-item-amount negative">-${parseFloat(reqData.amount).toFixed(2)} AZN</span>
+                                <span class="notification-item-status">${statusText}</span>
+                            </div>
+                            <div class="notification-item-body">
+                                <span>Kart: ${maskedCardNumber}</span>
+                                ${actionHtml}
+                            </div>
+                            <div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`;
+                    }
+                    list.appendChild(itemDiv);
                 });
-            }
-        );
+            }).catch(error => {
+                list.innerHTML = '<p>Məlumatları yükləyərkən xəta baş verdi.</p>';
+                console.error("Error fetching transactions:", error);
+            });
     });
 
-    // ... (hesab çıxarışı, pul çəkmə, chat və s. köhnə kodlar dəyişməz qalır) ...
-    document.getElementById('notification-bell').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.'); const modal = document.getElementById('notificationsModal'), list = document.getElementById('notifications-list'); modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none'; list.innerHTML = '<p>Yüklənir...</p>'; const withdrawalsRef = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value'); const depositsRef = db.ref('deposits').orderByChild('uid').equalTo(user.uid).limitToLast(30).once('value'); Promise.all([withdrawalsRef, depositsRef]).then(([withdrawalsSnapshot, depositsSnapshot]) => { if (!withdrawalsSnapshot.exists() && !depositsSnapshot.exists()) { list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>'; return; } let allTransactions = []; withdrawalsSnapshot.forEach(child => { allTransactions.push({ ...child.val(), type: 'withdrawal' }); }); depositsSnapshot.forEach(child => { allTransactions.push({ ...child.val(), type: 'deposit' }); }); allTransactions.sort((a, b) => b.createdAt - a.createdAt); list.innerHTML = ''; allTransactions.forEach(data => { const itemDiv = document.createElement('div'); if (data.type === 'deposit') { itemDiv.className = 'notification-item status-deposit'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount positive">+${parseFloat(data.amount).toFixed(2)} AZN</span><span class="notification-item-status">Mədaxil</span></div><div class="notification-item-body">Balansınıza vəsait əlavə edildi.</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } else { const reqData = data.requestData; let statusText, statusClass; switch (data.status) { case 'approved': statusText = 'Onaylandı'; statusClass = 'status-approved'; break; case 'rejected': statusText = 'Rədd edildi'; statusClass = 'status-rejected'; break; default: statusText = 'Gözləmədə'; statusClass = 'status-pending'; } itemDiv.className = `notification-item ${statusClass}`; const maskedCardNumber = reqData.cardNumber ? '**** ' + reqData.cardNumber.slice(-4) : 'Kart məlumatı yoxdur'; itemDiv.innerHTML = `<div class="notification-item-header"><span class="notification-item-amount negative">-${parseFloat(reqData.amount).toFixed(2)} AZN</span><span class="notification-item-status">${statusText}</span></div><div class="notification-item-body">Kart: ${maskedCardNumber}</div><div class="notification-item-footer">${new Date(data.createdAt).toLocaleString()}</div>`; } list.appendChild(itemDiv); }); }).catch(error => { list.innerHTML = '<p>Məlumatları yükləyərkən xəta baş verdi.</p>'; console.error("Error fetching transactions:", error); }); });
-    document.getElementById('withdrawBtn').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Zəhmət olmasa, daxil olun.'); let currentBalance = 0; db.ref('balances/' + user.uid).once('value', snapshot => { const balanceData = snapshot.val(); currentBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0; const amount = parseFloat(document.getElementById('withdrawAmount').value); const name = document.getElementById('userName').value.trim(); const surname = document.getElementById('userSurname').value.trim(); const card = document.getElementById('cardNumber').value.trim(); if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.'); if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.'); if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.'); const balanceRef = db.ref('balances/' + user.uid); balanceRef.transaction(currentData => { let currentBal = (currentData && currentData.amount) ? currentData.amount : 0; if (amount > currentBal) { return; } return { amount: currentBal - amount }; }, (error, committed, snapshot) => { if (error) { alert('Əməliyyat zamanı xəta baş verdi: ' + error.message); } else if (!committed) { alert('Balansınızda kifayət qədər vəsait yoxdur (əməliyyat ləğv edildi).'); } else { const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP }; db.ref('withdrawals').push(request).then(() => { alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.'); document.getElementById('notification-badge').style.display = 'flex'; document.getElementById('pulCekModal').style.display = 'none'; ['withdrawAmount', 'userName', 'userSurname', 'cardNumber'].forEach(id => document.getElementById(id).value = ''); }).catch(err => { alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message); balanceRef.transaction(currentData => ({ amount: ((currentData && currentData.amount) || 0) + amount })); }); } }); }); });
-    function initializeSupportChat(user) { const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge'); if (messageListener) messageListener.off(); if (chatStateListener) chatStateListener.off(); chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } }; const chatRef = db.ref(`support_chats/${user.uid}`); chatStateListener = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; }); chatMessages.innerHTML = ''; const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50); messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; }); const sendMessage = () => { const text = chatInput.value.trim(); if (text === '') return; const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP }; db.ref(`support_chats/${user.uid}/messages`).push(messageData); db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true }); chatInput.value = ''; }; sendChatBtn.onclick = sendMessage; chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }; }
-    window.onload = function() { const preloader = document.getElementById('preloader'); const animatedBag = document.getElementById('animated-bag'); const finalBag = document.querySelector('.card .bag'); const contentWrapper = document.querySelector('.content-wrapper'); preloader.style.opacity = '0'; setTimeout(() => { animatedBag.style.opacity = '1'; animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)'; }, 200); setTimeout(() => { const finalBagRect = finalBag.getBoundingClientRect(); animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`; animatedBag.style.top = `${finalBagRect.top + finalBagRect.height / 2}px`; animatedBag.style.fontSize = getComputedStyle(finalBag).fontSize; }, 1000); setTimeout(() => { preloader.style.display = 'none'; animatedBag.style.display = 'none'; contentWrapper.style.opacity = '1'; contentWrapper.style.visibility = 'visible'; }, 2200); };
+    document.getElementById('withdrawBtn').addEventListener('click', () => {
+        const user = auth.currentUser;
+        if (!user) return alert('Zəhmət olmasa, daxil olun.');
+        let currentBalance = 0;
+        db.ref('balances/' + user.uid).once('value', snapshot => {
+            const balanceData = snapshot.val();
+            currentBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const name = document.getElementById('userName').value.trim();
+            const surname = document.getElementById('userSurname').value.trim();
+            const card = document.getElementById('cardNumber').value.trim();
+            if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.');
+            if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.');
+            if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.');
+
+            const balanceRef = db.ref('balances/' + user.uid);
+            balanceRef.transaction(currentData => {
+                let currentBal = (currentData && currentData.amount) ? currentData.amount : 0;
+                if (amount > currentBal) { return; }
+                return { amount: currentBal - amount };
+            }, (error, committed, snapshot) => {
+                if (error) {
+                    alert('Əməliyyat zamanı xəta baş verdi: ' + error.message);
+                } else if (!committed) {
+                    alert('Balansınızda kifayət qədər vəsait yoxdur (əməliyyat ləğv edildi).');
+                } else {
+                    const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP };
+                    db.ref('withdrawals').push(request).then(() => {
+                        alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.');
+                        document.getElementById('notification-badge').style.display = 'flex';
+                        document.getElementById('pulCekModal').style.display = 'none';
+                        ['withdrawAmount', 'userName', 'userSurname', 'cardNumber'].forEach(id => document.getElementById(id).value = '');
+                    }).catch(err => {
+                        alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message);
+                        balanceRef.transaction(currentData => ({ amount: ((currentData && currentData.amount) || 0) + amount }));
+                    });
+                }
+            });
+        });
+    });
+
+    function initializeSupportChat(user) {
+        const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge');
+        if (messageListener) messageListener.off(); if (chatStateListener) chatStateListener.off();
+        chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } };
+        const chatRef = db.ref(`support_chats/${user.uid}`);
+        chatStateListener = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; });
+        chatMessages.innerHTML = '';
+        const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50);
+        messageListener = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; });
+        const sendMessage = () => {
+            const text = chatInput.value.trim(); if (text === '') return;
+            const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP };
+            db.ref(`support_chats/${user.uid}/messages`).push(messageData);
+            db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true });
+            chatInput.value = '';
+        };
+        sendChatBtn.onclick = sendMessage;
+        chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } };
+    }
+
+    window.onload = function() {
+        const preloader = document.getElementById('preloader');
+        const animatedBag = document.getElementById('animated-bag');
+        const finalBag = document.querySelector('.card .bag');
+        const contentWrapper = document.querySelector('.content-wrapper');
+
+        preloader.style.opacity = '0';
+        setTimeout(() => { animatedBag.style.opacity = '1'; animatedBag.style.transition = 'all 1.2s cubic-bezier(0.68, -0.6, 0.32, 1.6)'; }, 200);
+        setTimeout(() => {
+            const finalBagRect = finalBag.getBoundingClientRect();
+            animatedBag.style.left = `${finalBagRect.left + finalBagRect.width / 2}px`;
+            animatedBag.style.top = `${finalBagRect.top + finalBagRect.height / 2}px`;
+            animatedBag.style.fontSize = getComputedStyle(finalBag).fontSize;
+        }, 1000);
+        setTimeout(() => {
+            preloader.style.display = 'none';
+            animatedBag.style.display = 'none';
+            contentWrapper.style.opacity = '1';
+            contentWrapper.style.visibility = 'visible';
+        }, 2200);
+    };
 </script>
 </body>
 </html>
