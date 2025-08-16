@@ -119,8 +119,8 @@ body{
 <div class="content-wrapper">
     <div id="notification-bell"><span>🔔</span><div id="notification-badge" style="display:none;">1</div></div>
     <div class="wrap"><div id="userInfo" class="user-info"></div><div class="card"><div class="bag">💰</div><div class="balance"><span class="symbol">AZN</span><span id="balance" class="value">0.00</span></div></div><button class="google-btn" id="loginBtn">🌐 Giriş</button></div>
-    <div class="action-buttons"><button id="payBtn">💲 YÜKLƏ</button><button id="cekBtn">📷 ÇEK</button><button id="pulCekBtn">🏦 ÇEK</button></div>
-    <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
+    <div class="action-buttons"><button id="payBtn">💲PUL YÜKLƏ</button><button id="cekBtn">📷 ÇEK ŞEKLİ</button><button id="pulCekBtn">🏦 PULU ÇEK</button></div>
+    <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ LEO BANK 4098 5844 6528 0079</p><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
     <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Əməliyyat Tarixçəsi</h3><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
@@ -135,7 +135,7 @@ body{
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
-    let balanceListener = null, chatStateListener = null, messageListener = null, notificationsListener = null;
+    let balanceListener = null, chatStateListener = null, messageListener = null;
 
     // Rəqəmləri sayan animasiya funksiyası
     function animateCountUp(element, start, end, duration) {
@@ -145,50 +145,71 @@ body{
             const progress = Math.min((timestamp - startTime) / duration, 1);
             const current = start + progress * (end - start);
             element.textContent = current.toFixed(2);
-            if (progress < 1) { window.requestAnimationFrame(step); }
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            }
         };
         window.requestAnimationFrame(step);
     }
 
     // SİKKƏ YAĞIŞI FUNKSİYASI
     function createCoinShower() {
-        const coinCount = 10;
+        const coinCount = 10; // Ekrana töküləcək sikkə sayı
         const body = document.body;
         for (let i = 0; i < coinCount; i++) {
             const coin = document.createElement('span');
             coin.className = 'coin';
             coin.innerHTML = '🪙';
+            
+            // Təsadüfi dəyərlər
             coin.style.left = `${Math.random() * 95}vw`;
-            coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`;
+            coin.style.animationDuration = `${Math.random() * 0.8 + 0.6}s`; // 0.6s - 1.4s arası
             coin.style.animationDelay = `${Math.random() * 0.4}s`;
+
             body.appendChild(coin);
-            setTimeout(() => { coin.remove(); }, 2000);
+
+            // Animasiya bitdikdən sonra sikkəni sil
+            setTimeout(() => {
+                coin.remove();
+            }, 2000); // Max animasiya müddətindən bir az çox
         }
     }
 
     auth.onAuthStateChanged(user => {
         const supportWidget = document.getElementById('support-widget');
         let lastKnownBalance = 0;
+
         if (user) {
             document.getElementById('userInfo').textContent = `Salam, ${user.displayName}`;
             db.ref('users/' + user.uid).set({ displayName: user.displayName, email: user.email });
+            
             if (balanceListener) balanceListener.off();
+
             balanceListener = db.ref('balances/' + user.uid).on('value', snapshot => {
                 const balanceData = snapshot.val();
                 let newBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0;
                 const balanceElement = document.getElementById('balance');
+
                 if (newBalance > lastKnownBalance) {
+                    // SİKKƏ YAĞIŞINI İŞƏ SAL
                     createCoinShower();
+                    
+                    // Mətn animasiyasını işə sal
                     balanceElement.classList.add('balance-update-text');
                     balanceElement.addEventListener('animationend', () => {
                         balanceElement.classList.remove('balance-update-text');
                     }, { once: true });
-                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200);
+
+                    // Rəqəmləri sayaraq yenilə
+                    animateCountUp(balanceElement, lastKnownBalance, newBalance, 1200); // 1.2 saniyə
+                
                 } else {
                     balanceElement.textContent = newBalance.toFixed(2);
                 }
+                
                 lastKnownBalance = newBalance;
             });
+
             supportWidget.style.display = 'block';
             initializeSupportChat(user);
         } else {
@@ -198,7 +219,6 @@ body{
             if (balanceListener) balanceListener.off();
             if (chatStateListener) chatStateListener.off();
             if (messageListener) messageListener.off();
-            if (notificationsListener) notificationsListener.off();
             supportWidget.style.display = 'none';
         }
     });
@@ -207,40 +227,17 @@ body{
     document.getElementById('payBtn').addEventListener('click', () => document.getElementById('payModal').style.display = 'flex');
     document.getElementById('cekBtn').addEventListener('click', () => document.getElementById('cekModal').style.display = 'flex');
     document.getElementById('pulCekBtn').addEventListener('click', () => document.getElementById('pulCekModal').style.display = 'flex');
-    
-    // BÜTÜN MODALLARIN BAĞLAMA DÜYMƏLƏRİNİ İDARƏ EDƏN KOD
-    document.querySelectorAll('.close-modal-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const modal = e.target.closest('.modalOverlay');
-            modal.style.display = 'none';
-            // ƏGƏR BAĞLANAN BİLDİRİŞLƏR MODALIDIRSA, CANLI YENİLƏMƏNİ DAYANDIR
-            if (modal.id === 'notificationsModal' && notificationsListener) {
-                notificationsListener.off();
-            }
-        });
-    });
-
+    document.querySelectorAll('.close-modal-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modalOverlay').style.display = 'none'));
     document.getElementById('sendCekBtn').addEventListener('click', () => { window.open(`https://wa.me/+994513239857?text=${encodeURIComponent('ÇEKİ GÖNDƏRİRƏM')}`, '_blank'); document.getElementById('cekModal').style.display = 'none'; });
     
-    // BİLDİRİŞ ZƏNGİNƏ BASANDA BAŞ VERƏN HADİSƏ (CANLI YENİLƏMƏ İLƏ)
     document.getElementById('notification-bell').addEventListener('click', () => {
         const user = auth.currentUser; if (!user) return alert('Tarixçəyə baxmaq üçün daxil olun.');
         const modal = document.getElementById('notificationsModal'), list = document.getElementById('notifications-list');
         modal.style.display = 'flex'; document.getElementById('notification-badge').style.display = 'none';
         list.innerHTML = '<p>Yüklənir...</p>';
-
-        const query = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(20);
-        
-        if (notificationsListener) notificationsListener.off();
-
-        notificationsListener = query.on('value', snapshot => {
-            if (!snapshot.exists()) {
-                list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>';
-                return;
-            }
-            list.innerHTML = '';
-            let items = [];
-            snapshot.forEach(child => items.push(child.val()));
+        db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).limitToLast(20).once('value', snapshot => {
+            if (!snapshot.exists()) { list.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>'; return; }
+            list.innerHTML = ''; let items = []; snapshot.forEach(child => items.push(child.val()));
             items.reverse().forEach(data => {
                 const itemDiv = document.createElement('div'), reqData = data.requestData;
                 let statusText, statusClass;
