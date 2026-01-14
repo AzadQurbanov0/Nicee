@@ -17,26 +17,25 @@
             justify-content: center; align-items: center;
         }
         #splash .logo-text {
-            font-size: 40px; font-weight: 900; color: var(--main);
-            letter-spacing: 8px; animation: zoomIn 1s ease forwards, glow 2s infinite alternate;
+            font-size: 45px; font-weight: 900; color: var(--main);
+            letter-spacing: 10px; animation: zoomIn 1.2s ease forwards, glow 2s infinite alternate;
         }
         #splash .loader {
-            margin-top: 20px; width: 40px; height: 40px; border: 3px solid #f3f3f3;
+            margin-top: 20px; width: 35px; height: 35px; border: 3px solid #f3f3f3;
             border-top: 3px solid var(--main); border-radius: 50%; animation: spin 1s linear infinite;
         }
         @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes glow { from { text-shadow: 0 0 5px #fff; } to { text-shadow: 0 0 20px #2563eb55; } }
+        @keyframes glow { from { text-shadow: 0 0 5px #fff; } to { text-shadow: 0 0 20px #2563eb33; } }
 
-        /* --- Header Animasiyalı --- */
+        /* --- Header / Logo Animasiyası --- */
         header { 
-            background: white; padding: 18px; text-align: center; 
+            background: white; padding: 20px; text-align: center; 
             box-shadow: 0 2px 15px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; 
         }
         .header-logo {
-            font-size: 24px; font-weight: 900; color: var(--main); letter-spacing: 5px;
-            display: inline-block; position: relative; overflow: hidden;
-            background: linear-gradient(90deg, #2563eb, #60a5fa, #2563eb);
+            font-size: 26px; font-weight: 900; color: var(--main); letter-spacing: 6px;
+            display: inline-block; background: linear-gradient(90deg, #1e40af, #3b82f6, #1e40af);
             background-size: 200% auto; -webkit-background-clip: text;
             -webkit-text-fill-color: transparent; animation: shine 3s linear infinite;
         }
@@ -44,61 +43,40 @@
 
         .container { padding: 15px; max-width: 500px; margin: auto; }
         
-        /* Form Elementləri */
+        /* Arama ve Kategori */
         .search-box { 
             width: 100%; padding: 14px; border-radius: 15px; border: 1px solid #e2e8f0; 
-            margin-bottom: 20px; outline: none; box-sizing: border-box; 
-            transition: 0.3s; background: white; font-size: 16px;
+            margin-bottom: 15px; outline: none; box-sizing: border-box; background: white;
         }
-        .search-box:focus { border-color: var(--main); box-shadow: 0 0 0 3px #2563eb11; }
-
-        .cats { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
+        .cats { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
         .cats::-webkit-scrollbar { display: none; }
         .cat-btn { 
-            background: white; border: 1px solid #e2e8f0; padding: 10px 22px; 
-            border-radius: 25px; white-space: nowrap; cursor: pointer; 
-            transition: 0.3s; font-weight: 500; color: var(--dark);
+            background: white; border: 1px solid #e2e8f0; padding: 9px 20px; 
+            border-radius: 20px; white-space: nowrap; cursor: pointer; transition: 0.3s;
         }
-        .cat-btn.active { background: var(--main); color: white; border-color: var(--main); box-shadow: 0 4px 10px #2563eb44; }
+        .cat-btn.active { background: var(--main); color: white; border-color: var(--main); box-shadow: 0 4px 10px #2563eb33; }
 
-        /* Məhsul Kartları */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        /* Ürün Kartları */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .card { 
-            background: white; border-radius: 20px; overflow: hidden; 
-            border: 1px solid #f1f5f9; transition: 0.3s; display: flex; flex-direction: column;
-            animation: fadeIn 0.5s ease;
+            background: white; border-radius: 18px; overflow: hidden; 
+            border: 1px solid #f1f5f9; transition: 0.3s; animation: fadeIn 0.6s ease;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .card:active { transform: scale(0.96); }
-        .card img { width: 100%; height: 160px; object-fit: cover; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .card img { width: 100%; height: 150px; object-fit: cover; }
         .card-body { padding: 12px; }
-        .card-price { color: var(--main); font-weight: 800; font-size: 16px; margin: 8px 0; }
-        .add-btn { 
-            background: var(--main); color: white; border: none; width: 100%; 
-            padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s;
-        }
+        .add-btn { background: var(--main); color: white; border: none; width: 100%; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: bold; }
 
-        /* İzləmə Kartı */
-        .order-card-tracking { background: white; border-radius: 20px; padding: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .track-line { display: flex; justify-content: space-between; margin-top: 15px; position: relative; }
-        .track-step { text-align: center; flex: 1; opacity: 0.2; position: relative; transition: 0.5s; }
-        .track-step.active { opacity: 1; color: var(--green); }
-        .track-step i { font-size: 18px; margin-bottom: 5px; display: block; }
-        .step-label { font-size: 10px; font-weight: 600; }
-        .step-time { font-size: 9px; color: #94a3b8; margin-top: 2px; display: block; }
-
-        /* Naviqasiya */
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 12px 0; border-top: 1px solid #f1f5f9; z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.03); }
-        .nav-item { flex: 1; text-align: center; color: #94a3b8; font-size: 11px; cursor: pointer; transition: 0.3s; position: relative; }
+        /* Alt Navigasyon */
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 12px 0; border-top: 1px solid #f1f5f9; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; color: #94a3b8; font-size: 11px; cursor: pointer; position: relative; }
         .nav-item.active { color: var(--main); font-weight: bold; }
         .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; transition: 0.3s; }
         .nav-item.active i { transform: translateY(-3px); }
-        .badge { position: absolute; top: -8px; right: 25%; background: #ef4444; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; border: 2px solid white; display: none; }
+        .badge { position: absolute; top: -5px; right: 25%; background: red; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; display: none; }
 
-        section { display: none; animation: fadeIn 0.4s ease; }
+        section { display: none; }
         .active-section { display: block; }
-        .order-inp { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 12px; box-sizing: border-box; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -120,19 +98,19 @@
     </section>
 
     <section id="cart">
-        <h3 style="color:var(--dark)">Səbətim</h3>
+        <h3>Səbətim</h3>
         <div id="cartItems">Səbət boşdur.</div>
         <div id="checkoutForm" style="display:none; margin-top:20px;">
             <h4>Cəmi: <span id="totalPrice">0</span> AZN</h4>
-            <input id="userName" class="order-inp" placeholder="Ad Soyad">
-            <input id="userPhone" type="tel" class="order-inp" placeholder="Telefon (050...)">
-            <input id="userAddr" class="order-inp" placeholder="Çatdırılma ünvanı">
-            <button class="add-btn" style="background:var(--green); padding:16px; font-size:16px;" onclick="confirmOrder()">Sifarişi Tamamla</button>
+            <input id="userName" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;" placeholder="Ad Soyad">
+            <input id="userPhone" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;" placeholder="Telefon">
+            <input id="userAddr" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;" placeholder="Ünvan">
+            <button class="add-btn" style="background:var(--green); padding:15px;" onclick="confirmOrder()">Sifarişi Tamamla</button>
         </div>
     </section>
 
     <section id="track">
-        <h3 style="text-align:center; color:var(--dark)">Sifarişlərim</h3>
+        <h3 style="text-align:center;">Sifarişlərim</h3>
         <div id="trackViewContainer"></div>
     </section>
 </div>
@@ -153,13 +131,14 @@
     const db = firebase.database();
     let allProducts = [], cart = [], currentCat = "Hamısı";
 
-    // Giriş animasiyasını idarə et
+    // Splash Screen Kapatma
     window.addEventListener('load', () => {
         setTimeout(() => {
-            document.getElementById('splash').style.transition = '0.5s';
-            document.getElementById('splash').style.opacity = '0';
-            setTimeout(() => document.getElementById('splash').remove(), 500);
-        }, 1800);
+            const s = document.getElementById('splash');
+            s.style.transition = '0.6s';
+            s.style.opacity = '0';
+            setTimeout(() => s.remove(), 600);
+        }, 2000);
     });
 
     db.ref('products').on('value', snap => {
@@ -177,15 +156,7 @@
         let html = "";
         allProducts.forEach(p => {
             if((currentCat === "Hamısı" || p.category === currentCat) && p.name.toLowerCase().includes(search)) {
-                html += `
-                <div class="card">
-                    <img src="${p.img}">
-                    <div class="card-body">
-                        <div style="font-weight:600; font-size:14px; color:var(--dark)">${p.name}</div>
-                        <div class="card-price">${p.price} AZN</div>
-                        <button class="add-btn" onclick="addToCart('${p.id}')">Səbətə at</button>
-                    </div>
-                </div>`;
+                html += `<div class="card"><img src="${p.img}"><div class="card-body"><b>${p.name}</b><div style="color:var(--main); margin:5px 0; font-weight:800;">${p.price} AZN</div><button class="add-btn" onclick="addToCart('${p.id}')">Səbətə at</button></div></div>`;
             }
         });
         document.getElementById("productList").innerHTML = html;
@@ -198,51 +169,27 @@
         let item = cart.find(x => x.id === id);
         if(item) item.qty++; else cart.push({...p, qty:1});
         updateCartUI();
-        // Kiçik vibrasiya effekti üçün (əgər dəstəkləyirsə)
-        if(navigator.vibrate) navigator.vibrate(50);
-    }
-
-    function changeQty(id, delta) {
-        let item = cart.find(x => x.id === id);
-        if(item) {
-            item.qty += delta;
-            if(item.qty <= 0) cart = cart.filter(x => x.id !== id);
-        }
-        updateCartUI();
     }
 
     function updateCartUI() {
         const badge = document.getElementById("cartCount");
         const totalQty = cart.reduce((a, b) => a + b.qty, 0);
-        
-        if(totalQty > 0) {
-            badge.style.display = "block";
-            badge.innerText = totalQty;
-        } else {
-            badge.style.display = "none";
-        }
+        badge.style.display = totalQty > 0 ? "block" : "none";
+        badge.innerText = totalQty;
 
         if(cart.length === 0) {
-            document.getElementById("cartItems").innerHTML = "<div style='text-align:center; padding:40px; color:gray;'><i class='fa-solid fa-basket-shopping' style='font-size:40px; margin-bottom:10px; opacity:0.3;'></i><br>Səbətiniz boşdur.</div>";
+            document.getElementById("cartItems").innerHTML = "Səbət boşdur.";
             document.getElementById("checkoutForm").style.display = "none";
             return;
         }
-
         document.getElementById("checkoutForm").style.display = "block";
         let total = 0;
         document.getElementById("cartItems").innerHTML = cart.map(i => {
             total += i.price * i.qty;
-            return `<div class="cart-item" style="display:flex; align-items:center; background:white; padding:12px; border-radius:15px; margin-bottom:10px; border:1px solid #eee;">
-                <img src="${i.img}" style="width:60px; height:60px; border-radius:10px; object-fit:cover;">
-                <div style="flex-grow:1; margin-left:15px;">
-                    <div style="font-weight:600; font-size:14px;">${i.name}</div>
-                    <div style="color:var(--main); font-weight:bold;">${i.price} AZN</div>
-                </div>
-                <div style="display:flex; align-items:center; gap:12px;">
-                    <button onclick="changeQty('${i.id}', -1)" style="width:28px; height:28px; border:none; border-radius:8px; background:#f1f5f9;">-</button>
-                    <span style="font-weight:bold;">${i.qty}</span>
-                    <button onclick="changeQty('${i.id}', 1)" style="width:28px; height:28px; border:none; border-radius:8px; background:#f1f5f9;">+</button>
-                </div>
+            return `<div style="display:flex; align-items:center; margin-bottom:10px; background:white; padding:10px; border-radius:12px; border:1px solid #eee;">
+                <img src="${i.img}" style="width:50px; height:50px; border-radius:8px; object-fit:cover; margin-right:12px;">
+                <div style="flex-grow:1;"><b>${i.name}</b><br><span style="color:var(--main)">${i.price} AZN</span></div>
+                <b>x${i.qty}</b>
             </div>`;
         }).join('');
         document.getElementById("totalPrice").innerText = total.toFixed(2);
@@ -250,7 +197,7 @@
 
     function confirmOrder() {
         const phone = document.getElementById("userPhone").value;
-        if(phone.length < 10) return alert("Zəhmət olmasa düzgün nömrə yazın!");
+        if(phone.length < 10) return alert("Düzgün nömrə yazın!");
         localStorage.setItem("userPhone", phone);
         
         const now = new Date();
@@ -267,15 +214,13 @@
             items: cart.map(i => `${i.name} (x${i.qty})`).join(", "),
             itemImages: cart.map(i => i.img)
         }).then(() => { 
-            alert("Sifarişiniz qəbul olundu!"); 
+            alert("Sifariş uğurla göndərildi!"); 
             cart = []; updateCartUI(); showPage('track', document.querySelectorAll('.nav-item')[2]); 
         });
     }
 
     function loadMyOrders() {
         const phone = localStorage.getItem("userPhone");
-        if(!phone) { document.getElementById("trackViewContainer").innerHTML = "Sifariş tapılmadı."; return; }
-        
         db.ref('orders').on('value', snap => {
             let html = "";
             snap.forEach(c => {
@@ -283,34 +228,22 @@
                 if(o.phone === phone) {
                     const steps = ["Sifariş verildi", "Hazırlanır", "Paketləmə", "Yola düşüb", "Təhvil verildi"];
                     let idx = steps.indexOf(o.status);
-                    html += `
-                    <div class="order-card-tracking">
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:10px; margin-bottom:10px;">
-                            <b style="font-size:14px; color:var(--dark)">#${o.id}</b> 
-                            <span style="font-weight:800; color:var(--main)">${o.total}</span>
+                    html += `<div style="background:white; border-radius:20px; padding:15px; margin-bottom:15px; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+                        <div style="display:flex; justify-content:space-between"><b>#${o.id}</b> <span>${o.total}</span></div>
+                        <div style="font-size:11px; color:gray; margin-top:5px;">Sifariş saatı: ${o.orderTime || '--:--'}</div>
+                        <div style="display:flex; gap:10px; margin:10px 0;">
+                            ${(o.itemImages || []).map(img => `<img src="${img}" style="width:40px;height:40px;border-radius:5px;object-fit:cover;">`).join('')}
                         </div>
-                        <div class="track-line">
-                            <div class="track-step ${idx>=0?'active':''}">
-                                <i class="fas fa-check-circle"></i><div class="step-label">Sifariş</div>
-                                <span class="step-time">${o.orderTime || '--:--'}</span>
-                            </div>
-                            <div class="track-step ${idx>=2?'active':''}">
-                                <i class="fas fa-box"></i><div class="step-label">Paket</div>
-                                <span class="step-time">${o.packTime || '--:--'}</span>
-                            </div>
-                            <div class="track-step ${idx>=3?'active':''}">
-                                <i class="fas fa-motorcycle"></i><div class="step-label">Kuryer</div>
-                                <span class="step-time">${o.courierTime || '--:--'}</span>
-                            </div>
-                            <div class="track-step ${idx>=4?'active':''}">
-                                <i class="fas fa-home"></i><div class="step-label">Çatdı</div>
-                                <span class="step-time">${o.deliveryTime || '--:--'}</span>
-                            </div>
+                        <div style="display:flex; justify-content:space-between; font-size:10px; text-align:center;">
+                            <div style="opacity:${idx>=0?1:0.3}"><i class="fas fa-check-circle"></i><br>Sifariş<br>${o.orderTime || ''}</div>
+                            <div style="opacity:${idx>=2?1:0.3}"><i class="fas fa-box"></i><br>Paket<br>${o.packTime || ''}</div>
+                            <div style="opacity:${idx>=3?1:0.3}"><i class="fas fa-motorcycle"></i><br>Kuryer<br>${o.courierTime || ''}</div>
+                            <div style="opacity:${idx>=4?1:0.3}"><i class="fas fa-home"></i><br>Çatdı<br>${o.deliveryTime || ''}</div>
                         </div>
                     </div>`;
                 }
             });
-            document.getElementById("trackViewContainer").innerHTML = html || "Hələ ki, sifarişiniz yoxdur.";
+            document.getElementById("trackViewContainer").innerHTML = html || "Sifariş yoxdur.";
         });
     }
 
@@ -320,7 +253,6 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
         if(id === 'track') loadMyOrders();
-        window.scrollTo(0,0);
     }
 </script>
 </body>
