@@ -1,806 +1,240 @@
 <!DOCTYPE html>
 <html lang="az">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Para Çuvalı</title>
-<style>
-:root {
-  --bg1: #0f0c29; --bg2: #302b63; --bg3: #24243e;
-  --card: rgba(255,255,255,0.06); --glass: rgba(255,255,255,0.12);
-  --text: #f8fafc; --text-muted: #a9a9a9;
-  --accent: #22c55e; --red: #dc2626; --blue: #3b82f6; --purple: #8b5cf6; --diamond: #38bdf8;
-  --yellow: #f59e0b;
-  --blue-darker: #2563eb;
-  --border-color: rgba(255,255,255,0.1);
-}
-[data-theme="light"] {
-  --bg1: #f0f2f5; --bg2: #e4e6eb; --bg3: #dcdfe4;
-  --card: rgba(255,255,255,0.8); --glass: rgba(0,0,0,0.05);
-  --text: #1c1e21; --text-muted: #606770;
-  --border-color: rgba(0,0,0,0.1);
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-html{height:100%;}
-body{
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue',Arial,'Apple Color Emoji','Segoe UI Emoji';
-  color: var(--text); background:linear-gradient(135deg,var(--bg1),var(--bg2) 50%,var(--bg3));
-  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-  min-height: 100vh; overflow-y: auto; padding-top: 120px; padding-bottom: 70px;
-  transition: background-color 0.3s, color 0.3s;
-}
-.wrap{display:grid;place-items:center;gap:12px;text-align:center;padding:20px;}
-.user-info{font-size:1rem;font-weight:600;opacity:.9;margin-bottom:6px; display:flex; align-items:center; gap: 10px;}
-.settings-icon { font-size: 1.5rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s, transform 0.2s; }
-.settings-icon:hover { opacity: 1; transform: rotate(45deg); }
-.card{
-  position:relative; width:min(60vw,320px); aspect-ratio:1/1; display:grid; place-items:center;
-  background: radial-gradient(60% 60% at 50% 30%,var(--glass),transparent 70%),var(--card);
-  border:1px solid var(--border-color); border-radius:24px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.35), inset 0 1px 0 var(--border-color);
-  backdrop-filter:blur(6px); transition: background-color 0.3s, border 0.3s;
-}
-.bag{font-size:clamp(5rem,18vw,12rem);filter:drop-shadow(0 8px 15px rgba(0,0,0,0.35));user-select:none;animation:float 5s ease-in-out infinite;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
-.balance{margin-top:10px;display:grid;place-items:center;font-weight:700;letter-spacing:1px;text-shadow:0 2px 5px rgba(0,0,0,0.5);}
-.balance .symbol{font-size:clamp(1rem,2.5vw,1.5rem);opacity:.9;margin-right:4px;}
-.balance .value{font-size:clamp(1.5rem,5vw,2.5rem);line-height:1;}
-.google-btn{ margin-top:14px; padding:8px 16px; font-size:0.95rem; background:#4285F4; color:white; border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; gap:6px; font-weight:600;}
-  .action-buttons button { position: fixed; right: 20px; padding: 8px 14px; font-size: 0.9rem; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; z-index: 1000; }
-#payBtn { top: 65px; background-color: var(--accent); }
-#cekBtn { top: 113px; background-color: var(--blue-darker); }
-#pulCekBtn { top: 161px; background-color: var(--yellow); }
-#notification-bell { position: fixed; top: 60px; left: 20px; font-size: 28px; cursor: pointer; user-select: none; z-index: 1000; }
-#status-icon { position: fixed; top: 60px; left: 60px; font-size: 28px; cursor: pointer; user-select: none; z-index: 1000; }
-#notification-badge { position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
-.modalOverlay{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:9999; display:none; }
-.modalContent{ background:linear-gradient(135deg,var(--bg1),var(--bg2)); padding:20px; border-radius:12px; text-align:center; color: var(--text); width: min(90vw, 350px); max-height: 90vh; display: flex; flex-direction: column; }
-.modalContent input { display: block; width: 95%; margin: 10px auto; padding: 10px; border-radius: 5px; border: 1px solid rgba(255, 255, 255, 0.2); background: #FFFFFF; color: #212529; font-size: 1rem; }
-.modalContent button { margin-top:12px; padding:8px 16px; font-size:1rem; border:none; border-radius:8px; cursor:pointer; }
-#announcements-container { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-.announcement-item { background: rgba(14, 165, 233, 0.1); border-left: 4px solid #0ea5e9; padding: 12px; border-radius: 6px; text-align: left; margin-bottom: 10px; }
-.announcement-text { font-size: 0.9rem; margin: 0; white-space: pre-wrap; word-break: break-word; }
-.announcement-meta { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
-#notifications-list { max-height: 350px; overflow-y: auto; text-align: left; padding: 5px; background: rgba(0,0,0,0.2); border-radius: 8px; }
-.notification-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem; border-left: 4px solid #555; }
-.notification-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-.notification-item-amount { font-size: 1.1rem; font-weight: bold; }
-.notification-item-amount.positive { color: var(--accent); } .notification-item-amount.negative { color: #fca5a5; }
-.notification-item-status { font-weight: bold; padding: 4px 8px; border-radius: 6px; color: white; font-size: 0.8rem;}
-.notification-item-body { font-size: 0.85rem; opacity: 0.8; display: flex; justify-content: space-between; align-items: center; }
-.notification-item-footer { font-size: 0.75rem; opacity: 0.7; margin-top: 8px; text-align: right; }
-.status-pending { border-left-color: #f59e0b; } .status-pending .notification-item-status { background-color: #f59e0b; }
-.status-approved { border-left-color: #16a34a; } .status-approved .notification-item-status { background-color: #16a34a; }
-.status-rejected { border-left-color: #dc2626; } .status-rejected .notification-item-status { background-color: #dc2626; }
-.status-cancelled { border-left-color: #6b7280; } .status-cancelled .notification-item-status { background-color: #6b7280; }
-.status-deposit { border-left-color: #3b82f6; } .status-deposit .notification-item-status { background-color: #3b82f6; }
-.cancel-btn { background: var(--red); color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
-  #support-widget { position: fixed; bottom: 80px; right: 20px; z-index: 10000; }
-#chat-toggle-btn { background: #0ea5e9; color: white; width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
-#chat-notification-badge { position: absolute; top: 0px; right: 0px; background: #ef4444; color: white; min-width: 22px; height: 22px; border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; padding: 2px; }
-#chat-window { position: absolute; bottom: 80px; right: 0; width: 320px; max-width: 90vw; height: 400px; background: var(--bg3); border: 1px solid var(--border-color); border-radius: 12px; display: none; flex-direction: column; overflow: hidden; }
-#chat-header { padding: 10px; background: rgba(0,0,0,0.2); font-weight: bold; text-align: center; }
-#chat-messages { flex-grow: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-.message { max-width: 80%; padding: 8px 12px; border-radius: 10px; line-height: 1.4; word-break: break-word; }
-  .message.user { background: var(--blue); color: white; align-self: flex-end; }
-.message.admin { background: #4b5563; color: white; align-self: flex-start; }
-#chat-input-area { display: flex; padding: 10px; border-top: 1px solid var(--border-color); }
-#chat-input { flex-grow: 1; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; color: var(--text); }
-#send-chat-btn { background: #0ea5e9; color: white; border: none; padding: 0 12px; border-radius: 6px; margin-left: 8px; cursor: pointer; font-weight: bold; }
-#preloader { display: none; }
-#animated-bag { display: none; }
-.content-wrapper { 
-    display:flex; 
-    flex-direction:column; 
-    flex-grow:1; 
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out; 
-    width:100%;
-}
-  .balance-update-text { animation: text-flash 0.7s ease-in-out; }
-@keyframes text-flash { 0% { color: var(--text); transform: scale(1); } 50% { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); } 100% { color: var(--text); transform: scale(1); } }
-.coin { position: fixed; top: -50px; font-size: 2rem; z-index: 9998; pointer-events: none; animation-name: fall-and-fade; animation-timing-function: cubic-bezier(0.55, 0.085, 0.68, 0.53); animation-fill-mode: forwards; will-change: transform, opacity; }
-@keyframes fall-and-fade { from { transform: translateY(0) rotateZ(0deg); opacity: 1; } to { transform: translateY(65vh) rotateZ(360deg); opacity: 0; } }
-  .filter-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
-.filter-btn { background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s ease; }
-.filter-btn:hover { background: rgba(255,255,255,0.2); }
-.filter-btn.active { background: var(--accent); color: var(--bg1); font-weight: bold; border-color: var(--accent); }
-#status-list { text-align: left; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-.status-item { display: flex; align-items: center; gap: 12px; }
-.status-indicator { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
-.status-indicator.active { background-color: var(--accent); }
-.status-indicator.delayed { background-color: #f59e0b; }
-.status-indicator.paused { background-color: var(--red); }
-.status-text .label { font-weight: bold; display: block; margin-bottom: 4px; }
-.status-text .description { font-size: 0.9rem; opacity: 0.8; }
-#countdown-banner {
-  display: none; position: fixed; top: 65px; right: 20px; transform: translateX(120%);
-  background: rgba(15, 12, 41, 0.8); backdrop-filter: blur(5px); color: #f59e0b;
-  padding: 12px 20px; border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.3);
-  z-index: 10005; font-weight: 600; box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  width: auto; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
-}
-#countdown-banner.visible { transform: translateX(0); }
-.falling-coin {
-  position: fixed; top: -60px; font-size: 2.2rem; user-select: none;
-  pointer-events: auto; cursor: pointer; z-index: 10003;
-  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); padding: 5px;
-  will-change: transform, opacity;
-}
-@keyframes fall-animation {
-  from { transform: translateY(0) rotateZ(0deg); opacity: 1; }
-  to { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
-}
-.page-list ul { list-style: none; padding: 0; width: 100%; text-align: left; margin-top: 15px; max-height: 400px; overflow-y: auto; }
-.page-list li { background: var(--glass); padding: 12px 15px; border-radius: 8px; margin-bottom: 8px; font-size: 1rem; font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
-.page-list li:first-child { background: #f59e0b; color: var(--bg1); font-weight: bold; }
-#game-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 10002; display: none; }
-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--card); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 5px 0; z-index: 1001; border-top: 1px solid var(--border-color); }
-.nav-item { color: var(--text); text-decoration: none; text-align: center; font-size: 0.75rem; padding: 8px 12px; border-radius: 8px; transition: background 0.2s ease; cursor:pointer;}
-.nav-item span { font-size: 1.5rem; display: block; }
-.nav-item.active { background: rgba(255,255,255,0.2); font-weight: bold; }
-.page { display: none; width: 100%; max-width: 500px; padding: 15px; animation: fadeIn 0.5s ease; }
-.page.active { display: block; }
-#main-page.active { display: flex; flex-grow: 1; align-items: center; justify-content: center; }
-.page-header { font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; text-align: center; }
-.accordion {
-    background-color: var(--card); color: var(--text); cursor: pointer;
-    padding: 18px; width: 100%; border: none; text-align: left; outline: none;
-    font-size: 1rem; font-weight: 600; transition: background-color 0.3s ease;
-    border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-}
-.accordion:after { content: '\\2795'; font-size: 13px; color: var(--text-muted); }
-.accordion.active:after { content: "\\2796"; }
-.accordion:hover, .accordion.active { background-color: var(--glass); }
-.panel {
-    padding: 0 18px; background-color: transparent; max-height: 0;
-    overflow: hidden; transition: max-height 0.3s ease-out; margin-bottom: 10px;
-}
-.panel p { margin: 15px 0; line-height: 1.6; opacity: 0.9; }
-  .birja-card { width: 100%; aspect-ratio: auto; padding: 20px; margin-bottom: 15px; background: var(--card); border: 1px solid var(--border-color); }
-.coin-price { font-size: 1.5rem; font-weight: 700; color: var(--accent); text-align: center; }
-.birja-balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
-.birja-balance-grid span { font-size: 0.9rem; color: var(--text-muted); }
-  .birja-balance-grid p { font-size: 1.2rem; font-weight: bold; margin: 5px 0 0; }
-.trade-panel .tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
-.trade-panel .tab { padding: 10px 20px; cursor: pointer; font-size: 1.1rem; font-weight: bold; color: var(--text-muted); }
-.trade-panel .tab.active { color: var(--text); border-bottom: 2px solid var(--accent); }
-.trade-panel .form-group label { display: block; margin-bottom: 8px; color: var(--text-muted); }
-.trade-panel .form-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg1); color: var(--text); font-size: 1rem; }
-.trade-panel .summary { margin-top: 15px; padding: 12px; background-color: rgba(0,0,0,0.3); border-radius: 8px; text-align: center; font-weight: 600; }
-.trade-panel .btn { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
-.trade-panel .btn-buy { background-color: var(--accent); color: var(--bg1); }
-.trade-panel .btn-sell { background-color: var(--red); color: white; }
-.history-list-container { max-height: 300px; overflow-y: auto; padding-right: 5px; }
-.history-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); animation: slideIn 0.5s ease-out; will-change: transform, opacity; }
-@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-.history-item:last-child { border-bottom: none; }
-.history-indicator { font-size: 1.5rem; margin-right: 15px; font-weight: bold; }
-.history-indicator.buy { color: var(--accent); }
-.history-indicator.sell { color: var(--red); }
-.history-details { flex-grow: 1; }
-.history-details p { margin: 0; font-weight: 600; font-size: 1rem; }
-.history-details .history-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
-.history-amount { text-align: right; }
-.history-amount p { margin: 0; font-weight: bold; font-size: 1rem; }
-.history-amount .history-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
-  #top-header { position: fixed; top: 0; left: 0; width: 100%; background: var(--card); backdrop-filter: blur(10px); z-index: 1001; padding: 10px 15px; display: none; justify-content: space-around; align-items: center; border-bottom: 1px solid var(--border-color); }
-.header-balance { display: flex; align-items: center; gap: 5px; font-weight: 600; font-size: 0.9rem; }
-.header-balance span { font-size: 1.2rem; transition: color 0.4s ease-in-out, transform 0.4s ease-in-out; }
-.settings-card { width: 100%; padding: 20px; margin-bottom: 15px; background: var(--card); border: 1px solid var(--border-color); border-radius: 12px; }
-.profile-section { display: flex; flex-direction: column; align-items: center; text-align: center; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); position: relative; }
-.profile-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
-#user-display-name { margin: 0; font-size: 1.2rem; }
-#user-email { margin: 4px 0 0; font-size: 0.9rem; color: var(--text-muted); }
-#user-friendly-id { font-size: 0.9rem; background: var(--glass); padding: 5px 10px; border-radius: 8px; margin-top: 10px; }
-.level-bar-container { width: 100%; margin-top: 15px; }
-.level-bar-container .level-text { display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; }
-.progress-bar { width: 100%; height: 8px; background-color: var(--bg3); border-radius: 4px; overflow: hidden; }
-.progress-bar-inner { width: 0%; height: 100%; background-color: var(--accent); border-radius: 4px; transition: width 0.5s ease; }
-.settings-section { padding-top: 20px; }
-.setting-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; font-size: 1rem; }
-.setting-item span { font-weight: 500; }
-.toggle-switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-.toggle-switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 28px; }
-.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: var(--accent); }
-input:checked + .slider:before { transform: translateX(22px); }
-.danger-zone { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; }
-.btn-logout, .btn-delete { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
-.btn-logout { background-color: var(--blue); color: white; }
-.btn-delete { background-color: transparent; border: 1px solid var(--red); color: var(--red); }
-.btn-delete:hover { background-color: var(--red); color: white; }
-.shop-tabs { display: flex; border-bottom: 2px solid var(--border-color); margin-bottom: 20px; }
-.shop-tab { padding: 10px 20px; cursor: pointer; font-size: 1.1rem; font-weight: bold; color: var(--text-muted); }
-.shop-tab.active { color: var(--text); border-bottom: 2px solid var(--purple); }
-.shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
-.shop-item-card { background: var(--card); border: 1px solid var(--border-color); border-radius: 12px; text-align: center; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; }
-.shop-item-card.disabled { opacity: 0.5; cursor: not-allowed; }
-.shop-item-preview { font-size: 3rem; margin-bottom: 10px; line-height: 1; height: 50px; display:flex; align-items:center; justify-content:center;}
-.shop-item-name { font-weight: 600; font-size: 0.9rem; margin-bottom: 5px; flex-grow: 1; }
-.shop-item-price { display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--diamond); margin-bottom: 10px; }
-.btn-buy-item { background: var(--purple); color: white; padding: 8px; width: 100%; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.btn-equip-item { background: var(--accent); color: var(--bg1); padding: 8px; width: 100%; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-.btn-equip-item:disabled { background: var(--text-muted); }
-.gem-pack-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-.gem-pack { background: linear-gradient(135deg, var(--blue), var(--purple)); border-radius: 12px; padding: 20px; text-align: center; color: white; }
-.gem-pack h3 { margin: 0 0 5px 0; font-size: 1.8rem; }
-.gem-pack p { margin: 0 0 15px 0; opacity: 0.9; }
-.btn-buy-gem { background: white; color: var(--blue); padding: 10px 20px; width: 100%; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-.leaderboard-item-user { display: flex; align-items: center; gap: 10px; flex-grow: 1; text-align: left; }
-.leaderboard-avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;}
-.task-card { background: var(--card); border-left: 4px solid var(--purple); border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-.task-header { display: flex; justify-content: space-between; align-items: center; }
-.task-title { font-size: 1.1rem; font-weight: 600; }
-.task-reward { font-weight: bold; color: var(--diamond); }
-.task-description { font-size: 0.9rem; color: var(--text-muted); text-align: left; }
-.task-button { padding: 10px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; }
-.task-button.do { background-color: var(--purple); color: white; }
-.task-button.pending { background-color: var(--yellow); color: var(--bg1); cursor: not-allowed; }
-.task-button.completed { background-color: var(--accent); color: var(--bg1); cursor: not-allowed; }
-.profile-avatar, .leaderboard-avatar {
-  position: relative;
-  border: 2px solid transparent;
-}
-.profile-avatar::after, .leaderboard-avatar::after {
-  content: '';
-  position: absolute;
-  top: -5px; left: -5px; right: -5px; bottom: -5px;
-  border-radius: 50%;
-  border: 3px solid transparent;
-  pointer-events: none;
-  box-shadow: 0 0 15px transparent;
-  transition: all 0.3s ease;
-}
-.profile-avatar.frame-gold::after, .leaderboard-avatar.frame-gold::after {
-  border-color: #ffd700;
-  box-shadow: 0 0 15px #ffd700, inset 0 0 10px #ffd700;
-}
-.profile-avatar.frame-silver::after, .leaderboard-avatar.frame-silver::after {
-  border-color: #c0c0c0;
-  box-shadow: 0 0 15px #c0c0c0, inset 0 0 10px #c0c0c0;
-}
-.balance .value {
-    transition: color 0.4s ease-in-out, transform 0.4s ease-in-out;
-}
-.balance-increase {
-  color: #22c55e !important; /* Yaşıl rəng */
-  transform: scale(1.15);
-  text-shadow: 0 0 12px #22c55e;
-}
-.balance-decrease {
-  color: #dc2626 !important; /* Qırmızı rəng */
-  transform: scale(1.15);
-  text-shadow: 0 0 12px #dc2626;
-}
-.page-list li {
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-.page-list li:hover {
-    background: var(--glass);
-}
-.profile-modal-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-}
-.profile-modal-avatar {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-.profile-modal-inventory {
-    text-align: left;
-    max-height: 200px;
-    overflow-y: auto;
-}
-.profile-modal-inventory h4 {
-    margin-bottom: 10px;
-}
-.inventory-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 10px;
-    text-align: center;
-}
-.inventory-item {
-    background: var(--glass);
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-}
-.inventory-item-icon {
-    font-size: 2rem;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azad Store | Alış-Veriş</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        header { background: white; padding: 15px; text-align: center; font-weight: 800; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        
+        .container { padding: 12px; max-width: 500px; margin: auto; }
+        
+        /* Məhsulların 2-li düzülüşü */
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        section { display: none; animation: fadeIn 0.3s ease; }
+        .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #edf2f7; }
+        .card img { width: 100%; height: 150px; object-fit: cover; background: #eee; }
+        .card-body { padding: 10px; }
+        .card-body b { font-size: 14px; display: block; height: 38px; overflow: hidden; color: #334155; }
+        .price { color: var(--primary); font-weight: 700; font-size: 16px; margin-top: 6px; }
+        
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 15px; }
+        .btn-primary { background: var(--primary); color: white; margin-top: 10px; }
+        .btn-primary:active { transform: scale(0.97); }
+
+        /* Səbət elementləri */
+        .cart-item { display: flex; align-items: center; background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #edf2f7; }
+        .cart-item img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; margin-right: 12px; }
+        .cart-info { flex-grow: 1; }
+
+        /* İzləmə statusu (Göndərdiyiniz şəkildəki kimi) */
+        .status-box { background: white; padding: 20px; border-radius: 15px; margin-top: 15px; }
+        .step { display: flex; align-items: center; margin-bottom: 18px; position: relative; color: #94a3b8; }
+        .step.done { color: #10b981; font-weight: 600; }
+        .dot { width: 14px; height: 14px; border-radius: 50%; background: #e2e8f0; margin-right: 15px; z-index: 2; }
+        .step.done .dot { background: #10b981; box-shadow: 0 0 0 4px #d1fae5; }
+        
+        /* Naviqasiya */
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #e2e8f0; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); }
+        .nav-item { text-align: center; color: #94a3b8; font-size: 11px; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 3px; }
+
+        input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; font-size: 15px; }
+    </style>
 </head>
 <body>
-<div id="game-overlay"></div>
-<div id="top-header">
-    <div class="header-balance">💰<span id="header-azn-balance">0.00</span></div>
-    <div class="header-balance" id="header-coin-balance">🪙<span>0.00</span></div>
-    <div class="header-balance" id="header-gem-balance">💎<span>0</span></div>
+
+<header>Azad Store</header>
+
+<div class="container">
+    <section id="shop" class="active">
+        <div class="product-grid" id="productList"></div>
+    </section>
+
+    <section id="detail">
+        <div class="card">
+            <img id="dImg">
+            <div class="card-body">
+                <h2 id="dName" style="margin:0; font-size: 20px;"></h2>
+                <div class="price" id="dPrice" style="font-size: 20px; margin: 10px 0;"></div>
+                <p id="dDesc" style="color:#64748b; font-size: 14px; line-height: 1.5;"></p>
+                <button class="btn btn-primary" onclick="addToCart()">Səbətə Əlavə Et</button>
+                <button class="btn" style="background: #f1f5f9; margin-top: 8px;" onclick="showPage('shop')">Geri</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="cart">
+        <h3 style="margin-top:0">Səbətim</h3>
+        <div id="cartItems"></div>
+        <div id="checkoutArea" style="display:none; margin-top:20px; border-top: 2px dashed #e2e8f0; padding-top: 20px;">
+            <div style="display:flex; justify-content:space-between; font-size: 18px; font-weight: 800; margin-bottom: 15px;">
+                <span>Cəmi:</span> <span id="totalPrice">0 AZN</span>
+            </div>
+            <input id="custName" placeholder="Adınız və Soyadınız">
+            <input id="custPhone" placeholder="Telefon nömrəniz">
+            <button class="btn btn-primary" onclick="confirmOrder()">Sifarişi Tamamla</button>
+        </div>
+    </section>
+
+    <section id="track">
+        <h3 style="margin-top:0">Sifariş İzləmə</h3>
+        <div id="trackView"></div>
+    </section>
 </div>
-<div id="countdown-banner">Para Yağışı <span id="countdown-timer">30</span> saniyəyə başlayır!</div>
-<div class="content-wrapper">
-    <div id="notification-bell" style="display:none;"><span>🔔</span><div id="notification-badge" style="display:none;">1</div></div>
-    <div id="status-icon" style="display:none;"><span>ℹ️</span></div>
-    <div class="action-buttons" style="display:none;"><button id="payBtn">💲 BALANSI ARTIR</button><button id="cekBtn">📷 ÇEK ŞƏKLİ</button><button id="pulCekBtn">🏦 PULU ÇIXART</button></div>
-        <div id="main-page" class="page active">
-        <main class="wrap">
-            <div id="userInfo" class="user-info">
-                <span id="user-greeting"></span>
-                <span class="settings-icon" id="settingsBtn" style="display: none;">⚙️</span>
-            </div>
-            <div class="card">
-                <div class="bag" id="main-bag-icon">💰</div>
-                <div class="balance">
-                    <span class="symbol">AZN</span>
-                    <span id="balance" class="value">0.00</span>
-                </div>
-            </div>
-            <button class="google-btn" id="loginBtn">🌐 Giriş</button>
-        </main>
-    </div>
-            <div id="leaderboard-page" class="page">
-        <h2 class="page-header">Liderlər Cədvəli</h2>
-        <div class="shop-tabs" style="justify-content: center;">
-            <div class="shop-tab active" id="leaderboard-tab-rain" data-content="leaderboard-rain-content">Para Yağışı</div>
-            <div class="shop-tab" id="leaderboard-tab-level" data-content="leaderboard-level-content">Səviyyə</div>
-        </div>
-        <div id="leaderboard-rain-content">
-            <div id="leaderboard-list" class="page-list"><ul></ul></div>
-        </div>
-        <div id="leaderboard-level-content" style="display: none;">
-            <div id="level-leaderboard-list" class="page-list"><ul></ul></div>
-        </div>
-            </div>
-                <div id="tasks-page" class="page">
-        <h2 class="page-header">Tapşırıqlar</h2>
-        <div id="tasks-container">
-            <p style="text-align:center; color: var(--text-muted);">Yüklənir...</p>
-        </div>
-    </div>
 
-    <div id="birja-page" class="page">
-        <h2 class="page-header" id="birjaCoinName">Coin Birjası</h2>
-        <div class="card birja-card">
-            <div class="coin-price" id="birjaCoinPrice">1 Coin = 0.00 AZN</div>
-        </div>
-        <div class="card birja-card">
-            <div class="birja-balance-grid">
-                <div><span>Pul Balansınız</span><p id="birjaAznBalance">0.00 AZN</p></div>
-                <div><span>Coin Balansınız</span><p id="birjaUserCoinBalance">0.00 Coin</p></div>
-            </div>
-        </div>
-        <div class="card birja-card trade-panel">
-            <div class="tabs">
-                <div class="tab active" id="buy-tab">Almaq</div>
-                <div class="tab" id="sell-tab">Satmaq</div>
-            </div>
-            <div id="buy-form">
-                <div class="form-group"><label>Almaq istədiyiniz miqdar (Coin)</label><input type="number" id="buyAmount" placeholder="0.00" oninput="calculateBirjaTotal('buy')"></div>
-                <div class="summary" id="buySummary">Yekun Məbləğ: 0.00 AZN</div><br>
-                <button class="btn btn-buy" id="buyCoinBtn">ALMAQ</button>
-            </div>
-            <div id="sell-form" style="display:none;">
-                <div class="form-group"><label>Satmaq istədiyiniz miqdar (Coin)</label><input type="number" id="sellAmount" placeholder="0.00" oninput="calculateBirjaTotal('sell')"></div>
-                <div class="summary" id="sellSummary">Əldə edəcəksiniz: 0.00 AZN</div><br>
-                <button class="btn btn-sell" id="sellCoinBtn">SATMAQ</button>
-            </div>
-        </div>
-        <div class="card birja-card">
-            <h3 style="text-align: center; margin-bottom: 15px; opacity: 0.9;">Əməliyyat Tarixçəsi</h3>
-            <div class="history-list-container" id="transaction-history-list"><p style="text-align:center; opacity:0.6;">Yüklənir...</p></div>
-        </div>
-    </div>
-                <div id="shop-page" class="page">
-        <h2 class="page-header">Mağaza</h2>
-        <div class="shop-tabs">
-            <div class="shop-tab active" data-tab="shop-items">Vitrin</div>
-            <div class="shop-tab" data-tab="my-items">Mənim Əşyalarım</div>
-            <div class="shop-tab" data-tab="buy-gems">Almaz Al</div>
-        </div>
-        <div class="shop-content" id="shop-items"><div class="shop-grid" id="shop-grid-container"><p>Yüklənir...</p></div></div>
-        <div class="shop-content" id="my-items" style="display: none;"><div class="shop-grid" id="my-items-container"><p>Yüklənir...</p></div></div>
-        <div class="shop-content" id="buy-gems" style="display: none;">
-            <div class="gem-pack-grid">
-                <div class="gem-pack"><h3>100 💎</h3><p>Kiçik Almaz Paketi</p><button class="btn-buy-gem" onclick="buyGems(1)">1.00 AZN ilə Al</button></div>
-                <div class="gem-pack"><h3>550 💎</h3><p>+10% Bonus ilə Orta Paket</p><button class="btn-buy-gem" onclick="buyGems(5)">5.00 AZN ilə Al</button></div>
-                 <div class="gem-pack"><h3>1200 💎</h3><p>+20% Bonus ilə Böyük Paket</p><button class="btn-buy-gem" onclick="buyGems(10)">10.00 AZN ilə Al</button></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="settings-page" class="page">
-        <h2 class="page-header">Ayarlar</h2>
-        <div class="settings-card profile-section">
-            <img id="user-avatar" src="https://i.imgur.com/3YQ5h0Q.png" alt="Avatar" class="profile-avatar">
-            <h3 id="user-display-name">Yüklənir...</h3>
-            <p id="user-email">Yüklənir...</p>
-            <p id="user-friendly-id"></p>
-            <div class="level-bar-container">
-                <div class="level-text"><span id="level-start-text"></span><span id="level-xp-text"></span></div>
-                <div class="progress-bar"><div class="progress-bar-inner" id="level-progress-bar"></div></div>
-            </div>
-        </div>
-        <div class="settings-card settings-section">
-            <div class="setting-item"><span>Qaranlıq Rejim</span><label class="toggle-switch"><input type="checkbox" id="theme-toggle"><span class="slider"></span></label></div>
-            <div class="setting-item" id="help-section-in-settings" style="cursor: pointer;"><span>Kömək və Məlumat</span><span>></span></div>
-            <div class="setting-item"><span>Versiya</span><span>2.2.0</span></div>
-        </div>
-        <div class="settings-card danger-zone">
-            <button id="logoutBtn" class="btn-logout">Çıxış Et</button>
-            <button id="deleteAccountBtn" class="btn-delete">Hesabı Sil</button>
-        </div>
-    </div>
-            <div id="help-page" class="page">
-        <h2 class="page-header">Kömək</h2>
-        <button class="accordion">"Para Çuvalı" nədir?</button>
-        <div class="panel"><p>Bu, istifadəçilərin müxtəlif yollarla virtual balans artıra və "Para Yağışı" kimi oyunlarda iştirak edərək real mükafatlar qazana biləcəyi bir əyləncə platformasıdır.</p></div>
-        <button class="accordion">Balansı necə artırmaq olar?</button>
-        <div class="panel"><p>Əsas səhifədəki "BALANSI ARTIR" düyməsini istifadə edərək təlimatlara əməl edə bilərsiniz.</p></div>
-        <button class="accordion">Pul çıxarmaq mümkündür?</button>
-        <div class="panel"><p>Bəli, "PULU ÇIXART" düyməsini istifadə edərək bank kartınıza pul çıxarışı üçün sorğu göndərə bilərsiniz. Sorğular administrasiya tərəfindən yoxlanılır.</p></div>
-        <button class="accordion">"Para Yağışı" nədir?</button>
-        <div class="panel"><p>Bu, təsadüfi zamanlarda başlayan bir oyundur. Ekrandan düşən ikonları tutaraq xal qazanırsınız. Oyun sonunda ən çox xal toplayanlar balanslarına real pul mükafatı əldə edirlər. Liderlər cədvəlindən nəticələrə baxa bilərsiniz.</p></div>
-            </div>
-                <div class="modalOverlay" id="payModal"><div class="modalContent"><p>💲 PUL YÜKLƏ M10 077 543 50 53</p><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="cekModal"><div class="modalContent"><p>ÇƏKİN ŞƏKLİNİ GÖNDƏRMƏYƏ BAS</p><button id="sendCekBtn">GÖNDƏR</button><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="pulCekModal"><div class="modalContent"><h3>Pul Çıxarma Sorğusu</h3><input type="number" id="withdrawAmount" placeholder="Məbləğ (AZN)" required><input type="text" id="userName" placeholder="Ad" required><input type="text" id="userSurname" placeholder="Soyad" required><input type="tel" id="cardNumber" placeholder="Kart nömrəsi (16 rəqəm)" maxlength="16" required><button id="withdrawBtn">💸 PUL ÇIXART</button><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="notificationsModal"><div class="modalContent"><h3>Hesab Çıxarışı və Elanlar</h3><div class="filter-buttons"><button class="filter-btn" onclick="fetchAndDisplayHistory('7d')">Son 7 gün</button><button class="filter-btn" onclick="fetchAndDisplayHistory('month')">Bu Ay</button><button class="filter-btn active" onclick="fetchAndDisplayHistory('all')">Bütün Tarixçə</button></div><div id="announcements-container"></div><div id="notifications-list"></div><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="statusModal"><div class="modalContent"><h3>Sistem Vəziyyəti</h3><div id="status-list"><p>Məlumatlar yüklənir...</p></div><button class="close-modal-btn">Bağla</button></div></div>
-    <div class="modalOverlay" id="leaderboardResultModal"><div class="modalContent"><h3>Para Yağışı Nəticələri</h3><div id="leaderboard-result-list"></div><button class="close-modal-btn">Bağla</button></div></div>
-    
-    <div class="modalOverlay" id="userProfileModal">
-        <div class="modalContent">
-            <div id="profile-modal-content">
-                <p>Yüklənir...</p>
-            </div>
-            <button class="close-modal-btn">Bağla</button>
-        </div>
-    </div>
-
-
-    <div id="support-widget"><div id="chat-window"><div id="chat-header">Dəstək</div><div id="chat-messages"></div><div id="chat-input-area"><input type="text" id="chat-input" placeholder="Mesajınızı yazın..."><button id="send-chat-btn"> göndər</button></div></div><button id="chat-toggle-btn"><span>💬</span><div id="chat-notification-badge" style="display:none;"></div></button></div>
+<div class="nav">
+    <div class="nav-item active" onclick="showPage('shop', this)"><i class="fa-solid fa-house"></i>Mağaza</div>
+    <div class="nav-item" onclick="showPage('cart', this)"><i class="fa-solid fa-cart-shopping"></i>Səbət</div>
+    <div class="nav-item" onclick="showPage('track', this)"><i class="fa-solid fa-truck-fast"></i>İzləmə</div>
 </div>
-<footer>
-    <a class="nav-item active" id="homeBtn"><span>🏠</span>Əsas</a>
-    <a class="nav-item" id="leaderboardBtn"><span>🏅</span>Liderlər</a>
-    <a class="nav-item" id="tasksBtn"><span>🎯</span>Tapşırıqlar</a>
-    <a class="nav-item" id="birjaBtn"><span>📈</span>Birja</a>
-    <a class="nav-item" id="shopBtn"><span>🛒</span>Mağaza</a>
-</footer>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.14.0/firebase-database-compat.js"></script>
+
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw", authDomain: "niceuc-e5986.firebaseapp.com", databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com", projectId: "niceuc-e5986", appId: "1:242221260650:web:d140153a2167c4738dcf13" };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-    
-    let listeners = {};
-    let displayedBalance = 0;
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        applyTheme(savedTheme);
-    });
+    let products = JSON.parse(localStorage.getItem("products")) || [];
+    let cart = [];
+    let selectedForDetail = null;
 
-    function animateBalanceUpdate(element, start, end) {
-        if (!element) return;
-        
-        const duration = 1500;
-        const range = end - start;
-        if (range === 0) return;
-
-        const changeClass = range > 0 ? 'balance-increase' : 'balance-decrease';
-        element.classList.add(changeClass);
-
-        let startTime = null;
-
-        function step(timestamp) {
-            if (!startTime) startTime = timestamp;
-            const progress = Math.min((timestamp - startTime) / duration, 1);
-            const currentVal = start + range * progress;
-            element.textContent = currentVal.toFixed(2);
-            
-            if (progress < 1) {
-                requestAnimationFrame(step);
-            } else {
-                element.textContent = end.toFixed(2);
-                setTimeout(() => {
-                    element.classList.remove(changeClass);
-                }, 1000);
-            }
+    function showPage(id, el) {
+        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(el) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
         }
-        requestAnimationFrame(step);
+        if(id === 'shop') renderShop();
+        if(id === 'cart') renderCart();
+        if(id === 'track') renderTrack();
+        window.scrollTo(0,0);
     }
 
-    auth.onAuthStateChanged(user => {
-        const topHeader = document.getElementById('top-header');
-        const supportWidget = document.getElementById('support-widget');
-        const settingsBtn = document.getElementById('settingsBtn');
-        if (user) {
-            checkAndAssignFriendlyId(user);
-            checkDailyLogin(user.uid);
-            document.getElementById('user-greeting').textContent = `Salam, ${user.displayName}`;
-            document.getElementById('loginBtn').style.display = 'none';
-            settingsBtn.style.display = 'inline-block';
-            topHeader.style.display = 'flex';
-            db.ref('users/' + user.uid).update({ displayName: user.displayName, email: user.email, photoURL: user.photoURL });
-            
-            db.ref('balances/' + user.uid + '/amount').once('value', snapshot => {
-                 displayedBalance = snapshot.val() || 0;
-            });
-
-            attachAllListeners(user.uid);
-            listenForNewNotifications(user.uid);
-            supportWidget.style.display = 'block';
-            initializeSupportChat(user);
-            initializeSystemStatus();
-            listenForMoneyRain();
-        } else {
-            document.getElementById('user-greeting').textContent = 'Xoş Gəlmisiniz!';
-            document.getElementById('loginBtn').style.display = 'flex';
-            settingsBtn.style.display = 'none';
-            topHeader.style.display = 'none';
-            document.getElementById('balance').textContent = '0.00';
-            displayedBalance = 0;
-            detachAllListeners();
-            supportWidget.style.display = 'none';
+    function renderShop() {
+        const list = document.getElementById("productList");
+        if(products.length === 0) {
+            list.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding:50px; color:#94a3b8;'>Hələ ki, məhsul yoxdur.</p>";
+            return;
         }
-    });
-      function listenForNewNotifications(uid) {
-        const lastCheck = localStorage.getItem('lastNotificationCheck') || 0;
-        const notificationsRef = db.ref('withdrawals').orderByChild('uid').equalTo(uid);
-
-        listeners['notifications'] = notificationsRef.on('value', snapshot => {
-            let unreadCount = 0;
-            if (snapshot.exists()) {
-                snapshot.forEach(child => {
-                    const notification = child.val();
-                    if (notification.createdAt > lastCheck && (notification.status === 'approved' || notification.status === 'rejected')) {
-                        unreadCount++;
-                    }
-                });
-            }
-            
-            const badge = document.getElementById('notification-badge');
-            if (unreadCount > 0) {
-                badge.textContent = unreadCount;
-                badge.style.display = 'flex';
-            } else {
-                badge.style.display = 'none';
-            }
-        });
+        list.innerHTML = products.map(p => `
+            <div class="card" onclick="openDetail(${p.id})">
+                <img src="${p.img || 'https://via.placeholder.com/150'}">
+                <div class="card-body">
+                    <b>${p.name}</b>
+                    <div class="price">${p.price} AZN</div>
+                </div>
+            </div>`).join('');
     }
 
-    function initializeSettingsPage() {
-        const user = auth.currentUser;
-        if (!user) return;
-        const avatar = document.getElementById('user-avatar');
-        avatar.className = 'profile-avatar';
-        db.ref(`/user_profile_settings/${user.uid}/equipped_frame`).once('value', frameId => {
-            if(frameId.exists()) {
-                 if(frameId.val() === 'gold_frame') avatar.classList.add('frame-gold');
-                 if(frameId.val() === 'silver_frame') avatar.classList.add('frame-silver');
-            }
-        });
-        avatar.src = user.photoURL || 'https://i.imgur.com/3YQ5h0Q.png';
-        document.getElementById('user-display-name').textContent = user.displayName;
-        document.getElementById('user-email').textContent = user.email;
-        db.ref('users/' + user.uid + '/friendlyId').once('value', snapshot => { if (snapshot.exists()) { document.getElementById('user-friendly-id').textContent = `İstifadəçi ID: #${snapshot.val()}`; } });
+    function openDetail(id) {
+        selectedForDetail = products.find(p => p.id === id);
+        document.getElementById("dImg").src = selectedForDetail.img;
+        document.getElementById("dName").innerText = selectedForDetail.name;
+        document.getElementById("dPrice").innerText = selectedForDetail.price + " AZN";
+        document.getElementById("dDesc").innerText = selectedForDetail.desc || "Məlumat daxil edilməyib.";
+        showPage('detail');
     }
-    document.getElementById('logoutBtn').addEventListener('click', () => { 
-        if(confirm("Hesabdan çıxmaq istədiyinizə əminsiniz?")) { 
-            if (listeners['notifications']) {
-                listeners['notifications'].off();
-            }
-            auth.signOut().then(() => { 
-                switchPage('main-page'); 
-            }); 
-        } 
-    });
-    document.getElementById('deleteAccountBtn').addEventListener('click', () => { const user = auth.currentUser; if (!user) return; if (confirm("DİQQƏT!\n\nBu əməliyyat geri qaytarılmazdır!\nBütün balansınız, coinləriniz və tarixçəniz silinəcək.\n\nDavam etmək istədiyinizə əminsiniz?")) { const uid = user.uid; const updates = {}; updates[`/users/${uid}`] = null; updates[`/balances/${uid}`] = null; updates[`/user_coins/${uid}`] = null; updates[`/birja_transactions/${uid}`] = null; updates[`/user_levels/${uid}`] = null; updates[`/user_gems/${uid}`] = null; updates[`/user_inventory/${uid}`] = null; updates[`/user_profile_settings/${uid}`] = null; db.ref().update(updates).then(() => { user.delete().then(() => { alert("Hesabınız uğurla silindi."); switchPage('main-page'); }).catch(error => { alert("Hesabı silərkən xəta baş verdi: " + error.message); }); }).catch(dbError => { alert("Hesab məlumatları silinərkən xəta baş verdi: " + dbError.message); }); } });
-    const themeToggle = document.getElementById('theme-toggle');
-    function applyTheme(theme) { document.documentElement.setAttribute('data-theme', theme); localStorage.setItem('theme', theme); themeToggle.checked = theme === 'dark'; }
-    themeToggle.addEventListener('change', () => { applyTheme(themeToggle.checked ? 'dark' : 'light'); });
-    document.getElementById('help-section-in-settings').addEventListener('click', () => switchPage('help-page'));
 
-    function initializeShop() { loadShopItems(); loadMyItems(); }
-    function setupShopTabs() { document.querySelectorAll('.shop-tab').forEach(tab => { tab.addEventListener('click', () => { document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active')); tab.classList.add('active'); document.querySelectorAll('.shop-content').forEach(c => c.style.display = 'none'); document.getElementById(tab.dataset.tab).style.display = 'block'; }); }); }
-    async function buyGems(aznAmount) { const user = auth.currentUser; if(!user) return; const gemPacks = {1: 100, 5: 550, 10: 1200}; const gemsToGet = gemPacks[aznAmount]; if(!confirm(`${aznAmount.toFixed(2)} AZN balansınızdan istifadə edərək ${gemsToGet} 💎 Almaz almaq istədiyinizə əminsiniz?`)) return; const balanceRef = db.ref(`/balances/${user.uid}/amount`); try { const balanceSnapshot = await balanceRef.once('value'); const currentBalance = balanceSnapshot.val() || 0; if(currentBalance < aznAmount) { alert("AZN balansınızda kifayət qədər vəsait yoxdur."); return; } const updates = {}; updates[`/balances/${user.uid}/amount`] = firebase.database.ServerValue.increment(-aznAmount); updates[`/user_gems/${user.uid}/amount`] = firebase.database.ServerValue.increment(gemsToGet); await db.ref().update(updates); alert("Almazlar uğurla alındı!"); } catch (e) { alert("Xəta baş verdi: " + e.message); } }
-    async function buyItem(itemId, price) { const user = auth.currentUser; if(!user) return; if(!confirm(`Bu əşyanı ${price} 💎 Almaz qarşılığında almaq istəyirsiniz?`)) return; const gemRef = db.ref(`/user_gems/${user.uid}/amount`); try { const gemSnapshot = await gemRef.once('value'); const currentGems = gemSnapshot.val() || 0; if(currentGems < price) { alert("Almaz balansınızda kifayət qədər vəsait yoxdur."); return; } const updates = {}; updates[`/user_gems/${user.uid}/amount`] = firebase.database.ServerValue.increment(-price); updates[`/user_inventory/${user.uid}/${itemId}`] = true; await db.ref().update(updates); alert("Əşya uğurla alındı! 'Mənim Əşyalarım' bölməsindən tətbiq edə bilərsiniz."); loadShopItems(); loadMyItems(); } catch(e) { alert("Xəta baş verdi: " + e.message); } }
-    async function equipItem(itemId, itemType) { const user = auth.currentUser; if(!user) return; const settingPath = itemType === 'frame' ? 'equipped_frame' : 'equipped_bag_skin'; await db.ref(`/user_profile_settings/${user.uid}/${settingPath}`).set(itemId); alert("Əşya uğurla tətbiq edildi!"); loadMyItems(); }
-    async function loadShopItems() { const shopContainer = document.getElementById('shop-grid-container'); const user = auth.currentUser; if(!user) return; const [shopSnapshot, inventorySnapshot] = await Promise.all([db.ref('/shop_items').once('value'), db.ref(`/user_inventory/${user.uid}`).once('value')]); if(!shopSnapshot.exists()) { shopContainer.innerHTML = "<p>Mağaza hazırda boşdur.</p>"; return; } let shopHTML = ''; const userInventory = inventorySnapshot.val() || {}; shopSnapshot.forEach(itemSnapshot => { const itemId = itemSnapshot.key; const item = itemSnapshot.val(); const owned = !!userInventory[itemId]; shopHTML += `<div class="shop-item-card ${owned ? 'disabled' : ''}"><div class="shop-item-preview">${item.icon}</div><div class="shop-item-name">${item.name}</div><div class="shop-item-price">💎 ${item.price_gems}</div><button class="btn-buy-item" onclick="buyItem('${itemId}', ${item.price_gems})" ${owned ? 'disabled' : ''}>${owned ? 'Alınıb' : 'Satın Al'}</button></div>`; }); shopContainer.innerHTML = shopHTML; }
-    async function loadMyItems() { const myItemsContainer = document.getElementById('my-items-container'); const user = auth.currentUser; if(!user) return; const [inventorySnapshot, settingsSnapshot] = await Promise.all([db.ref(`/user_inventory/${user.uid}`).once('value'), db.ref(`/user_profile_settings/${user.uid}`).once('value')]); if(!inventorySnapshot.exists()){ myItemsContainer.innerHTML = "<p>Heç bir əşyanız yoxdur.</p>"; return; } let itemsHTML = ''; const userInventory = inventorySnapshot.val() || {}; const equippedSettings = settingsSnapshot.val() || {}; const itemPromises = Object.keys(userInventory).map(itemId => db.ref(`/shop_items/${itemId}`).once('value')); const itemSnapshots = await Promise.all(itemPromises); itemSnapshots.forEach(itemSnapshot => { if(!itemSnapshot.exists()) return; const itemId = itemSnapshot.key; const item = itemSnapshot.val(); const isEquipped = equippedSettings.equipped_frame === itemId || equippedSettings.equipped_bag_skin === itemId; itemsHTML += `<div class="shop-item-card"><div class="shop-item-preview">${item.icon}</div><div class="shop-item-name">${item.name}</div><div class="shop-item-price">${item.type === 'frame' ? 'Çərçivə' : 'Görünüş'}</div><button class="btn-equip-item" onclick="equipItem('${itemId}', '${item.type}')" ${isEquipped ? 'disabled' : ''}>${isEquipped ? 'Tətbiq edilib' : 'Tətbiq Et'}</button></div>`; }); myItemsContainer.innerHTML = itemsHTML; }
-    
-    let currentCoinData = { price: 0, name: 'Coin' };
-    function initializeBirja() { const user = auth.currentUser; if (!user) { alert("Birjaya baxmaq üçün daxil olun."); switchPage('main-page'); return; } listeners['birjaSettings'] = db.ref('birja_settings').on('value', snapshot => { if (snapshot.exists()) { currentCoinData = snapshot.val(); document.getElementById('birjaCoinName').textContent = currentCoinData.name || 'Coin Birjası'; document.getElementById('birjaCoinPrice').textContent = `1 ${currentCoinData.name || 'Coin'} = ${parseFloat(currentCoinData.price || 0).toFixed(2)} AZN`; } }); loadTransactionHistory(user.uid); }
-    function loadTransactionHistory(uid) { const historyList = document.getElementById('transaction-history-list'); listeners['birjaTransactions'] = db.ref(`birja_transactions/${uid}`).orderByChild('timestamp').limitToLast(20).on('value', snapshot => { if (!snapshot.exists()) { historyList.innerHTML = '<p style="text-align:center; opacity:0.6;">Heç bir əməliyyat tapılmadı.</p>'; return; } let transactions = []; snapshot.forEach(child => { transactions.push(child.val()); }); transactions.reverse(); let historyHTML = ''; transactions.forEach(tx => { const isBuy = tx.type === 'buy'; const indicator = isBuy ? '▲' : '▼'; const indicatorClass = isBuy ? 'buy' : 'sell'; const actionText = isBuy ? 'Alındı' : 'Satıldı'; historyHTML += `<div class="history-item"><div class="history-indicator ${indicatorClass}">${indicator}</div><div class="history-details"><p>${tx.amountCoin.toFixed(2)} ${currentCoinData.name || 'Coin'} ${actionText}</p><div class="history-meta">${new Date(tx.timestamp).toLocaleString()}</div></div><div class="history-amount"><p>${tx.amountAzn.toFixed(2)} AZN</p><div class="history-meta">@ ${tx.pricePerCoin.toFixed(2)}</div></div></div>`; }); historyList.innerHTML = historyHTML; }); }
-    document.getElementById('buy-tab').addEventListener('click', () => { document.getElementById('buy-form').style.display = 'block'; document.getElementById('sell-form').style.display = 'none'; document.getElementById('buy-tab').classList.add('active'); document.getElementById('sell-tab').classList.remove('active'); });
-    document.getElementById('sell-tab').addEventListener('click', () => { document.getElementById('buy-form').style.display = 'none'; document.getElementById('sell-form').style.display = 'block'; document.getElementById('sell-tab').classList.add('active'); document.getElementById('buy-tab').classList.remove('active'); });
-    function calculateBirjaTotal(type) { const price = parseFloat(currentCoinData.price) || 0; if (type === 'buy') { const amount = parseFloat(document.getElementById('buyAmount').value) || 0; const total = (amount * price).toFixed(2); document.getElementById('buySummary').innerText = `Yekun Məbləğ: ${total} AZN`; } else { const amount = parseFloat(document.getElementById('sellAmount').value) || 0; const total = (amount * price).toFixed(2); document.getElementById('sellSummary').innerText = `Əldə edəcəksiniz: ${total} AZN`; } }
-    document.getElementById('buyCoinBtn').addEventListener('click', async () => { const user = auth.currentUser; if (!user) return alert('Zəhmət olmasa, daxil olun.'); const amountToBuy = parseFloat(document.getElementById('buyAmount').value); if (isNaN(amountToBuy) || amountToBuy <= 0) return alert('Düzgün miqdar daxil edin.'); const cost = amountToBuy * currentCoinData.price; const balanceSnapshot = await db.ref(`/balances/${user.uid}/amount`).once('value'); const currentBalance = balanceSnapshot.val() || 0; if (cost > currentBalance) return alert('AZN balansınızda kifayət qədər vəsait yoxdur.'); const newTransactionKey = db.ref().child('birja_transactions').push().key; const transactionData = { type: 'buy', amountCoin: amountToBuy, amountAzn: cost, pricePerCoin: currentCoinData.price, timestamp: firebase.database.ServerValue.TIMESTAMP }; const updates = {}; updates[`/balances/${user.uid}/amount`] = firebase.database.ServerValue.increment(-cost); updates[`/user_coins/${user.uid}/amount`] = firebase.database.ServerValue.increment(amountToBuy); updates[`/birja_transactions/${user.uid}/${newTransactionKey}`] = transactionData; db.ref().update(updates).then(() => { addXp(user.uid, Math.round(cost)); alert(`${amountToBuy.toFixed(2)} ${currentCoinData.name} uğurla alındı!`); document.getElementById('buyAmount').value = ''; calculateBirjaTotal('buy'); }).catch(error => alert('Xəta baş verdi: ' + error.message)); });
-    document.getElementById('sellCoinBtn').addEventListener('click', async () => { const user = auth.currentUser; if (!user) return alert('Zəhmət olmasa, daxil olun.'); const amountToSell = parseFloat(document.getElementById('sellAmount').value); if (isNaN(amountToSell) || amountToSell <= 0) return alert('Düzgün miqdar daxil edin.'); const coinSnapshot = await db.ref(`/user_coins/${user.uid}/amount`).once('value'); const currentCoins = coinSnapshot.val() || 0; if (amountToSell > currentCoins) return alert(`${currentCoinData.name} balansınızda kifayət qədər vəsait yoxdur.`); const earnings = amountToSell * currentCoinData.price; const newTransactionKey = db.ref().child('birja_transactions').push().key; const transactionData = { type: 'sell', amountCoin: amountToSell, amountAzn: earnings, pricePerCoin: currentCoinData.price, timestamp: firebase.database.ServerValue.TIMESTAMP }; const updates = {}; updates[`/balances/${user.uid}/amount`] = firebase.database.ServerValue.increment(earnings); updates[`/user_coins/${user.uid}/amount`] = firebase.database.ServerValue.increment(-amountToSell); updates[`/birja_transactions/${user.uid}/${newTransactionKey}`] = transactionData; db.ref().update(updates).then(() => { addXp(user.uid, Math.round(earnings)); alert(`${amountToSell.toFixed(2)} ${currentCoinData.name} uğurla satıldı!`); document.getElementById('sellAmount').value = ''; calculateBirjaTotal('sell'); }).catch(error => alert('Xəta baş verdi: ' + error.message)); });
-      const levelXpRequirements = [0, 250, 600, 1100, 1800, 2750, 4000, 5600, 7600, 10000, 15000, 22000, 30000];
-    const levelRewards = { 5: {gems: 250, item: 'silver_frame'}, 10: {gems: 1000, item: 'gold_frame'} };
-    async function addXp(uid, amount) {
-        const levelRef = db.ref(`/user_levels/${uid}`);
-        try {
-            const snapshot = await levelRef.once('value');
-            let data = snapshot.val() || {level: 1, xp: 0};
-            data.xp += amount;
-            
-            while (data.level < 50 && levelXpRequirements[data.level] !== undefined && data.xp >= levelXpRequirements[data.level]) {
-                data.level += 1;
-                levelUp(uid, data.level);
-            }
-            await levelRef.set(data);
-        } catch (e) {
-            console.error("XP əlavə etmə xətası:", e);
+    function addToCart() {
+        cart.push({...selectedForDetail});
+        alert("Səbətə əlavə edildi!");
+        showPage('shop');
+    }
+
+    function renderCart() {
+        const area = document.getElementById("cartItems");
+        const checkout = document.getElementById("checkoutArea");
+        if(cart.length === 0) {
+            area.innerHTML = "<p style='text-align:center; padding:40px; color:#94a3b8;'>Səbətiniz boşdur.</p>";
+            checkout.style.display = "none";
+            return;
         }
-    }
-    async function levelUp(uid, newLevel) { alert(`Təbriklər! Siz ${newLevel}-ci səviyyəyə çatdınız!`); let gemsToAdd = 50 * (newLevel-1); const reward = levelRewards[newLevel]; if(reward) { if(reward.gems) gemsToAdd += reward.gems; if(reward.item) await db.ref(`/user_inventory/${uid}/${reward.item}`).set(true); } await db.ref(`/user_gems/${uid}/amount`).set(firebase.database.ServerValue.increment(gemsToAdd)); }
-    async function generateUniqueFriendlyId() { let isUnique = false; let friendlyId; while (!isUnique) { friendlyId = Math.floor(10000 + Math.random() * 90000); const snapshot = await db.ref('friendly_id_lookup/' + friendlyId).once('value'); if (!snapshot.exists()) { isUnique = true; } } return friendlyId; }
-    function checkAndAssignFriendlyId(user) { const userRef = db.ref('users/' + user.uid); userRef.child('friendlyId').once('value', async snapshot => { if (!snapshot.exists()) { const newId = await generateUniqueFriendlyId(); const updates = {}; updates[`/users/${user.uid}/friendlyId`] = newId; updates[`/friendly_id_lookup/${newId}`] = user.uid; db.ref().update(updates); } }); }
-    async function checkDailyLogin(uid) { const today = new Date().toLocaleDateString(); const lastLoginRef = db.ref(`/users/${uid}/lastLogin`); const snapshot = await lastLoginRef.once('value'); if(snapshot.val() !== today) { await lastLoginRef.set(today); await addXp(uid, 10); console.log("Daily login XP awarded!"); } }
-    async function initializeTasksPage() { const tasksContainer = document.getElementById('tasks-container'); const user = auth.currentUser; if(!user) return; const [tasksSnapshot, submissionsSnapshot] = await Promise.all([db.ref('/tasks').once('value'), db.ref(`/task_submissions/${user.uid}`).once('value')]); if(!tasksSnapshot.exists()) { tasksContainer.innerHTML = "<p>Hazırda aktiv tapşırıq yoxdur.</p>"; return; } let tasksHTML = ''; const submissions = submissionsSnapshot.val() || {}; tasksSnapshot.forEach(taskSnapshot => { const taskId = taskSnapshot.key; const task = taskSnapshot.val(); const status = submissions[taskId]?.status || 'new'; let btnHTML; switch(status) { case 'pending': btnHTML = `<button class="task-button pending" disabled>Yoxlanılır</button>`; break; case 'completed': btnHTML = `<button class="task-button completed" disabled>Tamamlandı</button>`; break; default: btnHTML = `<button class="task-button do" onclick="doTask('${taskId}', '${task.link}')">Tapşırığı Et</button>`; } tasksHTML += `<div class="task-card"><div class="task-header"><span class="task-title">${task.title}</span><span class="task-reward">+${task.reward_amount} ${task.reward_type === 'gems' ? '💎' : 'XP'}</span></div><p class="task-description">${task.description}</p>${btnHTML}</div>`; }); tasksContainer.innerHTML = tasksHTML; }
-    function doTask(taskId, link) { if(confirm("Bu tapşırığı etmək üçün kənar səhifəyə yönləndiriləcəksiniz. Davam edilsin?")) { window.open(link, '_blank'); const user = auth.currentUser; db.ref(`/task_submissions/${user.uid}/${taskId}`).set({ status: 'pending', submittedAt: firebase.database.ServerValue.TIMESTAMP }); initializeTasksPage(); } }
-    document.getElementById('withdrawBtn').addEventListener('click', () => { const user = auth.currentUser; if (!user) return alert('Zəhmət olmasa, daxil olun.'); let currentBalance = 0; db.ref('balances/' + user.uid).once('value', snapshot => { const balanceData = snapshot.val(); currentBalance = (balanceData && typeof balanceData.amount === 'number') ? balanceData.amount : 0; const amount = parseFloat(document.getElementById('withdrawAmount').value); const name = document.getElementById('userName').value.trim(); const surname = document.getElementById('userSurname').value.trim(); const card = document.getElementById('cardNumber').value.trim(); if (isNaN(amount) || amount <= 0 || !name || !surname || !card) return alert('Bütün xanaları düzgün doldurun.'); if (card.length !== 16 || isNaN(card)) return alert('Kart nömrəsi 16 rəqəmdən ibarət olmalıdır.'); if (amount > currentBalance) return alert('Balansınızda kifayət qədər vəsait yoxdur.'); const balanceRef = db.ref('balances/' + user.uid); balanceRef.transaction(currentData => { let currentBal = (currentData && currentData.amount) ? currentData.amount : 0; if (amount > currentBal) { return; } return { amount: currentBal - amount }; }, (error, committed, snapshot) => { if (error) { alert('Əməliyyat zamanı xəta baş verdi: ' + error.message); } else if (!committed) { alert('Balansınızda kifayət qədər vəsait yoxdur (əməliyyat ləğv edildi).'); } else { const request = { uid: user.uid, userEmail: user.email, requestData: { name, surname, cardNumber: card, amount }, status: 'pending', createdAt: firebase.database.ServerValue.TIMESTAMP }; db.ref('withdrawals').push(request).then(() => { alert('Sorğunuz göndərildi. Məbləğ balansınızdan çıxıldı və admin təsdiqini gözləyir.'); document.getElementById('notification-badge').style.display = 'flex'; document.getElementById('pulCekModal').style.display = 'none'; ['withdrawAmount', 'userName', 'userSurname', 'cardNumber'].forEach(id => document.getElementById(id).value = ''); }).catch(err => { alert('Sorğu yaradılarkən xəta baş verdi, məbləğ balansınıza geri qaytarılır: ' + err.message); balanceRef.transaction(currentData => ({ amount: ((currentData && currentData.amount) || 0) + amount })); }); } }); }); });
-    function initializeSupportChat(user) { const chatWindow = document.getElementById('chat-window'), chatToggleBtn = document.getElementById('chat-toggle-btn'), chatMessages = document.getElementById('chat-messages'), chatInput = document.getElementById('chat-input'), sendChatBtn = document.getElementById('send-chat-btn'), chatBadge = document.getElementById('chat-notification-badge'); if (listeners['messages']) listeners['messages'].off(); if (listeners['chatState']) listeners['chatState'].off(); chatToggleBtn.onclick = () => { const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === ''; chatWindow.style.display = isHidden ? 'flex' : 'none'; if (isHidden) { db.ref(`support_chats/${user.uid}/new_message_for_user_count`).set(0); } }; const chatRef = db.ref(`support_chats/${user.uid}`); listeners['chatState'] = chatRef.on('value', (snapshot) => { const count = snapshot.val()?.new_message_for_user_count || 0; chatBadge.textContent = count; chatBadge.style.display = count > 0 ? 'flex' : 'none'; }); chatMessages.innerHTML = ''; const messagesRef = db.ref(`support_chats/${user.uid}/messages`).limitToLast(50); listeners['messages'] = messagesRef.on('child_added', (snapshot) => { const message = snapshot.val(), messageDiv = document.createElement('div'); messageDiv.className = `message ${message.sender === 'admin' ? 'admin' : 'user'}`; messageDiv.textContent = message.text; chatMessages.appendChild(messageDiv); chatMessages.scrollTop = chatMessages.scrollHeight; }); const sendMessage = () => { const text = chatInput.value.trim(); if (text === '') return; const messageData = { text: text, sender: user.uid, timestamp: firebase.database.ServerValue.TIMESTAMP }; db.ref(`support_chats/${user.uid}/messages`).push(messageData); db.ref(`support_chats/${user.uid}`).update({ user_email: user.email, last_message: text, last_updated: firebase.database.ServerValue.TIMESTAMP, new_message_for_admin: true }); chatInput.value = ''; }; sendChatBtn.onclick = sendMessage; chatInput.onkeydown = (event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); } }; }
-    document.getElementById('status-icon').addEventListener('click', () => { document.getElementById('statusModal').style.display = 'flex'; });
-    function initializeSystemStatus() { const statusRef = db.ref('system_status'); listeners['systemStatus'] = statusRef.on('value', (snapshot) => { const statusListContainer = document.getElementById('status-list'); if (!snapshot.exists()) { statusListContainer.innerHTML = '<p>Sistem vəziyyəti haqqında məlumat yoxdur.</p>'; return; } const statuses = snapshot.val(); let statusHTML = ''; const sortedStatuses = Object.values(statuses).sort((a, b) => a.order - b.order); sortedStatuses.forEach(data => { statusHTML += `<div class="status-item"><div class="status-indicator ${data.state || 'paused'}"></div><div class="status-text"><span class="label">${data.label}</span><span class="description">${data.status_text}</span></div></div>`; }); statusListContainer.innerHTML = statusHTML; }); }
-        
-    let countdownInterval; let rainTimeout;
-    function listenForMoneyRain() { const moneyRainRef = db.ref('moneyRainEvent'); listeners['moneyRain'] = moneyRainRef.on('value', (snapshot) => { const event = snapshot.val(); if (!event) return; switch (event.status) { case 'pending': showCountdown(event.startTime); break; case 'active': hideCountdown(); startRainAnimation(event.duration); break; case 'finished': hideRainAnimation(); hideCountdown(); showLeaderboardResult(event.leaderboard); break; default: hideRainAnimation(); hideCountdown(); break; } }); }
-    function showCountdown(startTime) { const banner = document.getElementById('countdown-banner'); const timerEl = document.getElementById('countdown-timer'); banner.style.display = 'block'; setTimeout(() => banner.classList.add('visible'), 50); clearInterval(countdownInterval); countdownInterval = setInterval(() => { const remaining = Math.max(0, Math.round((startTime - Date.now()) / 1000)); timerEl.textContent = remaining; if (remaining <= 0) { clearInterval(countdownInterval); } }, 1000); }
-    function hideCountdown() { const banner = document.getElementById('countdown-banner'); banner.classList.remove('visible'); clearInterval(countdownInterval); }
-    function startRainAnimation(duration) { if (rainTimeout) clearTimeout(rainTimeout); document.getElementById('game-overlay').style.display = 'block'; let currentRainInterval = 500, currentRainSpeed = 3.5; function gameLoop() { createFallingCoin(currentRainSpeed); rainTimeout = setTimeout(gameLoop, currentRainInterval); } gameLoop(); }
-    function hideRainAnimation() { document.getElementById('game-overlay').style.display = 'none'; clearTimeout(rainTimeout); rainTimeout = null; document.querySelectorAll('.falling-coin').forEach(c => c.remove()); }
-    function createFallingCoin(speed) { const coin = document.createElement('div'); coin.className = 'falling-coin'; coin.textContent = ['🪙', '💰', '💵', '💎'][Math.floor(Math.random() * 4)]; coin.style.left = `${Math.random() * 95}vw`; coin.style.animation = `fall-animation ${Math.random() * 1 + speed}s linear forwards`; coin.onclick = (event) => collectCoin(event.currentTarget); document.body.appendChild(coin); setTimeout(() => coin.remove(), (speed + 1.5) * 1000); }
-    function collectCoin(coinElement) { const user = auth.currentUser; if (!user || !coinElement) return; coinElement.remove(); db.ref(`moneyRainEvent/participants/${user.uid}`).transaction((data) => { if (data === null) return { score: 1, displayName: user.displayName }; else return { ...data, score: (data.score || 0) + 1 }; }); }
-    function showLeaderboardResult(leaderboardData) { if (!leaderboardData) return; const modal = document.getElementById('leaderboardResultModal'); const listContainer = document.getElementById('leaderboard-result-list'); const sortedPlayers = Object.values(leaderboardData).sort((a, b) => b.reward - a.reward); let leaderboardHtml = '<ul>'; if (sortedPlayers.length > 0) { sortedPlayers.slice(0, 20).forEach((player, index) => { leaderboardHtml += `<li>#${index + 1} <b>${player.displayName}</b> - ${player.reward.toFixed(2)} AZN qazandı!</li>`; }); } else { leaderboardHtml += '<li>Heç kim iştirak etmədi.</li>'; } leaderboardHtml += '</ul>'; listContainer.innerHTML = leaderboardHtml; modal.style.display = 'flex'; }
-      async function fetchAnnouncements() { const container = document.getElementById('announcements-container'); try { const snapshot = await db.ref('announcements').orderByChild('timestamp').limitToLast(3).once('value'); if (!snapshot.exists()) { container.innerHTML = ''; return; } let announcements = []; snapshot.forEach(child => announcements.push(child.val())); announcements.reverse(); let html = ''; announcements.forEach(ann => { const date = new Date(ann.timestamp).toLocaleDateString('az-AZ'); html += `<div class="announcement-item"><p class="announcement-text">${ann.text}</p><p class="announcement-meta">${date}</p></div>`; }); container.innerHTML = html; } catch (e) { container.innerHTML = ''; } }
-    async function fetchAndDisplayHistory(period) {
-        const user = auth.currentUser; if (!user) return;
-        const listContainer = document.getElementById('notifications-list');
-        listContainer.innerHTML = '<p>Yüklənir...</p>';
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-        const activeButton = Array.from(document.querySelectorAll('.filter-btn')).find(btn => btn.getAttribute('onclick').includes(`'${period}'`));
-        if (activeButton) activeButton.classList.add('active');
-        try {
-            const withdrawalQuery = db.ref('withdrawals').orderByChild('uid').equalTo(user.uid).once('value');
-            const depositQuery = db.ref('deposits').orderByChild('uid').equalTo(user.uid).once('value');
-            const [withdrawalSnapshot, depositSnapshot] = await Promise.all([withdrawalQuery, depositQuery]);
-            let allTransactions = [];
-            if (withdrawalSnapshot.exists()) { withdrawalSnapshot.forEach(child => { const data = child.val(); allTransactions.push({ type: 'withdrawal', amount: data.requestData.amount, status: data.status, details: `Kart: **** **** **** ${data.requestData.cardNumber.slice(-4)}`, timestamp: data.createdAt }); }); }
-            if (depositSnapshot.exists()) { depositSnapshot.forEach(child => { const data = child.val(); allTransactions.push({ type: 'deposit', amount: data.amount, status: data.status, details: 'Balans artırımı', timestamp: data.createdAt }); }); }
-            if (allTransactions.length === 0) { listContainer.innerHTML = '<p>Heç bir əməliyyat tapılmadı.</p>'; return; }
-            allTransactions.sort((a, b) => b.timestamp - a.timestamp);
-            const now = Date.now();
-            let filteredTransactions = allTransactions;
-            if (period === '7d') { const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000; filteredTransactions = allTransactions.filter(tx => tx.timestamp >= sevenDaysAgo); } else if (period === 'month') { const currentMonth = new Date().getMonth(); const currentYear = new Date().getFullYear(); filteredTransactions = allTransactions.filter(tx => { const txDate = new Date(tx.timestamp); return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear; }); }
-            if (filteredTransactions.length === 0) { listContainer.innerHTML = `<p>Bu dövr üçün əməliyyat tapılmadı.</p>`; return; }
-            let historyHtml = '';
-            filteredTransactions.forEach(tx => { const isDeposit = tx.type === 'deposit'; let statusText, statusClass; switch (tx.status) { case 'pending': statusText = 'Gözləmədə'; statusClass = 'status-pending'; break; case 'approved': statusText = 'Təsdiqləndi'; statusClass = isDeposit ? 'status-deposit' : 'status-approved'; break; case 'rejected': statusText = 'Ləğv edildi'; statusClass = 'status-rejected'; break; default: statusText = 'Naməlum'; statusClass = 'status-cancelled'; break; } const date = new Date(tx.timestamp).toLocaleString('az-AZ'); const amountClass = isDeposit ? 'positive' : 'negative'; const sign = isDeposit ? '+' : '-'; historyHtml += ` <div class="notification-item ${statusClass}"> <div class="notification-item-header"> <span class="notification-item-amount ${amountClass}">${sign} ${tx.amount.toFixed(2)} AZN</span> <span class="notification-item-status">${statusText}</span> </div> <div class="notification-item-body"> <span>${tx.details}</span> </div> <div class="notification-item-footer">${date}</div> </div>`; });
-            listContainer.innerHTML = historyHtml;
-        } catch (error) { console.error("Tarixçə yükləmə xətası:", error); listContainer.innerHTML = '<p>Tarixçəni yükləyərkən xəta baş verdi.</p>'; }
-    }
-    
-    function switchPage(pageId) { document.querySelectorAll('.page').forEach(page => page.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active')); document.getElementById(pageId).classList.add('active'); const isMain = pageId === 'main-page'; document.querySelector('.action-buttons').style.display = isMain ? 'block' : 'none'; document.getElementById('notification-bell').style.display = isMain ? 'block' : 'none'; document.getElementById('status-icon').style.display = isMain ? 'block' : 'none'; switch (pageId) { case 'main-page': document.getElementById('homeBtn').classList.add('active'); break; case 'leaderboard-page': document.getElementById('leaderboardBtn').classList.add('active'); document.getElementById('leaderboard-tab-rain').click(); break; case 'tasks-page': document.getElementById('tasksBtn').classList.add('active'); initializeTasksPage(); break; case 'birja-page': document.getElementById('birjaBtn').classList.add('active'); initializeBirja(); break; case 'shop-page': document.getElementById('shopBtn').classList.add('active'); initializeShop(); break; case 'settings-page': document.getElementById('homeBtn').classList.remove('active'); initializeSettingsPage(); break; case 'help-page': document.getElementById('homeBtn').classList.remove('active'); break; } }
-    
-    document.getElementById('payBtn').addEventListener('click', () => { document.getElementById('payModal').style.display = 'flex'; });
-    document.getElementById('cekBtn').addEventListener('click', () => { document.getElementById('cekModal').style.display = 'flex'; });
-    document.getElementById('pulCekBtn').addEventListener('click', () => { document.getElementById('pulCekModal').style.display = 'flex'; });
-    document.getElementById('notification-bell').addEventListener('click', () => {
-        document.getElementById('notificationsModal').style.display = 'flex';
-        fetchAndDisplayHistory('all');
-        fetchAnnouncements();
-        localStorage.setItem('lastNotificationCheck', Date.now());
-        const badge = document.getElementById('notification-badge');
-        badge.textContent = '0';
-        badge.style.display = 'none';
-    });
-
-    document.querySelectorAll('.close-modal-btn').forEach(btn => { btn.addEventListener('click', () => { btn.closest('.modalOverlay').style.display = 'none'; }); });
-
-    document.getElementById('homeBtn').addEventListener('click', () => switchPage('main-page'));
-    document.getElementById('leaderboardBtn').addEventListener('click', () => switchPage('leaderboard-page'));
-    document.getElementById('tasksBtn').addEventListener('click', () => switchPage('tasks-page'));
-    document.getElementById('birjaBtn').addEventListener('click', () => switchPage('birja-page'));
-    document.getElementById('shopBtn').addEventListener('click', () => switchPage('shop-page'));
-    document.getElementById('settingsBtn').addEventListener('click', () => switchPage('settings-page'));
-    function fetchLeaderboard() { const listContainer = document.getElementById('leaderboard-list'); listContainer.innerHTML = "<ul><li>Yüklənir...</li></ul>"; db.ref('moneyRainEvent/leaderboard').once('value', (snapshot) => { let leaderboardHtml = '<ul>'; if(snapshot.exists()) { const leaderboardData = snapshot.val(); const sortedPlayers = Object.values(leaderboardData).sort((a, b) => b.reward - a.reward); if (sortedPlayers.length > 0) { sortedPlayers.slice(0, 20).forEach((player, index) => { leaderboardHtml += `<li>#${index + 1} <b>${player.displayName}</b> - ${player.reward.toFixed(2)} AZN qazandı!</li>`; }); } else { leaderboardHtml += '<li>Heç kim iştirak etmədi.</li>'; } } else { leaderboardHtml += "<li>Hələ heç bir nəticə yoxdur.</li>"; } leaderboardHtml += '</ul>'; listContainer.innerHTML = leaderboardHtml; }); }
-    
-    async function showUserProfileModal(uid) {
-        const modal = document.getElementById('userProfileModal');
-        const contentContainer = document.getElementById('profile-modal-content');
-        contentContainer.innerHTML = '<p>Yüklənir...</p>';
-        modal.style.display = 'flex';
-        try {
-            const [userSnapshot, levelSnapshot, inventorySnapshot, settingsSnapshot] = await Promise.all([ db.ref(`/users/${uid}`).once('value'), db.ref(`/user_levels/${uid}`).once('value'), db.ref(`/user_inventory/${uid}`).once('value'), db.ref(`/user_profile_settings/${uid}`).once('value') ]);
-            const userData = userSnapshot.val() || {};
-            const levelData = levelSnapshot.val() || { level: 1 };
-            const inventoryData = inventorySnapshot.val() || {};
-            const settingsData = settingsSnapshot.val() || {};
-            let frameClass = '';
-            if (settingsData.equipped_frame === 'gold_frame') frameClass = 'frame-gold';
-            if (settingsData.equipped_frame === 'silver_frame') frameClass = 'frame-silver';
-            let inventoryHTML = '<h4>Alınmış Əşyalar:</h4>';
-            const itemIds = Object.keys(inventoryData);
-            if (itemIds.length > 0) {
-                inventoryHTML += '<div class="inventory-grid">';
-                const itemPromises = itemIds.map(id => db.ref(`/shop_items/${id}`).once('value'));
-                const itemSnapshots = await Promise.all(itemPromises);
-                itemSnapshots.forEach(itemSnap => { if (itemSnap.exists()) { const item = itemSnap.val(); inventoryHTML += `<div class="inventory-item"><div class="inventory-item-icon">${item.icon}</div><div>${item.name}</div></div>`; } });
-                inventoryHTML += '</div>';
-            } else { inventoryHTML += '<p>İstifadəçinin heç bir əşyası yoxdur.</p>'; }
-            const modalHTML = ` <div class="profile-modal-header"> <img src="${userData.photoURL || 'https://i.imgur.com/3YQ5h0Q.png'}" alt="Avatar" class="profile-modal-avatar ${frameClass}"> <h3>${userData.displayName || 'Naməlum'}</h3> <p>Səviyyə: ${levelData.level}</p> </div> <div class="profile-modal-inventory">${inventoryHTML}</div>`;
-            contentContainer.innerHTML = modalHTML;
-        } catch (error) { console.error("Profil məlumatları çəkilərkən xəta:", error); contentContainer.innerHTML = '<p>Məlumatları yükləmək mümkün olmadı.</p>'; }
-    }
-    
-    async function fetchLevelLeaderboard() { 
-        const listContainer = document.getElementById('level-leaderboard-list'); listContainer.innerHTML = "<ul><li>Yüklənir...</li></ul>"; 
-        const levelsSnapshot = await db.ref('user_levels').orderByChild('level').limitToLast(50).once('value'); 
-        if (!levelsSnapshot.exists()) { listContainer.innerHTML = "<ul><li>Sıralama üçün kifayət qədər istifadəçi yoxdur.</li></ul>"; return; } 
-        let users = []; levelsSnapshot.forEach(child => { users.push({ uid: child.key, ...child.val() }); }); 
-        users.sort((a, b) => b.level === a.level ? b.xp - a.xp : b.level - a.level); 
-        const userInfoPromises = users.map(user => Promise.all([ db.ref(`users/${user.uid}`).once('value'), db.ref(`/user_profile_settings/${user.uid}/equipped_frame`).once('value') ]) ); 
-        const usersInfo = await Promise.all(userInfoPromises); 
-        let listHTML = '<ul>'; 
-        users.forEach((user, index) => { 
-            const userData = usersInfo[index][0].val() || {}; const frameId = usersInfo[index][1].val(); let frameClass = ''; 
-            if (frameId === 'gold_frame') frameClass = 'frame-gold'; if (frameId === 'silver_frame') frameClass = 'frame-silver'; 
-            const photoURL = userData.photoURL || 'https://i.imgur.com/3YQ5h0Q.png'; const displayName = userData.displayName || "Naməlum"; 
-            listHTML += `<li onclick="showUserProfileModal('${user.uid}')"><div class="leaderboard-item-user"><img src="${photoURL}" class="leaderboard-avatar ${frameClass}"><span><b>#${index + 1}</b> ${displayName}</span></div><span>Level ${user.level} (${user.xp} XP)</span></li>`; 
-        }); 
-        listHTML += '</ul>'; listContainer.innerHTML = listHTML; 
-    }
-    document.getElementById('leaderboard-tab-rain').addEventListener('click', function() { this.classList.add('active'); document.getElementById('leaderboard-tab-level').classList.remove('active'); document.getElementById('leaderboard-rain-content').style.display = 'block'; document.getElementById('leaderboard-level-content').style.display = 'none'; fetchLeaderboard(); });
-    document.getElementById('leaderboard-tab-level').addEventListener('click', function() { this.classList.add('active'); document.getElementById('leaderboard-tab-rain').classList.remove('active'); document.getElementById('leaderboard-rain-content').style.display = 'none'; document.getElementById('leaderboard-level-content').style.display = 'block'; fetchLevelLeaderboard(); });
-    const accordions = document.getElementsByClassName("accordion");
-    for (let i = 0; i < accordions.length; i++) { accordions[i].addEventListener("click", function() { this.classList.toggle("active"); const panel = this.nextElementSibling; if (panel.style.maxHeight) { panel.style.maxHeight = null; } else { panel.style.maxHeight = panel.scrollHeight + "px"; } }); }
-    
-    function attachAllListeners(uid) {
-        detachAllListeners();
-        
-        listeners['balance'] = db.ref('balances/' + uid).on('value', snapshot => {
-            const newBalance = snapshot.val()?.amount || 0;
-            const mainBalanceElement = document.getElementById('balance');
-            const headerBalanceElement = document.getElementById('header-azn-balance')?.querySelector('span');
-
-            if (Math.abs(displayedBalance - newBalance) > 0.001) {
-                animateBalanceUpdate(mainBalanceElement, displayedBalance, newBalance);
-                animateBalanceUpdate(headerBalanceElement, displayedBalance, newBalance);
-                displayedBalance = newBalance;
-            } else {
-                if(mainBalanceElement) mainBalanceElement.textContent = newBalance.toFixed(2);
-                if(headerBalanceElement) headerBalanceElement.textContent = newBalance.toFixed(2);
-            }
-            const birjaEl = document.getElementById('birjaAznBalance');
-            if(birjaEl) birjaEl.textContent = `${newBalance.toFixed(2)} AZN`;
-        });
-
-        listeners['coins'] = db.ref('user_coins/' + uid).on('value', snapshot => { const coinAmount = snapshot.val()?.amount || 0; const coinText = coinAmount.toFixed(2); const headerCoinEl = document.getElementById('header-coin-balance'); const birjaCoinEl = document.getElementById('birjaUserCoinBalance'); if (headerCoinEl) headerCoinEl.querySelector('span').textContent = coinText; if (birjaCoinEl) birjaCoinEl.textContent = `${coinText} ${currentCoinData.name || 'Coin'}`; });
-        listeners['gems'] = db.ref('user_gems/' + uid).on('value', snapshot => { const gemEl = document.getElementById('header-gem-balance'); if(gemEl) gemEl.querySelector('span').textContent = snapshot.val()?.amount || 0; });
-        listeners['level'] = db.ref('user_levels/' + uid).on('value', snapshot => { const levelData = snapshot.val() || {level: 1, xp: 0}; const nextLevelXp = levelXpRequirements[levelData.level] || (10000 + (levelData.level - 9) * 5000); const prevLevelXp = levelXpRequirements[levelData.level - 1] || 0; const xpInLevel = nextLevelXp - prevLevelXp; const currentXpInLevel = levelData.xp - prevLevelXp; const progress = (xpInLevel > 0) ? Math.min(100, (currentXpInLevel / xpInLevel) * 100) : 0; document.getElementById('level-start-text').textContent = `Level ${levelData.level}`; document.getElementById('level-xp-text').textContent = `${levelData.xp} / ${nextLevelXp} XP`; document.getElementById('level-progress-bar').style.width = `${progress}%`; });
-        listeners['equippedItems'] = db.ref(`/user_profile_settings/${uid}`).on('value', snapshot => { const settings = snapshot.val() || {}; const bagIcon = document.getElementById('main-bag-icon'); if(settings.equipped_bag_skin) { db.ref(`/shop_items/${settings.equipped_bag_skin}/icon`).once('value', icon => { if(icon.exists() && bagIcon) bagIcon.textContent = icon.val(); }); } else { if(bagIcon) bagIcon.textContent = '💰'; } });
+        checkout.style.display = "block";
+        let total = 0;
+        area.innerHTML = cart.map((item, index) => {
+            total += Number(item.price);
+            return `
+            <div class="cart-item">
+                <img src="${item.img}">
+                <div class="cart-info">
+                    <div style="font-weight:600">${item.name}</div>
+                    <div style="color:var(--primary); font-weight:700">${item.price} AZN</div>
+                </div>
+                <button onclick="removeFromCart(${index})" style="border:none; background:none; color:#ef4444; font-size:18px;">&times;</button>
+            </div>`;
+        }).join('');
+        document.getElementById("totalPrice").innerText = total + " AZN";
     }
 
-    function detachAllListeners() { for (const key in listeners) { if (listeners[key]) { listeners[key].off(); } } listeners = {}; }
-    setupShopTabs();
-  </script>
+    function removeFromCart(index) {
+        cart.splice(index, 1);
+        renderCart();
+    }
+
+    function confirmOrder() {
+        const name = document.getElementById("custName").value.trim();
+        const phone = document.getElementById("custPhone").value.trim();
+        if(!name || !phone) return alert("Zəhmət olmasa məlumatları doldurun!");
+
+        let orders = JSON.parse(localStorage.getItem("orders")) || [];
+        const orderId = Math.floor(100000 + Math.random() * 900000);
+        const newOrder = {
+            id: orderId,
+            customer: name,
+            phone: phone,
+            items: [...cart],
+            status: "Sifariş verildi",
+            date: new Date().toLocaleString()
+        };
+
+        orders.push(newOrder);
+        localStorage.setItem("orders", JSON.stringify(orders));
+        localStorage.setItem("lastOrderId", orderId); // Avtomatik izləmə üçün
+        cart = [];
+        alert("Sifariş qəbul olundu! Kodunuz: #" + orderId);
+        showPage('track');
+    }
+
+    function renderTrack() {
+        const area = document.getElementById("trackView");
+        const lastId = localStorage.getItem("lastOrderId");
+        let orders = JSON.parse(localStorage.getItem("orders")) || [];
+        const myOrder = orders.find(o => o.id == lastId);
+
+        if(!myOrder) {
+            area.innerHTML = "<p style='text-align:center; padding:40px; color:#94a3b8;'>Aktiv sifarişiniz yoxdur.</p>";
+            return;
+        }
+
+        const stages = ["Sifariş verildi", "Hazırlanır", "Yoldadır", "Ölkəyə çatdı", "Təhvil verildi"];
+        const currentIdx = stages.indexOf(myOrder.status);
+
+        area.innerHTML = `
+            <div class="status-box">
+                <div style="margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                    <b style="color:var(--primary)">Sifariş #${myOrder.id}</b><br>
+                    <small style="color:#64748b">${myOrder.date}</small>
+                </div>
+                ${stages.map((s, i) => `
+                    <div class="step ${i <= currentIdx ? 'done' : ''}">
+                        <div class="dot"></div>
+                        <span>${s}</span>
+                    </div>
+                `).join('')}
+            </div>
+            <p style="font-size:12px; color:#94a3b8; text-align:center; margin-top:20px;">
+                Status yeniləndikdə burada avtomatik görünəcək.
+            </p>
+        `;
+    }
+
+    renderShop();
+</script>
+
 </body>
 </html>
