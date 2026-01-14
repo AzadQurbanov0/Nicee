@@ -10,37 +10,29 @@
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 80px; }
         header { background: white; padding: 15px; text-align: center; font-weight: 800; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
         .container { padding: 12px; max-width: 500px; margin: auto; }
-        
         .search-box { position: relative; margin-bottom: 15px; }
         .search-box input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none; box-sizing: border-box; }
         .search-box i { position: absolute; right: 15px; top: 13px; color: #94a3b8; }
-
         .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         section { display: none; animation: fadeIn 0.3s ease; }
         .active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
         .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #edf2f7; }
         .card img { width: 100%; height: 150px; object-fit: cover; }
         .card-body { padding: 10px; }
         .price { color: var(--primary); font-weight: 700; font-size: 16px; }
-        
         .qty-btn { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
         .qty-btn button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: bold; }
-
         .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 15px; margin-bottom: 8px; }
         .btn-primary { background: var(--primary); color: white; }
-        input, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; }
-        
+        input, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; }
         .cart-item { display: flex; align-items: center; background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #edf2f7; }
         .cart-item img { width: 55px; height: 55px; border-radius: 8px; margin-right: 12px; object-fit: cover; }
-        
         .status-box { background: white; padding: 20px; border-radius: 15px; margin-top: 15px; }
         .step { display: flex; align-items: center; margin-bottom: 18px; color: #94a3b8; }
         .step.done { color: var(--success); font-weight: 600; }
         .dot { width: 12px; height: 12px; border-radius: 50%; background: #e2e8f0; margin-right: 15px; }
         .step.done .dot { background: var(--success); }
-
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #e2e8f0; }
         .nav-item { text-align: center; color: #94a3b8; font-size: 11px; cursor: pointer; flex: 1; }
         .nav-item.active { color: var(--primary); }
@@ -48,9 +40,7 @@
     </style>
 </head>
 <body>
-
 <header>I N C I</header>
-
 <div class="container">
     <section id="shop" class="active">
         <div class="search-box">
@@ -59,183 +49,127 @@
         </div>
         <div class="product-grid" id="productList"></div>
     </section>
-
     <section id="detail">
-        <div class="card" style="cursor: default;">
-            <img id="dImg">
-            <div class="card-body">
-                <h2 id="dName" style="margin:0;"></h2>
-                <div class="price" id="dPrice" style="font-size: 20px; margin: 10px 0;"></div>
-                <p id="dDesc" style="color:#64748b; font-size: 14px; line-height: 1.5;"></p>
-                <button class="btn btn-primary" onclick="addToCart()">Səbətə Əlavə Et</button>
-                <button class="btn" style="background: #f1f5f9;" onclick="showPage('shop')">Geri</button>
-            </div>
-        </div>
+        <div class="card"><img id="dImg"><div class="card-body">
+            <h2 id="dName"></h2><div class="price" id="dPrice"></div>
+            <p id="dDesc"></p><button class="btn btn-primary" onclick="addToCart()">Səbətə Əlavə Et</button>
+            <button class="btn" style="background:#f1f5f9" onclick="showPage('shop')">Geri</button>
+        </div></div>
     </section>
-
     <section id="cart">
-        <h3>Səbətim</h3>
-        <div id="cartItems"></div>
-        <div id="checkoutArea" style="display:none; margin-top:20px;">
-            <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:15px; font-size: 18px;">
+        <h3>Səbətim</h3><div id="cartItems"></div>
+        <div id="checkoutArea" style="display:none">
+            <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:15px">
                 <span>Cəmi:</span> <span id="totalPrice">0 AZN</span>
             </div>
             <input id="custName" placeholder="Ad və Soyad">
             <input id="custPhone" placeholder="Telefon nömrəsi">
-            <textarea id="custAddress" placeholder="Çatdırılma ünvanı" rows="2"></textarea>
+            <textarea id="custAddress" placeholder="Çatdırılma ünvanı"></textarea>
             <button class="btn btn-primary" onclick="confirmOrder()">Sifarişi Tamamla</button>
         </div>
     </section>
-
-    <section id="track">
-        <h3>Sifariş İzləmə</h3>
-        <div id="trackView"></div>
-    </section>
+    <section id="track"><h3>İzləmə</h3><div id="trackView"></div></section>
 </div>
-
 <div class="nav">
     <div class="nav-item active" onclick="showPage('shop', this)"><i class="fa-solid fa-house"></i>Mağaza</div>
     <div class="nav-item" onclick="showPage('cart', this)"><i class="fa-solid fa-cart-shopping"></i>Səbət</div>
     <div class="nav-item" onclick="showPage('track', this)"><i class="fa-solid fa-truck-fast"></i>İzləmə</div>
 </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-<script>
-    let products = JSON.parse(localStorage.getItem("products")) || [];
-    let cart = [];
-    let selectedForDetail = null;
+    const firebaseConfig = {
+        apiKey: "AIzaSyC4sGTK_P4KperVswrxxmt69H5cocsgnNw",
+        authDomain: "niceuc-e5986.firebaseapp.com",
+        databaseURL: "https://niceuc-e5986-default-rtdb.firebaseio.com",
+        projectId: "niceuc-e5986",
+        storageBucket: "niceuc-e5986.firebasestorage.app",
+        messagingSenderId: "242221260650",
+        appId: "1:242221260650:web:34abd91f7f0ef95e8dcf13"
+    };
 
-    function showPage(id, el) {
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    window.products = []; window.cart = []; window.selectedForDetail = null;
+
+    window.showPage = function(id, el) {
         document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
-        if(id === 'shop') renderShop();
-        if(id === 'cart') renderCart();
-        if(id === 'track') renderTrack();
+        if(el) { document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+        if(id === 'shop') renderShop(); if(id === 'cart') renderCart(); if(id === 'track') renderTrack();
         window.scrollTo(0,0);
-    }
+    };
 
-    function renderShop(filter = "") {
+    onValue(ref(db, 'products'), (snapshot) => {
+        const data = snapshot.val();
+        window.products = data ? Object.values(data) : [];
+        renderShop();
+    });
+
+    window.renderShop = function(filter = "") {
         const list = document.getElementById("productList");
-        const filtered = products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+        const filtered = window.products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
         list.innerHTML = filtered.map(p => `
             <div class="card" onclick="openDetail(${p.id})">
                 <img src="${p.img || 'https://via.placeholder.com/150'}">
-                <div class="card-body">
-                    <b>${p.name}</b>
-                    <div class="price">${p.price} AZN</div>
-                </div>
+                <div class="card-body"><b>${p.name}</b><div class="price">${p.price} AZN</div></div>
             </div>`).join('');
-    }
+    };
 
-    function filterProducts() {
-        renderShop(document.getElementById("searchInput").value);
-    }
+    window.filterProducts = () => renderShop(document.getElementById("searchInput").value);
 
-    function openDetail(id) {
-        selectedForDetail = products.find(p => p.id === id);
-        document.getElementById("dImg").src = selectedForDetail.img;
-        document.getElementById("dName").innerText = selectedForDetail.name;
-        document.getElementById("dPrice").innerText = selectedForDetail.price + " AZN";
-        document.getElementById("dDesc").innerText = selectedForDetail.desc || "";
+    window.openDetail = (id) => {
+        window.selectedForDetail = window.products.find(p => p.id === id);
+        document.getElementById("dImg").src = window.selectedForDetail.img;
+        document.getElementById("dName").innerText = window.selectedForDetail.name;
+        document.getElementById("dPrice").innerText = window.selectedForDetail.price + " AZN";
+        document.getElementById("dDesc").innerText = window.selectedForDetail.desc || "";
         showPage('detail');
-    }
+    };
 
-    function addToCart() {
-        let exist = cart.find(i => i.id === selectedForDetail.id);
-        if(exist) { exist.qty++; } else { cart.push({...selectedForDetail, qty: 1}); }
-        alert("Səbətə əlavə edildi!");
-        showPage('shop');
-    }
+    window.addToCart = () => {
+        let exist = window.cart.find(i => i.id === window.selectedForDetail.id);
+        if(exist) exist.qty++; else window.cart.push({...window.selectedForDetail, qty: 1});
+        alert("Səbətə əlavə edildi!"); showPage('shop');
+    };
 
-    function renderCart() {
-        const area = document.getElementById("cartItems");
-        const checkout = document.getElementById("checkoutArea");
-        if(cart.length === 0) {
-            area.innerHTML = "<p style='text-align:center; padding:30px; color:#94a3b8;'>Səbətiniz boşdur.</p>";
-            checkout.style.display = "none";
-            return;
-        }
-        checkout.style.display = "block";
-        let total = 0;
-        area.innerHTML = cart.map((item, index) => {
+    window.renderCart = () => {
+        const area = document.getElementById("cartItems"); const checkout = document.getElementById("checkoutArea");
+        if(window.cart.length === 0) { area.innerHTML = "<p style='text-align:center'>Səbət boşdur.</p>"; checkout.style.display = "none"; return; }
+        checkout.style.display = "block"; let total = 0;
+        area.innerHTML = window.cart.map((item, index) => {
             total += (Number(item.price) * item.qty);
-            return `
-            <div class="cart-item">
-                <img src="${item.img}">
-                <div style="flex-grow:1;">
-                    <b>${item.name}</b><br>
-                    <span style="color:var(--primary)">${item.price} AZN</span>
-                    <div class="qty-btn">
-                        <button onclick="changeQty(${index}, -1)">-</button>
-                        <span>${item.qty}</span>
-                        <button onclick="changeQty(${index}, 1)">+</button>
-                    </div>
-                </div>
-            </div>`;
+            return `<div class="cart-item"><img src="${item.img}"><div style="flex-grow:1"><b>${item.name}</b><br>
+            <span style="color:var(--primary)">${item.price} AZN</span>
+            <div class="qty-btn"><button onclick="changeQty(${index},-1)">-</button><span>${item.qty}</span><button onclick="changeQty(${index},1)">+</button></div></div></div>`;
         }).join('');
         document.getElementById("totalPrice").innerText = total + " AZN";
-    }
+    };
 
-    function changeQty(index, val) {
-        cart[index].qty += val;
-        if(cart[index].qty < 1) cart.splice(index, 1);
-        renderCart();
-    }
+    window.changeQty = (idx, val) => { window.cart[idx].qty += val; if(window.cart[idx].qty < 1) window.cart.splice(idx,1); renderCart(); };
 
-    function confirmOrder() {
+    window.confirmOrder = () => {
         const name = document.getElementById("custName").value;
         const phone = document.getElementById("custPhone").value;
         const addr = document.getElementById("custAddress").value;
         if(!name || !phone || !addr) return alert("Məlumatları doldurun!");
-
         const orderId = Math.floor(100000 + Math.random() * 900000);
-        const newOrder = { 
-            id: orderId, 
-            customer: name, 
-            phone, 
-            address: addr, 
-            status: "Sifariş verildi", 
-            total: document.getElementById("totalPrice").innerText, 
-            date: new Date().toLocaleDateString('az-AZ'),
-            items: cart.map(i => `${i.name} (${i.qty} ədəd)`)
-        };
+        const newOrder = { id: orderId, customer: name, phone, address: addr, status: "Sifariş verildi", total: document.getElementById("totalPrice").innerText, date: new Date().toLocaleDateString('az-AZ'), items: window.cart.map(i => `${i.name} (${i.qty} ədəd)`) };
+        set(ref(db, 'orders/' + orderId), newOrder).then(() => { localStorage.setItem("lastOrderId", orderId); window.cart = []; alert("Kod: #" + orderId); showPage('track'); });
+    };
 
-        let orders = JSON.parse(localStorage.getItem("orders")) || [];
-        orders.push(newOrder);
-        localStorage.setItem("orders", JSON.stringify(orders));
-        localStorage.setItem("lastOrderId", orderId);
-
-        cart = [];
-        alert("Sifarişiniz uğurla alındı! Kod: #" + orderId);
-        showPage('track');
-    }
-
-    function renderTrack() {
-        const area = document.getElementById("trackView");
-        const lastId = localStorage.getItem("lastOrderId");
-        let orders = JSON.parse(localStorage.getItem("orders")) || [];
-        const myOrder = orders.find(o => o.id == lastId);
-        if(!myOrder) {
-            area.innerHTML = "<p style='text-align:center; padding:40px; color:#94a3b8;'>Aktiv sifariş tapılmadı.</p>";
-            return;
-        }
-        const stages = ["Sifariş verildi", "Hazırlanır", "Kuryerə verildi", "Təhvil verildi"];
-        const currentIdx = stages.indexOf(myOrder.status);
-        area.innerHTML = `
-            <div class="status-box">
-                <b style="color:var(--primary)">Sifariş #${myOrder.id}</b><br>
-                <small>${myOrder.date}</small><br><br>
-                ${stages.map((s, i) => `
-                    <div class="step ${i <= currentIdx ? 'done' : ''}">
-                        <div class="dot"></div>
-                        <span>${s}</span>
-                    </div>`).join('')}
-            </div>`;
-    }
-    renderShop();
+    window.renderTrack = () => {
+        const area = document.getElementById("trackView"); const lastId = localStorage.getItem("lastOrderId");
+        if(!lastId) { area.innerHTML = "<p style='text-align:center'>Sifariş tapılmadı.</p>"; return; }
+        onValue(ref(db, 'orders/' + lastId), (snapshot) => {
+            const myOrder = snapshot.val(); if(!myOrder) return;
+            const stages = ["Sifariş verildi", "Hazırlanır", "Kuryerə verildi", "Təhvil verildi"];
+            const currentIdx = stages.indexOf(myOrder.status);
+            area.innerHTML = `<div class="status-box"><b>Sifariş #${myOrder.id}</b><br><small>${myOrder.date}</small><br><br>
+                ${stages.map((s, i) => `<div class="step ${i <= currentIdx ? 'done' : ''}"><div class="dot"></div><span>${s}</span></div>`).join('')}</div>`;
+        });
+    };
 </script>
 </body>
 </html>
