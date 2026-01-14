@@ -3,48 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I N C I | Alış-Veriş</title>
+    <title>I N C I | Mağaza</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --success: #10b981; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 80px; }
         header { background: white; padding: 15px; text-align: center; font-weight: 800; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        
         .container { padding: 12px; max-width: 500px; margin: auto; }
         
-        /* Məhsul Grid */
+        .search-box { position: relative; margin-bottom: 15px; }
+        .search-box input { width: 100%; padding: 12px 40px 12px 15px; border-radius: 10px; border: 1px solid #e2e8f0; outline: none; box-sizing: border-box; }
+        .search-box i { position: absolute; right: 15px; top: 13px; color: #94a3b8; }
+
         .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        
         section { display: none; animation: fadeIn 0.3s ease; }
         .active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #edf2f7; cursor: pointer; }
-        .card img { width: 100%; height: 150px; object-fit: cover; background: #eee; }
+        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #edf2f7; }
+        .card img { width: 100%; height: 150px; object-fit: cover; }
         .card-body { padding: 10px; }
-        .card-body b { font-size: 14px; display: block; height: 38px; overflow: hidden; color: #334155; }
-        .price { color: var(--primary); font-weight: 700; font-size: 16px; margin-top: 6px; }
+        .price { color: var(--primary); font-weight: 700; font-size: 16px; }
         
-        /* Düymələr və Inputlar */
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 15px; margin-bottom: 8px; }
+        .qty-btn { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+        .qty-btn button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: bold; }
+
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 15px; margin-bottom: 8px; }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:active { transform: scale(0.97); }
-        input, select, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; font-size: 15px; font-family: inherit; }
-
-        /* Səbət və Ödəniş */
-        .cart-item { display: flex; align-items: center; background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #edf2f7; }
-        .cart-item img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; margin-right: 12px; }
-        .payment-box { background: #f1f5f9; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-
-        /* İzləmə statusu */
-        .status-box { background: white; padding: 20px; border-radius: 15px; margin-top: 15px; }
-        .step { display: flex; align-items: center; margin-bottom: 18px; position: relative; color: #94a3b8; }
-        .step.done { color: var(--success); font-weight: 600; }
-        .dot { width: 14px; height: 14px; border-radius: 50%; background: #e2e8f0; margin-right: 15px; }
-        .step.done .dot { background: var(--success); box-shadow: 0 0 0 4px #d1fae5; }
+        input, textarea { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; }
         
-        /* Naviqasiya */
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #e2e8f0; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); }
+        .cart-item { display: flex; align-items: center; background: white; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #edf2f7; }
+        .cart-item img { width: 55px; height: 55px; border-radius: 8px; margin-right: 12px; object-fit: cover; }
+        
+        .status-box { background: white; padding: 20px; border-radius: 15px; margin-top: 15px; }
+        .step { display: flex; align-items: center; margin-bottom: 18px; color: #94a3b8; }
+        .step.done { color: var(--success); font-weight: 600; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; background: #e2e8f0; margin-right: 15px; }
+        .step.done .dot { background: var(--success); }
+
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #e2e8f0; }
         .nav-item { text-align: center; color: #94a3b8; font-size: 11px; cursor: pointer; flex: 1; }
         .nav-item.active { color: var(--primary); }
         .nav-item i { font-size: 22px; display: block; margin-bottom: 3px; }
@@ -56,6 +53,10 @@
 
 <div class="container">
     <section id="shop" class="active">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Məhsul axtar..." onkeyup="filterProducts()">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
         <div class="product-grid" id="productList"></div>
     </section>
 
@@ -63,50 +64,31 @@
         <div class="card" style="cursor: default;">
             <img id="dImg">
             <div class="card-body">
-                <h2 id="dName" style="margin:0; font-size: 20px;"></h2>
+                <h2 id="dName" style="margin:0;"></h2>
                 <div class="price" id="dPrice" style="font-size: 20px; margin: 10px 0;"></div>
                 <p id="dDesc" style="color:#64748b; font-size: 14px; line-height: 1.5;"></p>
                 <button class="btn btn-primary" onclick="addToCart()">Səbətə Əlavə Et</button>
-                <button class="btn" style="background: #f1f5f9;" onclick="showPage('shop')">Geri Qayıt</button>
+                <button class="btn" style="background: #f1f5f9;" onclick="showPage('shop')">Geri</button>
             </div>
         </div>
     </section>
 
     <section id="cart">
-        <h3 style="margin-top:0">Səbətim</h3>
+        <h3>Səbətim</h3>
         <div id="cartItems"></div>
-        
-        <div id="checkoutArea" style="display:none; margin-top:20px; border-top: 2px dashed #e2e8f0; padding-top: 20px;">
-            <div style="display:flex; justify-content:space-between; font-size: 18px; font-weight: 800; margin-bottom: 15px;">
-                <span>Cəmi Məbləğ:</span> <span id="totalPrice">0 AZN</span>
+        <div id="checkoutArea" style="display:none; margin-top:20px;">
+            <div style="display:flex; justify-content:space-between; font-weight:800; margin-bottom:15px; font-size: 18px;">
+                <span>Cəmi:</span> <span id="totalPrice">0 AZN</span>
             </div>
-
             <input id="custName" placeholder="Ad və Soyad">
-            <input id="custPhone" placeholder="Telefon nömrəsi" type="tel">
-            <textarea id="custAddress" placeholder="Çatdırılma ünvanı (Küçə, bina, mənzil)" rows="2"></textarea>
-
-            <div class="payment-box">
-                <label style="font-weight: 600; display: block; margin-bottom: 8px;">Ödəniş Üsulu:</label>
-                <select id="payMethod" onchange="toggleCardInputs()">
-                    <option value="cash">Qapıda nağd ödəniş</option>
-                    <option value="card">Onlayn Kartla ödəniş</option>
-                </select>
-
-                <div id="cardDetails" style="display:none; transition: 0.3s;">
-                    <input id="cardNum" placeholder="16 rəqəmli kod" maxlength="16">
-                    <div style="display:flex; gap:10px;">
-                        <input id="cardExp" placeholder="AA/İİ" maxlength="5">
-                        <input id="cardCvv" placeholder="CVV" maxlength="3" type="password">
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn btn-primary" onclick="confirmOrder()">Sifarişi Təsdiqlə</button>
+            <input id="custPhone" placeholder="Telefon nömrəsi">
+            <textarea id="custAddress" placeholder="Çatdırılma ünvanı" rows="2"></textarea>
+            <button class="btn btn-primary" onclick="confirmOrder()">Sifarişi Tamamla</button>
         </div>
     </section>
 
     <section id="track">
-        <h3 style="margin-top:0">Sifariş İzləmə</h3>
+        <h3>Sifariş İzləmə</h3>
         <div id="trackView"></div>
     </section>
 </div>
@@ -118,11 +100,7 @@
 </div>
 
 <script>
-    // Məlumat bazası (Local)
-    let products = JSON.parse(localStorage.getItem("products")) || [
-        {id: 1, name: "İnci Boyunbağı", price: 45, img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=300", desc: "Təbii inci və gümüş detallar."},
-        {id: 2, name: "Qızılı Sırğa", price: 25, img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=301", desc: "Zərif gündəlik istifadə üçün."}
-    ];
+    let products = JSON.parse(localStorage.getItem("products")) || [];
     let cart = [];
     let selectedForDetail = null;
 
@@ -139,11 +117,12 @@
         window.scrollTo(0,0);
     }
 
-    function renderShop() {
+    function renderShop(filter = "") {
         const list = document.getElementById("productList");
-        list.innerHTML = products.map(p => `
+        const filtered = products.filter(p => p.name.toLowerCase().includes(filter.toLowerCase()));
+        list.innerHTML = filtered.map(p => `
             <div class="card" onclick="openDetail(${p.id})">
-                <img src="${p.img}">
+                <img src="${p.img || 'https://via.placeholder.com/150'}">
                 <div class="card-body">
                     <b>${p.name}</b>
                     <div class="price">${p.price} AZN</div>
@@ -151,18 +130,23 @@
             </div>`).join('');
     }
 
+    function filterProducts() {
+        renderShop(document.getElementById("searchInput").value);
+    }
+
     function openDetail(id) {
         selectedForDetail = products.find(p => p.id === id);
         document.getElementById("dImg").src = selectedForDetail.img;
         document.getElementById("dName").innerText = selectedForDetail.name;
         document.getElementById("dPrice").innerText = selectedForDetail.price + " AZN";
-        document.getElementById("dDesc").innerText = selectedForDetail.desc;
+        document.getElementById("dDesc").innerText = selectedForDetail.desc || "";
         showPage('detail');
     }
 
     function addToCart() {
-        cart.push({...selectedForDetail});
-        alert("Məhsul səbətə əlavə olundu!");
+        let exist = cart.find(i => i.id === selectedForDetail.id);
+        if(exist) { exist.qty++; } else { cart.push({...selectedForDetail, qty: 1}); }
+        alert("Səbətə əlavə edildi!");
         showPage('shop');
     }
 
@@ -170,53 +154,53 @@
         const area = document.getElementById("cartItems");
         const checkout = document.getElementById("checkoutArea");
         if(cart.length === 0) {
-            area.innerHTML = "<div style='text-align:center; padding:50px;'><i class='fa-solid fa-basket-shopping' style='font-size:40px; color:#cbd5e1;'></i><p style='color:#94a3b8;'>Səbətiniz hələ boşdur.</p></div>";
+            area.innerHTML = "<p style='text-align:center; padding:30px; color:#94a3b8;'>Səbətiniz boşdur.</p>";
             checkout.style.display = "none";
             return;
         }
         checkout.style.display = "block";
         let total = 0;
         area.innerHTML = cart.map((item, index) => {
-            total += Number(item.price);
+            total += (Number(item.price) * item.qty);
             return `
             <div class="cart-item">
                 <img src="${item.img}">
-                <div class="cart-info">
-                    <div style="font-weight:600">${item.name}</div>
-                    <div style="color:var(--primary); font-weight:700">${item.price} AZN</div>
+                <div style="flex-grow:1;">
+                    <b>${item.name}</b><br>
+                    <span style="color:var(--primary)">${item.price} AZN</span>
+                    <div class="qty-btn">
+                        <button onclick="changeQty(${index}, -1)">-</button>
+                        <span>${item.qty}</span>
+                        <button onclick="changeQty(${index}, 1)">+</button>
+                    </div>
                 </div>
-                <button onclick="removeFromCart(${index})" style="border:none; background:none; color:#ef4444; font-size:18px; cursor:pointer;">&times;</button>
             </div>`;
         }).join('');
         document.getElementById("totalPrice").innerText = total + " AZN";
     }
 
-    function removeFromCart(index) {
-        cart.splice(index, 1);
+    function changeQty(index, val) {
+        cart[index].qty += val;
+        if(cart[index].qty < 1) cart.splice(index, 1);
         renderCart();
-    }
-
-    function toggleCardInputs() {
-        const method = document.getElementById("payMethod").value;
-        document.getElementById("cardDetails").style.display = method === "card" ? "block" : "none";
     }
 
     function confirmOrder() {
         const name = document.getElementById("custName").value;
         const phone = document.getElementById("custPhone").value;
-        const address = document.getElementById("custAddress").value;
-        const method = document.getElementById("payMethod").value;
-
-        if(!name || !phone || !address) return alert("Zəhmət olmasa bütün sahələri doldurun!");
-        if(method === 'card' && !document.getElementById("cardNum").value) return alert("Kart məlumatlarını daxil edin!");
+        const addr = document.getElementById("custAddress").value;
+        if(!name || !phone || !addr) return alert("Məlumatları doldurun!");
 
         const orderId = Math.floor(100000 + Math.random() * 900000);
-        const newOrder = {
-            id: orderId,
-            customer: name,
-            status: "Sifariş verildi",
+        const newOrder = { 
+            id: orderId, 
+            customer: name, 
+            phone, 
+            address: addr, 
+            status: "Sifariş verildi", 
+            total: document.getElementById("totalPrice").innerText, 
             date: new Date().toLocaleDateString('az-AZ'),
-            total: document.getElementById("totalPrice").innerText
+            items: cart.map(i => `${i.name} (${i.qty} ədəd)`)
         };
 
         let orders = JSON.parse(localStorage.getItem("orders")) || [];
@@ -224,8 +208,8 @@
         localStorage.setItem("orders", JSON.stringify(orders));
         localStorage.setItem("lastOrderId", orderId);
 
-        alert("Təbriklər! Sifarişiniz qəbul olundu. İzləmə kodu: #" + orderId);
         cart = [];
+        alert("Sifarişiniz uğurla alındı! Kod: #" + orderId);
         showPage('track');
     }
 
@@ -234,32 +218,24 @@
         const lastId = localStorage.getItem("lastOrderId");
         let orders = JSON.parse(localStorage.getItem("orders")) || [];
         const myOrder = orders.find(o => o.id == lastId);
-
         if(!myOrder) {
             area.innerHTML = "<p style='text-align:center; padding:40px; color:#94a3b8;'>Aktiv sifariş tapılmadı.</p>";
             return;
         }
-
         const stages = ["Sifariş verildi", "Hazırlanır", "Kuryerə verildi", "Təhvil verildi"];
         const currentIdx = stages.indexOf(myOrder.status);
-
         area.innerHTML = `
             <div class="status-box">
-                <div style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                    <b>Sifariş #${myOrder.id}</b> - <span style="color:var(--primary)">${myOrder.total}</span>
-                </div>
+                <b style="color:var(--primary)">Sifariş #${myOrder.id}</b><br>
+                <small>${myOrder.date}</small><br><br>
                 ${stages.map((s, i) => `
                     <div class="step ${i <= currentIdx ? 'done' : ''}">
                         <div class="dot"></div>
                         <span>${s}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
+                    </div>`).join('')}
+            </div>`;
     }
-
     renderShop();
 </script>
-
 </body>
 </html>
