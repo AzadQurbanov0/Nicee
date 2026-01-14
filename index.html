@@ -6,43 +6,32 @@
     <title>I N C I | Mağaza</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --success: #10b981; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding-bottom: 80px; }
-        header { background: white; padding: 15px; text-align: center; font-weight: 800; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; font-size: 20px; letter-spacing: 2px; }
-        .container { padding: 12px; max-width: 500px; margin: auto; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); padding-bottom: 80px; }
+        header { background: white; padding: 15px; text-align: center; font-weight: 800; color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; font-size: 22px; }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
         
-        /* Axtarış qutusu */
         .search-box { position: relative; margin-bottom: 20px; }
-        .search-box input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; outline: none; box-sizing: border-box; background: white; font-size: 15px; }
+        .search-box input { width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; outline: none; box-sizing: border-box; font-size: 16px; }
         .search-box i { position: absolute; right: 15px; top: 14px; color: #94a3b8; }
 
-        /* Məhsul kartları - Əvvəlki stil */
         .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; transition: 0.3s; }
-        .card img { width: 100%; height: 160px; object-fit: cover; }
+        .card { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        .card img { width: 100%; height: 160px; object-fit: cover; background: #eee; }
         .card-body { padding: 12px; }
-        .card-body b { font-size: 16px; display: block; margin-bottom: 4px; }
-        .price { color: var(--primary); font-weight: 800; font-size: 17px; margin-bottom: 8px; }
+        .card-body b { font-size: 17px; display: block; margin-bottom: 5px; }
+        .price { color: var(--primary); font-weight: 800; font-size: 18px; margin-bottom: 10px; }
         
-        /* Düymə stili - Şəkildəki kimi */
-        .add-btn { background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; }
+        /* Şəkildəki göy düymə stili */
+        .add-btn { background: var(--primary); color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; font-size: 14px; }
 
         section { display: none; }
-        .active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .active { display: block; }
 
-        /* Alt Naviqasiya - İkonlarla */
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 10px 0; border-top: 1px solid #f1f5f9; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); }
-        .nav-item { text-align: center; color: #94a3b8; font-size: 12px; flex: 1; cursor: pointer; transition: 0.3s; }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 4px; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-
-        /* Sifariş izləmə stili */
-        .status-box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .step { display: flex; align-items: center; margin-bottom: 20px; color: #cbd5e1; }
-        .step.done { color: var(--success); font-weight: 600; }
-        .dot { width: 14px; height: 14px; border-radius: 50%; background: #e2e8f0; margin-right: 15px; }
-        .step.done .dot { background: var(--success); box-shadow: 0 0 8px var(--success); }
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 12px 0; border-top: 1px solid #f1f5f9; box-shadow: 0 -2px 15px rgba(0,0,0,0.05); }
+        .nav-item { text-align: center; color: #94a3b8; flex: 1; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .nav-item i { font-size: 24px; display: block; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
     </style>
 </head>
 <body>
@@ -52,30 +41,12 @@
 <div class="container">
     <section id="shop" class="active">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="Məhsul axtar..." onkeyup="filterProducts()">
+            <input type="text" placeholder="Məhsul axtar...">
             <i class="fa-solid fa-magnifying-glass"></i>
         </div>
         <div class="product-grid" id="productList">Yüklənir...</div>
     </section>
-
-    <section id="cart">
-        <h3 style="margin-bottom: 20px;">Səbətim</h3>
-        <div id="cartItems"></div>
-        <div id="checkoutArea" style="display:none; background:white; padding:20px; border-radius:15px; margin-top:20px;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <span>Cəmi:</span> <b id="totalPrice" style="font-size: 20px;">0 AZN</b>
-            </div>
-            <input id="custName" placeholder="Ad Soyad" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;">
-            <input id="custPhone" placeholder="Telefon" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ddd;">
-            <button onclick="confirmOrder()" style="width:100%; background:var(--primary); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;">Sifarişi Tamamla</button>
-        </div>
-    </section>
-
-    <section id="track">
-        <h3 style="margin-bottom: 20px;">Sifariş İzləmə</h3>
-        <div id="trackView"></div>
-    </section>
-</div>
+    </div>
 
 <div class="nav">
     <div class="nav-item active" onclick="showPage('shop', this)"><i class="fa-solid fa-house"></i>Mağaza</div>
@@ -98,88 +69,31 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let cart = [];
-
-    function showPage(id, el) {
-        document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(el) {
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
-        if(id === 'track') renderTrack();
-    }
 
     db.ref('products').on('value', snap => {
         let products = snap.val();
         let html = "";
         for(let id in products) {
             let p = products[id];
+            // Əgər şəkil linki xətalıdırsa, placeholder göstər
+            let imageSrc = p.img && p.img.includes('http') ? p.img : 'https://via.placeholder.com/150?text=No+Image';
             html += `
             <div class="card">
-                <img src="${p.img || 'https://via.placeholder.com/150'}">
+                <img src="${imageSrc}" onerror="this.src='https://via.placeholder.com/150?text=Error'">
                 <div class="card-body">
                     <b>${p.name}</b>
                     <div class="price">${p.price} AZN</div>
-                    <button class="add-btn" onclick="addToCart('${p.name}', '${p.price}')">Səbətə at</button>
+                    <button class="add-btn">Səbətə at</button>
                 </div>
             </div>`;
         }
-        document.getElementById("productList").innerHTML = html;
+        document.getElementById("productList").innerHTML = html || "<p>Hələlik məhsul yoxdur.</p>";
     });
 
-    window.addToCart = (name, price) => {
-        cart.push({name, price});
-        alert("Səbətə əlavə olundu!");
-        renderCart();
-    }
-
-    function renderCart() {
-        const area = document.getElementById("cartItems");
-        if(cart.length === 0) { area.innerHTML = "<p style='text-align:center;color:#94a3b8;'>Səbət boşdur</p>"; return; }
-        document.getElementById("checkoutArea").style.display = "block";
-        let total = 0;
-        area.innerHTML = cart.map(i => {
-            total += parseFloat(i.price);
-            return `<div style="background:white; padding:15px; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between;">
-                <span>${i.name}</span> <b>${i.price} AZN</b>
-            </div>`;
-        }).join('');
-        document.getElementById("totalPrice").innerText = total.toFixed(2) + " AZN";
-    }
-
-    window.confirmOrder = () => {
-        const orderId = Math.floor(100000 + Math.random() * 900000);
-        db.ref('orders').push({
-            id: orderId,
-            customer: document.getElementById("custName").value,
-            phone: document.getElementById("custPhone").value,
-            total: document.getElementById("totalPrice").innerText,
-            status: "Sifariş verildi",
-            items: cart.map(c => c.name)
-        });
-        localStorage.setItem("lastOrderId", orderId);
-        alert("Sifarişiniz alındı! Kod: " + orderId);
-        cart = [];
-        showPage('track');
-    };
-
-    function renderTrack() {
-        const lastId = localStorage.getItem("lastOrderId");
-        db.ref('orders').on('value', snap => {
-            let orders = snap.val();
-            let myOrder = null;
-            for(let id in orders) { if(orders[id].id == lastId) myOrder = orders[id]; }
-            if(myOrder) {
-                const stages = ["Sifariş verildi", "Hazırlanır", "Kuryerə verildi", "Təhvil verildi"];
-                const currentIdx = stages.indexOf(myOrder.status);
-                document.getElementById("trackView").innerHTML = `
-                <div class="status-box">
-                    <b style="color:var(--primary); font-size:18px;">Sifariş #${myOrder.id}</b><br><br>
-                    ${stages.map((s, i) => `<div class="step ${i <= currentIdx ? 'done' : ''}"><div class="dot"></div>${s}</div>`).join('')}
-                </div>`;
-            }
-        });
+    function showPage(id, el) {
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+        // Səhifə dəyişmə məntiqi bura...
     }
 </script>
 </body>
