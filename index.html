@@ -24,24 +24,28 @@
         .card-body { padding: 10px; }
         .add-btn { background: var(--main); color: white; border: none; width: 100%; padding: 8px; border-radius: 10px; cursor: pointer; font-weight: bold; }
 
-        /* Səbət Elementləri */
+        /* Səbət */
         .cart-item { display: flex; align-items: center; background: white; padding: 10px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #eee; }
         .cart-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-right: 12px; }
         .cart-info { flex-grow: 1; }
         .qty-controls { display: flex; align-items: center; gap: 10px; }
         .qty-btn { background: #eee; border: none; width: 25px; height: 25px; border-radius: 5px; cursor: pointer; }
 
-        /* Səbət Sayğacı (Qırmızı dairə) */
+        /* Səbət Sayğacı */
         .nav-item { position: relative; }
         .badge { position: absolute; top: -5px; right: 20%; background: red; color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; display: none; }
 
-        /* İzləmə Animasiyası */
+        /* İzləmə Animasiyası və Saatlar */
         .order-card-tracking { background: white; border-radius: 20px; padding: 15px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .track-line { display: flex; justify-content: space-between; margin-top: 15px; }
-        .track-step { text-align: center; flex: 1; opacity: 0.2; }
+        .track-step { text-align: center; flex: 1; opacity: 0.2; position: relative; }
         .track-step.active { opacity: 1; color: var(--green); }
+        .track-step i { font-size: 18px; margin-bottom: 5px; }
+        .step-label { font-size: 10px; font-weight: bold; }
+        .step-time { font-size: 9px; color: #64748b; display: block; margin-top: 2px; }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         .track-step.active i { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
 
         /* Naviqasiya */
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
@@ -99,6 +103,7 @@
     const db = firebase.database();
     let allProducts = [], cart = [], currentCat = "Hamısı";
 
+    // Məhsulları yüklə
     db.ref('products').on('value', snap => {
         allProducts = []; let cats = new Set(["Hamısı"]);
         snap.forEach(c => { let p = c.val(); p.id = c.key; allProducts.push(p); if(p.category) cats.add(p.category); });
@@ -141,33 +146,19 @@
     function updateCartUI() {
         const cartItems = document.getElementById("cartItems");
         const badge = document.getElementById("cartCount");
-        
         if(cart.length === 0) {
             cartItems.innerHTML = "Səbət boşdur.";
             document.getElementById("checkoutForm").style.display = "none";
             badge.style.display = "none";
             return;
         }
-
         badge.style.display = "block";
         badge.innerText = cart.reduce((a, b) => a + b.qty, 0);
         document.getElementById("checkoutForm").style.display = "block";
-        
         let total = 0;
         cartItems.innerHTML = cart.map(i => {
             total += i.price * i.qty;
-            return `<div class="cart-item">
-                <img src="${i.img}">
-                <div class="cart-info">
-                    <b>${i.name}</b><br>
-                    <span style="color:var(--main)">${i.price} AZN</span>
-                </div>
-                <div class="qty-controls">
-                    <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
-                    <b>${i.qty}</b>
-                    <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
-                </div>
-            </div>`;
+            return `<div class="cart-item"><img src="${i.img}"><div class="cart-info"><b>${i.name}</b><br><span style="color:var(--main)">${i.price} AZN</span></div><div class="qty-controls"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button><b>${i.qty}</b><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`;
         }).join('');
         document.getElementById("totalPrice").innerText = total.toFixed(2);
     }
@@ -177,6 +168,10 @@
         if(phone.length < 10) return alert("Düzgün nömrə yazın!");
         localStorage.setItem("userPhone", phone);
         
+        // Cari saatı alırıq
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+
         db.ref('orders').push({
             id: Math.floor(100000 + Math.random() * 900000),
             customer: document.getElementById("userName").value,
@@ -184,6 +179,7 @@
             address: document.getElementById("userAddr").value,
             total: document.getElementById("totalPrice").innerText + " AZN",
             status: "Sifariş verildi",
+            orderTime: timeStr, // Sifariş vaxtı
             items: cart.map(i => `${i.name} (x${i.qty})`).join(", "),
             itemImages: cart.map(i => i.img)
         }).then(() => { 
@@ -201,16 +197,37 @@
                 if(o.phone === phone) {
                     const steps = ["Sifariş verildi", "Hazırlanır", "Paketləmə", "Yola düşüb", "Təhvil verildi"];
                     let idx = steps.indexOf(o.status);
-                    html += `<div class="order-card-tracking">
-                        <div style="display:flex; justify-content:space-between"><b>#${o.id}</b> <span>${o.total}</span></div>
+                    
+                    html += `
+                    <div class="order-card-tracking">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b>#${o.id}</b> 
+                            <span style="font-size:11px; background:#e2e8f0; padding:2px 8px; border-radius:10px;">${o.total}</span>
+                        </div>
                         <div style="margin:10px 0; display:flex; gap:5px; overflow-x:auto;">
                             ${o.itemImages ? o.itemImages.map(img => `<img src="${img}" style="width:40px;height:40px;border-radius:5px;object-fit:cover;">`).join('') : ''}
                         </div>
                         <div class="track-line">
-                            <div class="track-step ${idx>=0?'active':''}"><i class="fas fa-check-circle"></i><div class="step-label">Sifariş</div></div>
-                            <div class="track-step ${idx>=2?'active':''}"><i class="fas fa-box"></i><div class="step-label">Paketlenib</div></div>
-                            <div class="track-step ${idx>=3?'active':''}"><i class="fas fa-motorcycle"></i><div class="step-label">Kuryerdə</div></div>
-                            <div class="track-step ${idx>=4?'active':''}"><i class="fas fa-home"></i><div class="step-label">Çatdı</div></div>
+                            <div class="track-step ${idx>=0?'active':''}">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="step-label">Sifariş</div>
+                                <span class="step-time">${o.orderTime || '--:--'}</span>
+                            </div>
+                            <div class="track-step ${idx>=2?'active':''}">
+                                <i class="fas fa-box"></i>
+                                <div class="step-label">Paket</div>
+                                <span class="step-time">${o.packTime || '--:--'}</span>
+                            </div>
+                            <div class="track-step ${idx>=3?'active':''}">
+                                <i class="fas fa-motorcycle"></i>
+                                <div class="step-label">Kuryer</div>
+                                <span class="step-time">${o.courierTime || '--:--'}</span>
+                            </div>
+                            <div class="track-step ${idx>=4?'active':''}">
+                                <i class="fas fa-home"></i>
+                                <div class="step-label">Çatdı</div>
+                                <span class="step-time">${o.deliveryTime || '--:--'}</span>
+                            </div>
                         </div>
                     </div>`;
                 }
